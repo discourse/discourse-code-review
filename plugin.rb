@@ -4,6 +4,13 @@
 # authors: Sam Saffron
 # url: https://github.com/discourse/discourse-code-review
 
+# match version in discourse dev
+begin
+  require 'octokit'
+rescue LoadError
+  gem 'octokit', '4.9.0'
+end
+
 after_initialize do
 
   module ::DiscourseCodeReview
