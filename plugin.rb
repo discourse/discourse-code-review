@@ -34,6 +34,8 @@ after_initialize do
 
     def self.commits_since(hash = nil)
 
+      git("pull")
+
       hash ||= last_commit
 
       # hash name email subject body
@@ -68,7 +70,14 @@ after_initialize do
     end
 
     def self.git(command)
-      Dir.chdir('/home/sam/Source/discourse') do
+      raise "No repo configured" if SiteSetting.code_review_github_repo.blank?
+      path = (Rails.root + "tmp/code-review-repo").to_s
+
+      if !File.exist?(path)
+        `git clone https://github.com/#{SiteSetting.code_review_github_repo}.git '#{path}'`
+      end
+
+      Dir.chdir(path) do
         `git #{command}`.strip
       end
     end

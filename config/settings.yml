@@ -1,4 +1,5 @@
 plugins:
+  code_review_github_repo: ""
   code_review_pending_category_id:
     hidden: true
     default: -1

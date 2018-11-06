@@ -1,0 +1,3 @@
+en:
+  site_settings:
+    code_review_github_repo: 'name of github repo you wish to track eg: discourse/discourse'

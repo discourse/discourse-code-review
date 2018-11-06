@@ -1,7 +1,7 @@
 module Jobs
 
   class ::DiscourseCodeReview::ImportCommits < Jobs::Scheduled
-    #every 1.minute
+    every 1.minute
 
     def execute(args = nil)
 
