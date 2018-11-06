@@ -1,0 +1,8 @@
+en:
+  js:
+    action_codes:
+      approved: "Approved"
+    code_review:
+      approve:
+        title: "Approve commit"
+        label: "Approve"

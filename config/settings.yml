@@ -1,0 +1,7 @@
+plugins:
+  code_review_pending_category_id:
+    hidden: true
+    default: -1
+  code_review_approved_category_id:
+    hidden: true
+    default: -1
