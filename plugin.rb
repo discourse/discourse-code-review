@@ -23,6 +23,8 @@ after_initialize do
 
     LastCommit = 'last commit'
     CommitHash = 'commit hash'
+    GithubId = 'github id'
+    CommentPage = 'comment page'
 
     def self.last_commit
       PluginStore.get(DiscourseCodeReview::PluginName, LastCommit) ||
@@ -34,10 +36,38 @@ after_initialize do
       v
     end
 
+    def self.current_comment_page
+      (PluginStore.get(DiscourseCodeReview::PluginName, CommentPage) || 1).to_i
+    end
+
+    def self.current_comment_page=(v)
+      PluginStore.set(DiscourseCodeReview::PluginName, CommentPage, v)
+      v
+    end
+
     LINE_END = "52fc72dfa9cafa9da5e6266810b884ae"
     FEILD_END = "52fc72dfa9cafa9da5e6266810b884ff"
 
     MAX_DIFF_LENGTH = 8000
+
+    def self.commit_comments(page)
+
+      Octokit.list_commit_comments(SiteSetting.code_review_github_repo, page: page).map do |hash|
+        login = hash[:user][:login] if hash[:user]
+        {
+          url: hash[:html_url],
+          id: hash[:id],
+          login: login,
+          position: hash[:position],
+          line: hash[:line],
+          commit_hash: hash[:commit_id],
+          created_at: hash[:created_at],
+          updated_at: hash[:updated_at],
+          body: hash[:body]
+        }
+      end
+
+    end
 
     def self.commits_since(hash = nil)
 
