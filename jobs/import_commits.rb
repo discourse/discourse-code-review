@@ -51,8 +51,9 @@ module Jobs
     end
 
     def import_comments
-      # 140
-      page = 140 # DiscourseCodeReview.current_comment_page
+      # 140 is a good page for Discourse :)
+      # for testing
+      page = DiscourseCodeReview.current_comment_page
 
       while true
         comments = DiscourseCodeReview.commit_comments(page)
