@@ -11,6 +11,54 @@ rescue LoadError
   gem 'octokit', '4.9.0'
 end
 
+enabled_site_setting :code_review_enabled
+
+require_dependency 'auth/github_authenticator'
+module HackGithubAuthenticator
+
+  def after_authenticate(auth_token, existing_account: nil)
+    result = super(auth_token, existing_account: existing_account)
+
+    if SiteSetting.code_review_enabled
+      if user_id = result.user&.id
+
+        token = auth_token.credentials.token
+
+        user = result.user
+        user.custom_fields[DiscourseCodeReview::UserToken] = token
+        user.custom_fields[DiscourseCodeReview::GithubId] = auth_token[:uid]
+        user.custom_fields[DiscourseCodeReview::GithubLogin] = auth_token.info.nickname
+        user.save_custom_fields
+
+      end
+    end
+
+    result
+  end
+
+  def register_middleware(omniauth)
+    scope = "user:email"
+
+    if SiteSetting.code_review_enabled && SiteSetting.code_review_github_repo.present?
+      scope = "user:email,repo"
+    end
+
+    scope = "user:email,repo"
+
+    omniauth.provider :github,
+           setup: lambda { |env|
+             strategy = env["omniauth.strategy"]
+              strategy.options[:client_id] = SiteSetting.github_client_id
+              strategy.options[:client_secret] = SiteSetting.github_client_secret
+           },
+           scope: scope
+  end
+end
+
+class ::Auth::GithubAuthenticator
+  prepend HackGithubAuthenticator
+end
+
 after_initialize do
 
   module ::DiscourseCodeReview
@@ -21,14 +69,16 @@ after_initialize do
       isolate_namespace DiscourseCodeReview
     end
 
+    UserToken = 'github user token'
     LastCommit = 'last commit'
     CommitHash = 'commit hash'
     GithubId = 'github id'
+    GithubLogin = 'github login'
     CommentPage = 'comment page'
 
     def self.last_commit
       PluginStore.get(DiscourseCodeReview::PluginName, LastCommit) ||
-        (self.last_commit = git('rev-parse HEAD~40'))
+        (self.last_commit = git('rev-parse HEAD~30'))
     end
 
     def self.last_commit=(v)
@@ -70,10 +120,27 @@ after_initialize do
     end
 
     def self.commits_since(hash = nil)
-
       git("pull")
-
       hash ||= last_commit
+
+      github_info = []
+
+      commits = git("log #{hash}.. --pretty=%H").split("\n").map { |x| x.strip }
+
+      commits.each_slice(30).each do |x|
+        commits = Octokit.commits(SiteSetting.code_review_github_repo, sha: x.first)
+        github_info.concat(commits)
+      end
+
+      lookup = {}
+      github_info.each do |commit|
+        lookup[commit.sha] = {
+          author_login: commit&.author&.login,
+          author_id: commit&.author&.id,
+          committer_login: commit&.committer&.login,
+          committer_id: commit&.committer&.id,
+        }
+      end
 
       # hash name email subject body
       format = %w{%H %aN %aE %s %B %at}.join(FEILD_END) << LINE_END
@@ -83,7 +150,8 @@ after_initialize do
       data.split(LINE_END).map do |line|
         fields = line.split(FEILD_END).map { |f| f.strip if f }
 
-        hash = fields[0]
+        hash = fields[0].strip
+
         diff = git("show --format=email #{hash}")
 
         abbrev = diff.length > MAX_DIFF_LENGTH
@@ -91,8 +159,10 @@ after_initialize do
           diff = diff[0..MAX_DIFF_LENGTH]
         end
 
+        github_data = lookup[hash] || {}
+
         {
-          hash: fields[0],
+          hash: hash,
           name: fields[1],
           email: fields[2],
           subject: fields[3],
@@ -100,7 +170,7 @@ after_initialize do
           date: Time.at(fields[5].to_i).to_datetime,
           diff: diff,
           diff_abbrev: abbrev
-        }
+        }.merge(github_data)
 
       end.reverse
 
@@ -181,5 +251,21 @@ after_initialize do
     )
 
     SiteSetting.code_review_approved_category_id = category.id
+  end
+
+  on(:post_process_cooked) do |doc, post|
+    if post.post_number > 1 && (topic = post.topic) && (hash = topic.custom_fields[DiscourseCodeReview::CommitHash])
+
+      if !post.custom_fields[DiscourseCodeReview::GithubId] && post.user
+        if token = post.user.custom_fields[DiscourseCodeReview::UserToken]
+          client = Octokit::Client.new(access_token: token)
+          comment = client.create_commit_comment(SiteSetting.code_review_github_repo, hash, post.raw)
+          #p comment
+          post.custom_fields[DiscourseCodeReview::GithubId] = comment.id
+          post.save_custom_fields
+        end
+      end
+
+    end
   end
 end
