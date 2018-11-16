@@ -206,14 +206,15 @@ after_initialize do
       topic.add_moderator_post(
         current_user,
         nil,
-        bump: true,
+        bump: false,
         post_type: Post.types[:small_action],
         action_code: "approved"
       )
 
       next_topic = Topic
         .where(category_id: SiteSetting.code_review_pending_category_id)
-        .order('created_at asc')
+        .where('topics.id not in (select categories.topic_id from categories where categories.id = category_id)')
+        .order('bumped_at asc')
         .first
 
       url = next_topic&.relative_url
@@ -254,13 +255,13 @@ after_initialize do
   end
 
   on(:post_process_cooked) do |doc, post|
-    if post.post_number > 1 && (topic = post.topic) && (hash = topic.custom_fields[DiscourseCodeReview::CommitHash])
+    if post.post_number > 1 && post.raw.present? && (topic = post.topic) && (hash = topic.custom_fields[DiscourseCodeReview::CommitHash])
 
       if !post.custom_fields[DiscourseCodeReview::GithubId] && post.user
         if token = post.user.custom_fields[DiscourseCodeReview::UserToken]
           client = Octokit::Client.new(access_token: token)
           comment = client.create_commit_comment(SiteSetting.code_review_github_repo, hash, post.raw)
-          #p comment
+          p comment
           post.custom_fields[DiscourseCodeReview::GithubId] = comment.id
           post.save_custom_fields
         end
