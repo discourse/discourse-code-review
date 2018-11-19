@@ -100,9 +100,20 @@ after_initialize do
 
     MAX_DIFF_LENGTH = 8000
 
-    def self.commit_comments(page)
+    def self.commit_comments(page = nil)
+      page ||= DiscourseCodeReview.current_comment_page
 
       Octokit.list_commit_comments(SiteSetting.code_review_github_repo, page: page).map do |hash|
+
+        line_content = nil
+
+        if hash[:path].present?
+          file = git("show #{hash[:commit_id]}:#{hash[:path]}")
+          if file.present? && hash[:line].present?
+            line_content = file.split("\n")[hash[:line] - 1]
+          end
+        end
+
         login = hash[:user][:login] if hash[:user]
         {
           url: hash[:html_url],
@@ -110,10 +121,12 @@ after_initialize do
           login: login,
           position: hash[:position],
           line: hash[:line],
+          path: hash[:path],
           commit_hash: hash[:commit_id],
           created_at: hash[:created_at],
           updated_at: hash[:updated_at],
-          body: hash[:body]
+          body: hash[:body],
+          line_content: line_content
         }
       end
 
@@ -261,7 +274,6 @@ after_initialize do
         if token = post.user.custom_fields[DiscourseCodeReview::UserToken]
           client = Octokit::Client.new(access_token: token)
           comment = client.create_commit_comment(SiteSetting.code_review_github_repo, hash, post.raw)
-          p comment
           post.custom_fields[DiscourseCodeReview::GithubId] = comment.id
           post.save_custom_fields
         end

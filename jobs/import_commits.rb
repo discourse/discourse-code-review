@@ -127,9 +127,19 @@ module Jobs
         login = comment[:login] || "unknown"
         user = ensure_user(email: "#{login}@fake.github.com", name: login, github_login: login)
 
+        context = ""
+        if comment[:line_content]
+          context = <<~MD
+            > #{comment[:path]}
+            >
+            > `#{comment[:line_content]}`
+
+          MD
+        end
+
         PostCreator.create!(
           user,
-          raw: comment[:body],
+          raw: context + comment[:body],
           skip_validations: true,
           created_at: comment[:created_at],
           topic_id: topic_id,
