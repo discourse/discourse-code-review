@@ -9,8 +9,12 @@ module Jobs
 
       DiscourseCodeReview.commits_since.each do |commit|
 
+        link = <<~LINK
+          [<small>GitHub</small>](https://github.com/#{SiteSetting.code_review_github_repo}/commit/#{commit[:hash]})
+        LINK
+
         title = commit[:subject]
-        raw = commit[:body] + "\n\n```diff\n#{commit[:diff]}\n```"
+        raw = commit[:body] + "\n\n```diff\n#{commit[:diff]}\n```\n#{link}"
 
         user = ensure_user(
           email: commit[:email],
