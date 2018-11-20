@@ -308,7 +308,7 @@ after_initialize do
   ensure_category("followup")
 
   on(:post_process_cooked) do |doc, post|
-    if post.post_number > 1 && post.raw.present? && (topic = post.topic) && (hash = topic.custom_fields[DiscourseCodeReview::CommitHash])
+    if post.post_number > 1 && !post.whisper? && post.raw.present? && (topic = post.topic) && (hash = topic.custom_fields[DiscourseCodeReview::CommitHash])
 
       if !post.custom_fields[DiscourseCodeReview::GithubId] && post.user
         if token = post.user.custom_fields[DiscourseCodeReview::UserToken]
