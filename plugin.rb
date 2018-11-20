@@ -107,10 +107,13 @@ after_initialize do
 
         line_content = nil
 
-        if hash[:path].present?
-          file = git("show #{hash[:commit_id]}:#{hash[:path]}")
-          if file.present? && hash[:line].present?
-            line_content = file.split("\n")[hash[:line] - 1]
+        if hash[:path].present? && hash[:position].present?
+          diff = git("diff #{hash[:commit_id]}~1 #{hash[:commit_id]} #{hash[:path]}")
+          if diff.present?
+            # 5 is preamble
+            start = [hash[:position] + 5 - 3, 5].max
+            finish = hash[:position] + 5 + 3
+            line_content = diff.split("\n")[start..finish].join("\n")
           end
         end
 
@@ -209,6 +212,25 @@ after_initialize do
     before_action :ensure_logged_in
     before_action :ensure_staff
 
+    def followup
+      topic = Topic.find_by(id: params[:topic_id])
+
+      PostRevisor.new(topic.ordered_posts.first, topic)
+        .revise!(current_user,
+          category_id: SiteSetting.code_review_followup_category_id)
+
+      topic.add_moderator_post(
+        current_user,
+        nil,
+        bump: false,
+        post_type: Post.types[:small_action],
+        action_code: "followup"
+      )
+
+      render_next_topic
+
+    end
+
     def approve
       topic = Topic.find_by(id: params[:topic_id])
 
@@ -224,6 +246,13 @@ after_initialize do
         action_code: "approved"
       )
 
+      render_next_topic
+
+    end
+
+    protected
+
+    def render_next_topic
       next_topic = Topic
         .where(category_id: SiteSetting.code_review_pending_category_id)
         .where('topics.id not in (select categories.topic_id from categories where categories.id = category_id)')
@@ -241,31 +270,28 @@ after_initialize do
 
   DiscourseCodeReview::Engine.routes.draw do
     post '/approve' => 'code_review#approve'
+    post '/followup' => 'code_review#followup'
   end
 
   Discourse::Application.routes.append do
     mount ::DiscourseCodeReview::Engine, at: '/code-review'
   end
 
-  if !Category.exists?(id: SiteSetting.code_review_pending_category_id)
-    category = Category.find_by(name: 'pending')
-    category ||= Category.create!(
-      name: 'pending',
-      user: Discourse.system_user
-    )
+  def ensure_category(name)
+    if !Category.exists?(id: SiteSetting.send("code_review_#{name}_category_id"))
+      category = Category.find_by(name: name)
+      category ||= Category.create!(
+        name: name,
+        user: Discourse.system_user
+      )
 
-    SiteSetting.code_review_pending_category_id = category.id
+      SiteSetting.send "code_review_#{name}_category_id=", category.id
+    end
   end
 
-  if !Category.exists?(id: SiteSetting.code_review_approved_category_id)
-    category = Category.find_by(name: 'approved')
-    category ||= Category.create!(
-      name: 'approved',
-      user: Discourse.system_user
-    )
-
-    SiteSetting.code_review_approved_category_id = category.id
-  end
+  ensure_category("pending")
+  ensure_category("approved")
+  ensure_category("followup")
 
   on(:post_process_cooked) do |doc, post|
     if post.post_number > 1 && post.raw.present? && (topic = post.topic) && (hash = topic.custom_fields[DiscourseCodeReview::CommitHash])

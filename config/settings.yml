@@ -7,3 +7,6 @@ plugins:
   code_review_approved_category_id:
     hidden: true
     default: -1
+  code_review_followup_category_id:
+    hidden: true
+    default: -1

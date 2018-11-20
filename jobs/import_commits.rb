@@ -130,9 +130,14 @@ module Jobs
         context = ""
         if comment[:line_content]
           context = <<~MD
-            > #{comment[:path]}
-            >
-            > `#{comment[:line_content]}`
+            [quote]
+            #{comment[:path]}
+
+            ```diff
+            #{comment[:line_content]}
+            ```
+
+            [/quote]
 
           MD
         end

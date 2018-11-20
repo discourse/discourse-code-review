@@ -2,7 +2,11 @@ en:
   js:
     action_codes:
       approved: "Approved"
+      followup: "Follow Up"
     code_review:
       approve:
         title: "Approve commit"
         label: "Approve"
+      followup:
+        title: "Follow up commit"
+        label: "Follow Up"
