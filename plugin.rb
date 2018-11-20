@@ -100,10 +100,24 @@ after_initialize do
 
     MAX_DIFF_LENGTH = 8000
 
+    def self.octokit_client
+      client = Octokit::Client.new
+
+      if username = SiteSetting.code_review_api_username.presence
+        username = username.downcase
+        id = User.where(username_lower: username).pluck(:id).first
+        if id && (token = UserCustomField.where(user_id: id, name: DiscourseCodeReview::UserToken).pluck(:value).first)
+          client = Octokit::Client.new(access_token: token)
+        end
+      end
+
+      client
+    end
+
     def self.commit_comments(page = nil)
       page ||= DiscourseCodeReview.current_comment_page
 
-      Octokit.list_commit_comments(SiteSetting.code_review_github_repo, page: page).map do |hash|
+      octokit_client.list_commit_comments(SiteSetting.code_review_github_repo, page: page).map do |hash|
 
         line_content = nil
 
@@ -144,7 +158,7 @@ after_initialize do
       commits = git("log #{hash}.. --pretty=%H").split("\n").map { |x| x.strip }
 
       commits.each_slice(30).each do |x|
-        commits = Octokit.commits(SiteSetting.code_review_github_repo, sha: x.first)
+        commits = octokit_client.commits(SiteSetting.code_review_github_repo, sha: x.first)
         github_info.concat(commits)
       end
 
