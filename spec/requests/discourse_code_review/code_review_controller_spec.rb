@@ -12,7 +12,7 @@ describe DiscourseCodeReview::CodeReviewController do
       sign_in user
 
       post '/code-review/approve.json', params: { topic_id: commit.topic_id }
-      expect(response.status).to eq(403)
+      expect(response.status).to eq(200)
     end
   end
 end

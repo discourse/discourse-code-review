@@ -21,14 +21,12 @@ function initialize(api) {
   api.addPostSmallActionIcon("followup", "clock-o");
   api.addPostSmallActionIcon("approved", "thumbs-up");
 
-  function allowUser(topic) {
+  function allowUser() {
     const currentUser = api.getCurrentUser();
     if (!currentUser) {
       return false;
     }
-    return (
-      currentUser.get("staff") && currentUser.get("id") !== topic.get("user_id")
-    );
+    return currentUser.get("staff");
   }
 
   api

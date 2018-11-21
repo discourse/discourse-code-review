@@ -24,10 +24,6 @@ class ::DiscourseCodeReview::CodeReviewController < ::ApplicationController
   def approve
     topic = Topic.find_by(id: params[:topic_id])
 
-    if topic.user_id == current_user.id
-      raise Discourse::InvalidAccess
-    end
-
     PostRevisor.new(topic.ordered_posts.first, topic)
       .revise!(current_user,
         category_id: SiteSetting.code_review_approved_category_id)
@@ -50,6 +46,7 @@ class ::DiscourseCodeReview::CodeReviewController < ::ApplicationController
     next_topic = Topic
       .where(category_id: SiteSetting.code_review_pending_category_id)
       .where('topics.id not in (select categories.topic_id from categories where categories.id = category_id)')
+      .where('user_id <> ?', current_user.id)
       .order('bumped_at asc')
       .first
 
