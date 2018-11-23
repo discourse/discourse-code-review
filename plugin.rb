@@ -61,6 +61,11 @@ end
 
 after_initialize do
 
+  if !SiteSetting.tagging_enabled
+    Rails.logger.warn("The code review plugin requires tagging, enabling it!")
+    SiteSetting.tagging_enabled = true
+  end
+
   module ::DiscourseCodeReview
     PluginName = 'discourse-code-review'
 
@@ -231,22 +236,6 @@ after_initialize do
   Discourse::Application.routes.append do
     mount ::DiscourseCodeReview::Engine, at: '/code-review'
   end
-
-  def ensure_category(name)
-    if !Category.exists?(id: SiteSetting.send("code_review_#{name}_category_id"))
-      category = Category.find_by(name: name)
-      category ||= Category.create!(
-        name: name,
-        user: Discourse.system_user
-      )
-
-      SiteSetting.send "code_review_#{name}_category_id=", category.id
-    end
-  end
-
-  ensure_category("pending")
-  ensure_category("approved")
-  ensure_category("followup")
 
   on(:post_process_cooked) do |doc, post|
     if post.post_number > 1 && !post.whisper? && post.raw.present? && (topic = post.topic) && (hash = topic.custom_fields[DiscourseCodeReview::CommitHash])

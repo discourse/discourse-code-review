@@ -7,6 +7,22 @@ module Jobs
 
       return unless SiteSetting.code_review_enabled && SiteSetting.code_review_github_repo.present?
 
+      if SiteSetting.code_review_category_name.blank?
+        Rails.logger.warn("You must set the code review category name site setting")
+        return
+      end
+
+      category = Category.find_by(name: SiteSetting.code_review_category_name)
+      if !category
+        Rails.logger.warn("Can not find the category '#{SiteSetting.code_review_category_name}' so commits will not be updated")
+        return
+      end
+
+      import_commits(category_id: category.id)
+      import_comments
+    end
+
+    def import_commits(category_id:)
       DiscourseCodeReview.commits_since.each do |commit|
 
         link = <<~LINK
@@ -29,9 +45,10 @@ module Jobs
             user,
             raw: raw,
             title: title,
-            skip_validations: true,
             created_at: commit[:date],
-            category: SiteSetting.code_review_pending_category_id
+            category: category_id,
+            tags: [SiteSetting.code_review_pending_tag],
+            skip_validations: true,
           )
 
           TopicCustomField.create!(
@@ -43,8 +60,6 @@ module Jobs
           DiscourseCodeReview.last_commit = commit[:hash]
         end
       end
-
-      import_comments
     end
 
     def ensure_user(email:, name:, github_login: nil, github_id: nil)

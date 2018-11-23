@@ -1,13 +1,8 @@
 plugins:
   code_review_enabled: false
   code_review_github_repo: ""
+  code_review_category_name: ""
   code_review_api_username: ""
-  code_review_pending_category_id:
-    hidden: true
-    default: -1
-  code_review_approved_category_id:
-    hidden: true
-    default: -1
-  code_review_followup_category_id:
-    hidden: true
-    default: -1
+  code_review_pending_tag: "pending"
+  code_review_approved_tag: "approved"
+  code_review_followup_tag: "follow-up"

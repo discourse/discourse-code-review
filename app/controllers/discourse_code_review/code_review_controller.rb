@@ -5,9 +5,16 @@ class ::DiscourseCodeReview::CodeReviewController < ::ApplicationController
   def followup
     topic = Topic.find_by(id: params[:topic_id])
 
-    PostRevisor.new(topic.ordered_posts.first, topic)
-      .revise!(current_user,
-        category_id: SiteSetting.code_review_followup_category_id)
+    tags = topic.tags.pluck(:name)
+
+    tags -= [
+      SiteSetting.code_review_approved_tag,
+      SiteSetting.code_review_pending_tag
+    ]
+
+    tags << SiteSetting.code_review_followup_tag
+
+    DiscourseTagging.tag_topic_by_names(topic, Guardian.new(current_user), tags)
 
     topic.add_moderator_post(
       current_user,
@@ -17,16 +24,24 @@ class ::DiscourseCodeReview::CodeReviewController < ::ApplicationController
       action_code: "followup"
     )
 
-    render_next_topic
+    render_next_topic(topic.category_id)
 
   end
 
   def approve
+
     topic = Topic.find_by(id: params[:topic_id])
 
-    PostRevisor.new(topic.ordered_posts.first, topic)
-      .revise!(current_user,
-        category_id: SiteSetting.code_review_approved_category_id)
+    tags = topic.tags.pluck(:name)
+
+    tags -= [
+      SiteSetting.code_review_followup_tag,
+      SiteSetting.code_review_pending_tag
+    ]
+
+    tags << SiteSetting.code_review_approved_tag
+
+    DiscourseTagging.tag_topic_by_names(topic, Guardian.new(current_user), tags)
 
     topic.add_moderator_post(
       current_user,
@@ -36,16 +51,17 @@ class ::DiscourseCodeReview::CodeReviewController < ::ApplicationController
       action_code: "approved"
     )
 
-    render_next_topic
+    render_next_topic(topic.category_id)
 
   end
 
   protected
 
-  def render_next_topic
+  def render_next_topic(category_id)
     next_topic = Topic
-      .where(category_id: SiteSetting.code_review_pending_category_id)
-      .where('topics.id not in (select categories.topic_id from categories where categories.id = category_id)')
+      .joins(:tags)
+      .where('tags.name = ?', SiteSetting.code_review_pending_tag)
+      .where(category_id: category_id)
       .where('user_id <> ?', current_user.id)
       .order('bumped_at asc')
       .first

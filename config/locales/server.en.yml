@@ -1,5 +1,9 @@
 en:
   site_settings:
-    code_review_github_repo: 'name of github repo you wish to track eg: discourse/discourse'
+    code_review_github_repo: 'name of github repos you wish to track eg: discourse/discourse'
+    code_review_category_name: 'category for github repo'
     code_review_enabled: 'enable Discourse code review'
     code_review_api_username: 'OAuth key of this username will be used for API calls, this means we get 5000 an hour vs 60'
+    code_review_pending_tag: 'Tag to apply to pending commits'
+    code_review_followup_tag: 'Tag to apply to follow up commits'
+    code_review_approved_tag: 'Tag to apply to approved commits'
