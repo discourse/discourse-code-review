@@ -54,23 +54,17 @@ module DiscourseCodeReview
 
         if hash[:path].present? && hash[:position].present?
 
-          git("checkout -f #{hash[:commit_id]}")
+          git("checkout -f #{hash[:commit_id]}", raise_error: false)
           if !File.exist?("#{path}#{hash[:path]}")
-            git("checkout -f #{hash[:commit_id]}~1")
+            git("checkout -f #{hash[:commit_id]}~1", raise_error: false)
           end
 
           diff = ""
           if !File.exist?("#{path}#{hash[:path]}")
-            diff = git("diff #{hash[:commit_id]}~1 #{hash[:commit_id]} #{hash[:path]}")
+            diff = git("diff #{hash[:commit_id]}~1 #{hash[:commit_id]} #{hash[:path]}", raise_error: false)
           end
 
-          begin
-            git("checkout -f master")
-          rescue => e
-            # TODO stop with this exception handling and figure out a cleaner
-            # way of inspecting the git repo for the diff
-            Rails.logger.warn("Failed to run checkout back to master #{e}")
-          end
+          git("checkout -f master", raise_error: false)
 
           if diff.present?
             # 5 is preamble
@@ -161,7 +155,7 @@ module DiscourseCodeReview
       @path ||= (Rails.root + "tmp/code-review-repo/#{clean_name}").to_s
     end
 
-    def git(command, backup_command: nil)
+    def git(command, backup_command: nil, raise_error: true)
       FileUtils.mkdir_p(Rails.root + "tmp/code-review-repo")
 
       if !File.exist?(path)
@@ -180,7 +174,10 @@ module DiscourseCodeReview
 
           if $?.exitstatus != 0
             Rails.logger.warn("Discourse Code Review: Failed to run `#{command}` in #{path} error code: #{$?}")
-            raise StandardError, "Failed to run git command #{command} on #{@name} in tmp/code-review-repo"
+
+            if raise_error
+              raise StandardError, "Failed to run git command #{command} on #{@name} in tmp/code-review-repo"
+            end
           end
         end
         result
