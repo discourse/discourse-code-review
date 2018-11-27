@@ -1,32 +1,37 @@
-module Jobs
+module DiscourseCodeReview
+  class Importer
+    attr_reader :github_repo
 
-  class ::DiscourseCodeReview::ImportCommits < Jobs::Scheduled
-    every 1.minute
+    GithubRepoName = "GitHub Repo Name"
 
-    def execute(args = nil)
-
-      return unless SiteSetting.code_review_enabled && SiteSetting.code_review_github_repo.present?
-
-      if SiteSetting.code_review_category_name.blank?
-        Rails.logger.warn("You must set the code review category name site setting")
-        return
-      end
-
-      category = Category.find_by(name: SiteSetting.code_review_category_name)
-      if !category
-        Rails.logger.warn("Can not find the category '#{SiteSetting.code_review_category_name}' so commits will not be updated")
-        return
-      end
-
-      import_commits(category_id: category.id)
-      import_comments
+    def initialize(github_repo)
+      @github_repo = github_repo
     end
 
-    def import_commits(category_id:)
-      DiscourseCodeReview.commits_since.each do |commit|
+    def category_id
+      @category_id ||=
+        begin
+          id = Category.where(<<~SQL, name: GithubRepoName, value: github_repo.name).order(:id).pluck(:id).first
+            id IN (SELECT category_id FROM category_custom_fields WHERE name = :name AND value = :value)
+          SQL
+          if !id
+            Category.transaction do
+              short_name = find_category_name(github_repo.name.split("/").last)
+              category = Category.create!(name: short_name, user: Discourse.system_user)
+              category.custom_fields[GithubRepoName] = github_repo.name
+              category.save_custom_fields
+              id = category.id
+            end
+          end
+          id
+        end
+    end
+
+    def import_commits
+      github_repo.commits_since.each do |commit|
 
         link = <<~LINK
-          [<small>GitHub</small>](https://github.com/#{SiteSetting.code_review_github_repo}/commit/#{commit[:hash]})
+          [<small>GitHub</small>](https://github.com/#{github_repo.name}/commit/#{commit[:hash]})
         LINK
 
         title = commit[:subject]
@@ -57,8 +62,25 @@ module Jobs
             value: commit[:hash]
           )
 
-          DiscourseCodeReview.last_commit = commit[:hash]
+          github_repo.last_commit = commit[:hash]
         end
+      end
+    end
+
+    def import_comments
+      page = github_repo.current_comment_page
+
+      while true
+        comments = github_repo.commit_comments(page)
+
+        break if comments.blank?
+
+        comments.each do |comment|
+          import_comment(comment)
+        end
+
+        github_repo.current_comment_page = page
+        page += 1
       end
     end
 
@@ -115,22 +137,7 @@ module Jobs
       user
     end
 
-    def import_comments
-      page = DiscourseCodeReview.current_comment_page
-
-      while true
-        comments = DiscourseCodeReview.commit_comments(page)
-
-        break if comments.blank?
-
-        comments.each do |comment|
-          import_comment(comment)
-        end
-
-        DiscourseCodeReview.current_comment_page = page
-        page += 1
-      end
-    end
+    protected
 
     def import_comment(comment)
 
@@ -168,5 +175,12 @@ module Jobs
       end
     end
 
+    def find_category_name(name)
+      if Category.where(name: name).exists?
+        name += SecureRandom.hex
+      else
+        name
+      end
+    end
   end
 end
