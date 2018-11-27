@@ -42,6 +42,10 @@ module DiscourseCodeReview
     end
 
     def commit_comments(page = nil)
+      # TODO add a distributed lock here
+      git("checkout master")
+      git("pull")
+
       page ||= current_comment_page
 
       octokit_client.list_commit_comments(@name, page: page).map do |hash|
@@ -49,7 +53,19 @@ module DiscourseCodeReview
         line_content = nil
 
         if hash[:path].present? && hash[:position].present?
-          diff = git("diff #{hash[:commit_id]}~1 #{hash[:commit_id]} #{hash[:path]}")
+
+          git("checkout #{hash[:commit_id]}")
+          if !File.exist?("#{path}#{hash[:path]}")
+            git("checkout #{hash[:commit_id]}~1")
+          end
+
+          diff = ""
+          if !File.exist?("#{path}#{hash[:path]}")
+            diff = git("diff #{hash[:commit_id]}~1 #{hash[:commit_id]} #{hash[:path]}")
+          end
+
+          git("checkout master")
+
           if diff.present?
             # 5 is preamble
             start = [hash[:position] + 5 - 3, 5].max
@@ -77,7 +93,9 @@ module DiscourseCodeReview
     end
 
     def commits_since(hash = nil)
+      git("checkout master")
       git("pull")
+
       hash ||= last_commit
 
       github_info = []
@@ -133,9 +151,11 @@ module DiscourseCodeReview
 
     end
 
-    def git(command, backup_command: nil)
-      path = (Rails.root + "tmp/code-review-repo/#{clean_name}").to_s
+    def path
+      @path ||= (Rails.root + "tmp/code-review-repo/#{clean_name}").to_s
+    end
 
+    def git(command, backup_command: nil)
       FileUtils.mkdir_p(Rails.root + "tmp/code-review-repo")
 
       if !File.exist?(path)
