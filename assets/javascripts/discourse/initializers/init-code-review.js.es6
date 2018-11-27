@@ -18,7 +18,7 @@ function actOnCommit(topic, action) {
 }
 
 function initialize(api) {
-  api.addPostSmallActionIcon("followup", "clock-o");
+  api.addPostSmallActionIcon("followup", "far-clock");
   api.addPostSmallActionIcon("approved", "thumbs-up");
 
   function allowUser() {
@@ -29,15 +29,30 @@ function initialize(api) {
     return currentUser.get("staff");
   }
 
+  function allowApprove(topic) {
+    const currentUser = api.getCurrentUser();
+    if (!currentUser) {
+      return false;
+    }
+
+    const allowSelfApprove = api.container.lookup("site-settings:main")
+      .code_review_allow_self_approval;
+
+    return allowSelfApprove || currentUser.get("id") !== topic.get("user_id");
+  }
+
   api
     .modifySelectKit("topic-footer-mobile-dropdown")
     .modifyContent((context, existingContent) => {
-      if (allowUser(context.get("currentUser"))) {
-        existingContent.push({
-          id: "approve",
-          icon: "thumbs-up",
-          name: I18n.t("code_review.approve.label")
-        });
+      const topic = context.get("topic");
+
+      if (allowUser()) {
+        if (allowApprove(topic))
+          existingContent.push({
+            id: "approve",
+            icon: "thumbs-up",
+            name: I18n.t("code_review.approve.label")
+          });
 
         existingContent.push({
           id: "followup",
@@ -61,6 +76,7 @@ function initialize(api) {
     {
       setupComponent(args) {
         this.set("topic", args.topic);
+        this.set("showApprove", allowApprove(args.topic));
       },
       shouldRender: function(args, component) {
         if (component.get("site.mobileView")) {
@@ -68,6 +84,7 @@ function initialize(api) {
         }
         return allowUser(args.topic);
       },
+
       actions: {
         followupCommit() {
           actOnCommit(this.get("topic"), "followup");

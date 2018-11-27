@@ -79,6 +79,10 @@ module DiscourseCodeReview
 
       topic = Topic.find_by(id: params[:topic_id])
 
+      if !SiteSetting.code_review_allow_self_approval && topic.user_id == current_user.id
+        raise Discourse::InvalidAccess
+      end
+
       tags = topic.tags.pluck(:name)
 
       tags -= [

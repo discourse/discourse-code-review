@@ -5,7 +5,22 @@ describe DiscourseCodeReview::CodeReviewController do
     SiteSetting.code_review_enabled = true
   end
   context '.approve' do
-    it 'allows you to approve your own commit' do
+    it 'allows you to approve your own commit if enabled' do
+
+      SiteSetting.code_review_allow_self_approval = false
+
+      user = Fabricate(:admin)
+      commit = create_post(raw: "this is a fake commit", user: user, tags: ["hi", SiteSetting.code_review_pending_tag])
+
+      sign_in user
+
+      post '/code-review/approve.json', params: { topic_id: commit.topic_id }
+      expect(response.status).to eq(403)
+    end
+
+    it 'allows you to approve your own commit if enabled' do
+
+      SiteSetting.code_review_allow_self_approval = true
 
       another_commit = create_post(
         raw: "this is an old commit",
