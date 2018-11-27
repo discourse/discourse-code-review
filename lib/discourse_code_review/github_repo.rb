@@ -64,7 +64,13 @@ module DiscourseCodeReview
             diff = git("diff #{hash[:commit_id]}~1 #{hash[:commit_id]} #{hash[:path]}")
           end
 
-          git("checkout -f master")
+          begin
+            git("checkout -f master")
+          rescue => e
+            # TODO stop with this exception handling and figure out a cleaner
+            # way of inspecting the git repo for the diff
+            Rails.logger.warn("Failed to run checkout back to master #{e}")
+          end
 
           if diff.present?
             # 5 is preamble
