@@ -34,21 +34,19 @@ module DiscourseCodeReview
       repo = params["repository"]
       repo_name = repo["full_name"] if repo
 
-      hijack do
-        if ["commit_comment", "push"].include? type
-          client = DiscourseCodeReview.octokit_client
-          repo = GithubRepo.new(repo_name, client)
-          importer = Importer.new(repo)
+      if ["commit_comment", "push"].include? type
+        client = DiscourseCodeReview.octokit_client
+        repo = GithubRepo.new(repo_name, client)
+        importer = Importer.new(repo)
 
-          if type == "commit_comment"
-            importer.import_comments
-          elsif type == "push"
-            importer.import_commits
-          end
+        if type == "commit_comment"
+          importer.import_comments
+        elsif type == "push"
+          importer.import_commits
         end
-
-        render plain: '"ok"'
       end
+
+      render plain: '"ok"'
     end
 
     def followup

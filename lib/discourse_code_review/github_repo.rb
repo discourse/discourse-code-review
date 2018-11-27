@@ -43,7 +43,6 @@ module DiscourseCodeReview
 
     def commit_comments(page = nil)
       # TODO add a distributed lock here
-      git("checkout -f master", raise_error: false)
       git("pull")
 
       page ||= current_comment_page
@@ -54,18 +53,7 @@ module DiscourseCodeReview
 
         if hash[:path].present? && hash[:position].present?
 
-          git("checkout -f #{hash[:commit_id]}", raise_error: false)
-          if !File.exist?("#{path}#{hash[:path]}")
-            git("checkout -f #{hash[:commit_id]}~1", raise_error: false)
-          end
-
-          diff = ""
-          if !File.exist?("#{path}#{hash[:path]}")
-            diff = git("diff #{hash[:commit_id]}~1 #{hash[:commit_id]} #{hash[:path]}", raise_error: false)
-          end
-
-          git("checkout -f master", raise_error: false)
-
+          diff = git("diff #{hash[:commit_id]}~1 #{hash[:commit_id]} #{hash[:path]}", raise_error: false)
           if diff.present?
             # 5 is preamble
             start = [hash[:position] + 5 - 3, 5].max
@@ -93,7 +81,6 @@ module DiscourseCodeReview
     end
 
     def commits_since(hash = nil)
-      git("checkout -f master", raise_error: false)
       git("pull")
 
       hash ||= last_commit
