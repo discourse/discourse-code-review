@@ -141,7 +141,7 @@ module DiscourseCodeReview
       if !File.exist?(path)
         `git clone https://github.com/#{@name}.git '#{path}'`
         if $?.exitstatus != 0
-          raise ApplicationError, "Failed to clone repo #{@name} in tmp/code-review-repo"
+          raise StandardError, "Failed to clone repo #{@name} in tmp/code-review-repo"
         end
       end
 
@@ -153,7 +153,8 @@ module DiscourseCodeReview
           end
 
           if $?.exitstatus != 0
-            raise ApplicationError, "Failed to run git command #{command} on #{@name} in tmp/code-review-repo"
+            Rails.logger.warn("Discourse Code Review: Failed to run `#{command}` in #{path} error code: #{$?}")
+            raise StandardError, "Failed to run git command #{command} on #{@name} in tmp/code-review-repo"
           end
         end
         result
