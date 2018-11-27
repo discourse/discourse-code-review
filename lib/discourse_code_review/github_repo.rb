@@ -43,7 +43,7 @@ module DiscourseCodeReview
 
     def commit_comments(page = nil)
       # TODO add a distributed lock here
-      git("checkout -f master")
+      git("checkout -f master", raise_error: false)
       git("pull")
 
       page ||= current_comment_page
@@ -93,7 +93,7 @@ module DiscourseCodeReview
     end
 
     def commits_since(hash = nil)
-      git("checkout -f master")
+      git("checkout -f master", raise_error: false)
       git("pull")
 
       hash ||= last_commit
