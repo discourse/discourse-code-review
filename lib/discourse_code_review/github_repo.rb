@@ -33,7 +33,10 @@ module DiscourseCodeReview
 
     def last_commit
       PluginStore.get(DiscourseCodeReview::PluginName, LastCommit + @name) ||
-        (self.last_commit = git('rev-parse HEAD~30', backup_command: 'rev-list --max-parents=0 HEAD'))
+        begin
+          commits = [SiteSetting.code_review_catch_up_commits, 1].max - 1
+          (self.last_commit = git("rev-parse HEAD~#{commits}", backup_command: 'rev-list --max-parents=0 HEAD'))
+        end
     end
 
     def last_commit=(v)
@@ -140,6 +143,11 @@ module DiscourseCodeReview
 
     def path
       @path ||= (Rails.root + "tmp/code-review-repo/#{clean_name}").to_s
+    end
+
+    # for testing
+    def path=(v)
+      @path = v
     end
 
     def git(command, backup_command: nil, raise_error: true)
