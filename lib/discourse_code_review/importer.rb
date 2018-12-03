@@ -30,40 +30,47 @@ module DiscourseCodeReview
     def import_commits
       github_repo.commits_since.each do |commit|
 
-        link = <<~LINK
-          [<small>GitHub</small>](https://github.com/#{github_repo.name}/commit/#{commit[:hash]})
-        LINK
+      end
+    end
 
-        title = commit[:subject]
-        raw = commit[:body] + "\n\n```diff\n#{commit[:diff]}\n```\n#{link}"
+    def import_commit(commit)
+      link = <<~LINK
+        [<small>GitHub</small>](https://github.com/#{github_repo.name}/commit/#{commit[:hash]})
+      LINK
 
-        user = ensure_user(
-          email: commit[:email],
-          name: commit[:name],
-          github_login: commit[:author_login],
-          github_id: commit[:author_id]
+      title = commit[:subject]
+      # we add a unicode zero width joiner so code block is not corrupted
+      diff = commit[:diff].gsub('```', "`\u200d``")
+      raw = commit[:body] + "\n\n```diff\n#{diff}\n```\n#{link}"
+
+      user = ensure_user(
+        email: commit[:email],
+        name: commit[:name],
+        github_login: commit[:author_login],
+        github_id: commit[:author_id]
+      )
+
+      if !TopicCustomField.exists?(name: DiscourseCodeReview::CommitHash, value: commit[:hash])
+
+        post = PostCreator.create!(
+          user,
+          raw: raw,
+          title: title,
+          created_at: commit[:date],
+          category: category_id,
+          tags: [SiteSetting.code_review_pending_tag],
+          skip_validations: true,
         )
 
-        if !TopicCustomField.exists?(name: DiscourseCodeReview::CommitHash, value: commit[:hash])
+        TopicCustomField.create!(
+          topic_id: post.topic_id,
+          name: DiscourseCodeReview::CommitHash,
+          value: commit[:hash]
+        )
 
-          post = PostCreator.create!(
-            user,
-            raw: raw,
-            title: title,
-            created_at: commit[:date],
-            category: category_id,
-            tags: [SiteSetting.code_review_pending_tag],
-            skip_validations: true,
-          )
+        github_repo.last_commit = commit[:hash]
 
-          TopicCustomField.create!(
-            topic_id: post.topic_id,
-            name: DiscourseCodeReview::CommitHash,
-            value: commit[:hash]
-          )
-
-          github_repo.last_commit = commit[:hash]
-        end
+        post
       end
     end
 
