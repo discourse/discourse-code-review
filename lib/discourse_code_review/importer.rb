@@ -29,7 +29,7 @@ module DiscourseCodeReview
 
     def import_commits
       github_repo.commits_since.each do |commit|
-
+        import_commit(commit)
       end
     end
 
