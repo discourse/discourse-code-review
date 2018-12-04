@@ -33,6 +33,7 @@ module DiscourseCodeReview
       post = Importer.new(repo).import_commit(commit)
 
       expect(post.cooked.scan("code").length).to eq(2)
+      expect(post.excerpt).to eq("this is the body")
     end
   end
 end
