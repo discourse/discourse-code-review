@@ -42,7 +42,7 @@ module DiscourseCodeReview
       # we add a unicode zero width joiner so code block is not corrupted
       diff = commit[:diff].gsub('```', "`\u200d``")
 
-      raw = "<div class='excerpt'>#{commit[:body]}\n</div>\n\n```diff\n#{diff}\n```\n#{link}"
+      raw = "<div class='excerpt'>\n#{commit[:body]}\n</div>\n\n```diff\n#{diff}\n```\n#{link}"
 
       user = ensure_user(
         email: commit[:email],
