@@ -7,9 +7,11 @@
   action="approveCommit"}}
 {{/if}}
 
+{{#if showFollowup}}
 {{d-button
   class="btn follow-up-commit-button"
   title="code_review.followup.title"
   label="code_review.followup.label"
   icon="clock-o"
   action="followupCommit"}}
+{{/if}}

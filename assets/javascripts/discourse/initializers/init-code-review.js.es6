@@ -35,10 +35,23 @@ function initialize(api) {
       return false;
     }
 
-    const allowSelfApprove = api.container.lookup("site-settings:main")
-      .code_review_allow_self_approval;
+    const siteSettings = api.container.lookup("site-settings:main");
+    const allowSelfApprove = siteSettings.code_review_allow_self_approval;
+    const approvedTag = siteSettings.code_review_approved_tag;
+    const tags = topic.get("tags") || [];
 
-    return allowSelfApprove || currentUser.get("id") !== topic.get("user_id");
+    return (
+      (allowSelfApprove || currentUser.get("id") !== topic.get("user_id")) &&
+      !tags.includes(approvedTag)
+    );
+  }
+
+  function allowFollowup(topic) {
+    const followupTag = api.container.lookup("site-settings:main")
+      .code_review_followup_tag;
+    const tags = topic.get("tags") || [];
+
+    return !tags.includes(followupTag);
   }
 
   api
@@ -54,11 +67,12 @@ function initialize(api) {
             name: I18n.t("code_review.approve.label")
           });
 
-        existingContent.push({
-          id: "followup",
-          icon: "clock-o",
-          name: I18n.t("code_review.followup.label")
-        });
+        if (allowFollowup(topic))
+          existingContent.push({
+            id: "followup",
+            icon: "clock-o",
+            name: I18n.t("code_review.followup.label")
+          });
       }
       return existingContent;
     })
@@ -77,6 +91,7 @@ function initialize(api) {
       setupComponent(args) {
         this.set("topic", args.topic);
         this.set("showApprove", allowApprove(args.topic));
+        this.set("showFollowup", allowFollowup(args.topic));
       },
       shouldRender: function(args, component) {
         if (component.get("site.mobileView")) {
