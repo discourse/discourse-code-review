@@ -21,6 +21,14 @@ function initialize(api) {
   api.addPostSmallActionIcon("followup", "far-clock");
   api.addPostSmallActionIcon("approved", "thumbs-up");
 
+  // we need to allow unconditional association even with 2fa
+  // core hides this section if 2fa is on for a user
+  api.modifyClass("controller:preferences/account", {
+    canUpdateAssociatedAccounts: function() {
+      return this.get("authProviders.length") > 0;
+    }.property("authProviders")
+  });
+
   function allowUser() {
     const currentUser = api.getCurrentUser();
     if (!currentUser) {
