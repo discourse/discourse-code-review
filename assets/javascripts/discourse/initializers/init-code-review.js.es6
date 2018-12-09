@@ -2,6 +2,7 @@ import { withPluginApi } from "discourse/lib/plugin-api";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import DiscourseURL from "discourse/lib/url";
+import { findAll } from "discourse/models/login-method";
 
 function actOnCommit(topic, action) {
   let topicId = topic.get("id");
@@ -23,9 +24,15 @@ function initialize(api) {
 
   // we need to allow unconditional association even with 2fa
   // core hides this section if 2fa is on for a user
+  //
+  // note there are slightly cleaner ways of doing this but we would need
+  // to amend core for the plugin which is not feeling right
   api.modifyClass("controller:preferences/account", {
     canUpdateAssociatedAccounts: function() {
-      return this.get("authProviders.length") > 0;
+      return (
+        findAll(this.siteSettings, this.capabilities, this.site.isMobileDevice)
+          .length > 0
+      );
     }.property("authProviders")
   });
 
