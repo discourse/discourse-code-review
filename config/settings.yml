@@ -2,6 +2,7 @@ plugins:
   code_review_enabled: false
   code_review_catch_up_commits: 10
   code_review_api_username: ""
+  code_review_allow_private_clone: false
   code_review_pending_tag: "pending"
   code_review_approved_tag:
     client: true

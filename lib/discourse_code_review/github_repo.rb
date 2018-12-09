@@ -150,11 +150,21 @@ module DiscourseCodeReview
       @path = v
     end
 
+    def clone(path)
+      url =
+        if (SiteSetting.code_review_allow_private_clone && SiteSetting.code_review_api_username.present?)
+          "https://#{octokit_client.access_token}@github.com/#{@name}.git"
+        else
+          "https://github.com/#{@name}.git"
+        end
+      `git clone #{url} '#{path}'`
+    end
+
     def git(command, backup_command: nil, raise_error: true)
       FileUtils.mkdir_p(Rails.root + "tmp/code-review-repo")
 
       if !File.exist?(path)
-        `git clone https://github.com/#{@name}.git '#{path}'`
+        clone(path)
         if $?.exitstatus != 0
           raise StandardError, "Failed to clone repo #{@name} in tmp/code-review-repo"
         end

@@ -3,6 +3,7 @@ en:
     code_review_enabled: 'enable Discourse code review'
     code_review_catch_up_commits: 'When a new repo is added create this number of topics for old commits'
     code_review_api_username: 'OAuth key of this username will be used for API calls, this means we get 5000 an hour vs 60'
+    code_review_allow_private_clone: 'REQUIRES: code_review_api_username, will clone the repos as the entered user name, this safeguard is in place to disable cloning of private repos on public sites.'
     code_review_pending_tag: 'Tag to apply to pending commits'
     code_review_followup_tag: 'Tag to apply to follow up commits'
     code_review_approved_tag: 'Tag to apply to approved commits'
