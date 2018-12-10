@@ -1,9 +1,15 @@
 import { replaceCurrentUser, acceptance } from "helpers/qunit-helpers";
 import { clearCallbacks } from "select-kit/mixins/plugin-api";
+import Fixtures from "fixtures/topic";
 
 acceptance("review mobile", {
   loggedIn: true,
   mobileView: true,
+  settings: {
+    code_review_approved_tag: "approved",
+    code_review_pending_tag: "pending",
+    code_review_followup_tag: "followup"
+  },
   afterEach() {
     clearCallbacks();
   },
@@ -15,7 +21,15 @@ acceptance("review mobile", {
 });
 
 QUnit.test("shows approve button by default", async assert => {
-  await visit("/t/internationalization-localization/280");
+  const json = $.extend(true, {}, Fixtures["/t/280/1.json"]);
+
+  json.tags = ["pending"];
+
+  server.get("/t/281.json", () => {
+    return [200, { "Content-Type": "application/json" }, json];
+  });
+
+  await visit("/t/internationalization-localization/281");
 
   const menu = selectKit(".topic-footer-mobile-dropdown");
   await menu.expand();

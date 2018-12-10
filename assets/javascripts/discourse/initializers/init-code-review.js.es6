@@ -52,21 +52,33 @@ function initialize(api) {
 
     const siteSettings = api.container.lookup("site-settings:main");
     const allowSelfApprove = siteSettings.code_review_allow_self_approval;
+
     const approvedTag = siteSettings.code_review_approved_tag;
+    const pendingTag = siteSettings.code_review_pending_tag;
+    const followupTag = siteSettings.code_review_followup_tag;
+
     const tags = topic.get("tags") || [];
 
     return (
       (allowSelfApprove || currentUser.get("id") !== topic.get("user_id")) &&
-      !tags.includes(approvedTag)
+      !tags.includes(approvedTag) &&
+      (tags.includes(pendingTag) || tags.includes(followupTag))
     );
   }
 
   function allowFollowup(topic) {
-    const followupTag = api.container.lookup("site-settings:main")
-      .code_review_followup_tag;
+    const siteSettings = api.container.lookup("site-settings:main");
+
+    const approvedTag = siteSettings.code_review_approved_tag;
+    const pendingTag = siteSettings.code_review_pending_tag;
+    const followupTag = siteSettings.code_review_followup_tag;
+
     const tags = topic.get("tags") || [];
 
-    return !tags.includes(followupTag);
+    return (
+      !tags.includes(followupTag) &&
+      (tags.includes(pendingTag) || tags.includes(approvedTag))
+    );
   }
 
   api
