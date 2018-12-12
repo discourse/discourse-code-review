@@ -12,6 +12,31 @@ module DiscourseCodeReview
       FileUtils.rm_rf(@git_path)
     end
 
+    it "can cleanly truncate diffs" do
+      Dir.chdir(@git_path) do
+        `git init .`
+        File.write('a', "hello world\n" * 1000)
+        `git add a`
+        `git commit -am 'first commit'`
+        File.write('a', 'hello2')
+        `git commit -am 'second commit'`
+
+        repo = GithubRepo.new('fake_repo/fake_repo', nil)
+
+        repo.path = @git_path
+        repo.last_commit = nil
+
+        last_commit = repo.commits_since(nil, merge_github_info: false, pull: false).last
+        diff = last_commit[:diff]
+
+        expect(last_commit[:diff_truncated]).to eq(true)
+        expect(diff).to ending_with("hello world")
+
+        # no point repeating the message
+        expect(diff).not_to include("second commit")
+      end
+    end
+
     it "can respect catchup commits" do
       Dir.chdir(@git_path) do
         `git init .`

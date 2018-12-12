@@ -32,7 +32,7 @@ module DiscourseCodeReview
     end
 
     def last_commit
-      PluginStore.get(DiscourseCodeReview::PluginName, LastCommit + @name) ||
+      PluginStore.get(DiscourseCodeReview::PluginName, LastCommit + @name).presence ||
         begin
           commits = [SiteSetting.code_review_catch_up_commits, 1].max - 1
           (self.last_commit = git("rev-parse HEAD~#{commits}", backup_command: 'rev-list --max-parents=0 HEAD'))
@@ -83,8 +83,10 @@ module DiscourseCodeReview
 
     end
 
-    def commits_since(hash = nil)
-      git("pull")
+    def commits_since(hash = nil, merge_github_info: true, pull: true)
+      if pull
+        git("pull")
+      end
 
       hash ||= last_commit
 
@@ -92,9 +94,11 @@ module DiscourseCodeReview
 
       commits = git("log #{hash}.. --pretty=%H").split("\n").map { |x| x.strip }
 
-      commits.each_slice(30).each do |x|
-        commits = octokit_client.commits(@name, sha: x.first)
-        github_info.concat(commits)
+      if merge_github_info
+        commits.each_slice(30).each do |x|
+          github_commits = octokit_client.commits(@name, sha: x.first)
+          github_info.concat(github_commits)
+        end
       end
 
       lookup = {}
@@ -117,11 +121,13 @@ module DiscourseCodeReview
 
         hash = fields[0].strip
 
-        diff = git("show --format=email #{hash}")
+        diff = git("show --format=%b #{hash}")
 
-        abbrev = diff.length > MAX_DIFF_LENGTH
-        if abbrev
+        truncated = diff.length > MAX_DIFF_LENGTH
+        if truncated
           diff = diff[0..MAX_DIFF_LENGTH]
+          diff.strip!
+          diff = diff.split("\n")[0..-2].join("\n")
         end
 
         github_data = lookup[hash] || {}
@@ -134,7 +140,7 @@ module DiscourseCodeReview
           body: fields[4],
           date: Time.at(fields[5].to_i).to_datetime,
           diff: diff,
-          diff_abbrev: abbrev
+          diff_truncated: truncated
         }.merge(github_data)
 
       end.reverse

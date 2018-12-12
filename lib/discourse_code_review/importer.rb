@@ -42,7 +42,12 @@ module DiscourseCodeReview
       # we add a unicode zero width joiner so code block is not corrupted
       diff = commit[:diff].gsub('```', "`\u200d``")
 
-      raw = "<div class='excerpt'>\n#{commit[:body]}\n</div>\n\n```diff\n#{diff}\n```\n#{link}"
+      truncated_message =
+        if commit[:diff_truncated]
+          "\n[... diff too long, it was truncated ...]"
+        end
+
+      raw = "<div class='excerpt'>\n#{commit[:body]}\n</div>\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link}"
 
       user = ensure_user(
         email: commit[:email],
