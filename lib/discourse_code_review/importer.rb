@@ -44,7 +44,7 @@ module DiscourseCodeReview
 
       truncated_message =
         if commit[:diff_truncated]
-          "\n[... diff too long, it was truncated ...]"
+          "\n[... diff too long, it was truncated ...]\n"
         end
 
       raw = "<div class='excerpt'>\n#{commit[:body]}\n</div>\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link}"
