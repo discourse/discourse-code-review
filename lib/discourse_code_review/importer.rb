@@ -121,7 +121,7 @@ module DiscourseCodeReview
         linked_topics.values.each do |topic|
           topic.add_moderator_post(
             user,
-            post.topic.url,
+            " #{post.topic.url}",
             bump: false,
             post_type: Post.types[:small_action],
             action_code: "followed_up"

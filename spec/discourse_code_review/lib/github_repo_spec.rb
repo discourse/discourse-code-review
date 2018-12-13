@@ -19,7 +19,7 @@ module DiscourseCodeReview
         `git add a`
         `git commit -am 'first commit'`
         File.write('a', 'hello2')
-        `git commit -am 'second commit'`
+        `git commit -am 'second commit\n\nline 2'`
 
         repo = GithubRepo.new('fake_repo/fake_repo', nil)
 
@@ -34,6 +34,7 @@ module DiscourseCodeReview
 
         # no point repeating the message
         expect(diff).not_to include("second commit")
+        expect(diff).not_to include("line 2")
       end
     end
 
