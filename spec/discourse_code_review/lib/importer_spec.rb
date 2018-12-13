@@ -33,7 +33,7 @@ module DiscourseCodeReview
       post = Importer.new(repo).import_commit(commit)
 
       commit[:hash] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
-      commit[:body] = "ab2787347ff this is\nfollowing up on a1db15fe"
+      commit[:body] = "ab2787347ff (this is\nfollowing up on a1db15fe)"
       post2 = Importer.new(repo).import_commit(commit)
 
       expect(post2.cooked).to include(post.topic.url)
