@@ -21,6 +21,7 @@ function actOnCommit(topic, action) {
 function initialize(api) {
   api.addPostSmallActionIcon("followup", "far-clock");
   api.addPostSmallActionIcon("approved", "thumbs-up");
+  api.addPostSmallActionIcon("followed_up", "link");
 
   // we need to allow unconditional association even with 2fa
   // core hides this section if 2fa is on for a user

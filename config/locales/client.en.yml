@@ -3,6 +3,7 @@ en:
     action_codes:
       approved: "Approved"
       followup: "Follow Up"
+      followed_up: "Followed Up"
     code_review:
       approve:
         title: "Approve commit"

@@ -33,6 +33,45 @@ module DiscourseCodeReview
       end
     end
 
+    def auto_link_commits(text)
+      linked_commits = find_linked_commits(text)
+      if (linked_commits.length > 0)
+        linked_commits.each do |hash, topic|
+          # this is the ultra naive implementation
+          # the ultra correct one here is to convert to HTML, modify HTML
+          # convert back to Markdown, lets see what milege this gives
+          text.gsub!(hash, "[#{hash}](#{topic.url})")
+        end
+      end
+      [text, linked_commits]
+    end
+
+    def find_linked_commits(text)
+      result = {}
+
+      shas = text.scan(/(?:\s|^)([a-f0-9]{8,})(?:\s|$)/).flatten
+      if shas.length > 0
+
+        like_clause = shas.map { |sha| "f.value LIKE '#{sha}%'" }.join(' OR ')
+
+        topics = Topic.select("topics.*, value AS sha")
+          .joins("JOIN topic_custom_fields f ON topics.id = topic_id AND f.name = '#{DiscourseCodeReview::CommitHash}'")
+          .where(like_clause)
+
+        topics.each do |topic|
+
+          lookup_shas = shas.select { |sha| topic.sha.start_with? sha }
+
+          lookup_shas.each do |sha|
+            result[sha] = topic
+          end
+
+        end
+      end
+
+      result
+    end
+
     def import_commit(commit)
       link = <<~LINK
         [<small>GitHub</small>](https://github.com/#{github_repo.name}/commit/#{commit[:hash]})
@@ -47,7 +86,10 @@ module DiscourseCodeReview
           "\n[... diff too long, it was truncated ...]\n"
         end
 
-      raw = "<div class='excerpt'>\n#{commit[:body]}\n</div>\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link}"
+      body, linked_topics = auto_link_commits(commit[:body])
+      linked_topics.merge! find_linked_commits(title)
+
+      raw = "<div class='excerpt'>\n#{body}\n</div>\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link}"
 
       user = ensure_user(
         email: commit[:email],
@@ -75,6 +117,16 @@ module DiscourseCodeReview
         )
 
         github_repo.last_commit = commit[:hash]
+
+        linked_topics.values.each do |topic|
+          topic.add_moderator_post(
+            user,
+            post.topic.url,
+            bump: false,
+            post_type: Post.types[:small_action],
+            action_code: "followed_up"
+          )
+        end
 
         post
       end
