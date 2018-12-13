@@ -89,7 +89,9 @@ module DiscourseCodeReview
       body, linked_topics = auto_link_commits(commit[:body])
       linked_topics.merge! find_linked_commits(title)
 
-      raw = "<div class='excerpt'>\n#{body}\n</div>\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link}"
+      short_hash = "<small>sha: #{commit[:hash][0...8]}</small>"
+
+      raw = "<div class='excerpt'>\n#{body}\n</div>\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link} #{short_hash}"
 
       user = ensure_user(
         email: commit[:email],
