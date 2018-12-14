@@ -12,6 +12,37 @@ module DiscourseCodeReview
       FileUtils.rm_rf(@git_path)
     end
 
+    it "does not explode with merge commits" do
+
+      Dir.chdir(@git_path) do
+        `git init .`
+        File.write('a', "hello worlds\n")
+        `git add a`
+        `git commit -am 'first commit'`
+
+        `git branch test`
+        `git checkout test`
+        File.write('b', 'test')
+        `git add b`
+        `git commit -am testing`
+        `git checkout master`
+
+        File.write('a', "hello world\n")
+        `git commit -am 'second commit'`
+
+        `git merge test`
+
+        repo = GithubRepo.new('fake_repo/fake_repo', nil)
+
+        repo.path = @git_path
+        repo.last_commit = nil
+
+        commits = repo.commits_since("HEAD~2", merge_github_info: false, pull: false)
+
+        expect(commits.last[:diff]).to eq("")
+      end
+    end
+
     it "can cleanly truncate diffs" do
       Dir.chdir(@git_path) do
         `git init .`

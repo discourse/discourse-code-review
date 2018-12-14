@@ -125,20 +125,22 @@ module DiscourseCodeReview
 
         diff = git("show --format=%b #{hash}")
 
-        diff_lines = diff[0..MAX_DIFF_LENGTH + body.length]
-          .strip
-          .split("\n")
+        if diff.present?
+          diff_lines = diff[0..MAX_DIFF_LENGTH + body.length]
+            .strip
+            .split("\n")
 
-        while !diff_lines[0].start_with?("diff --git")
-          diff_lines.delete_at(0)
+          while diff_lines[0] && !diff_lines[0].start_with?("diff --git")
+            diff_lines.delete_at(0)
+          end
+
+          truncated = diff.length > (MAX_DIFF_LENGTH + body.length)
+          if truncated
+            diff_lines.delete_at(diff_lines.length - 1)
+          end
+
+          diff = diff_lines.join("\n")
         end
-
-        truncated = diff.length > (MAX_DIFF_LENGTH + body.length)
-        if truncated
-          diff_lines.delete_at(diff_lines.length - 1)
-        end
-
-        diff = diff_lines.join("\n")
 
         github_data = lookup[hash] || {}
 
