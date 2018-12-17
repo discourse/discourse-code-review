@@ -46,10 +46,14 @@ module DiscourseCodeReview
       [text, linked_commits]
     end
 
+    def detect_shas(text)
+      text.scan(/(?:\s|[\(\[\{"',;:.]|^)([a-f0-9]{8,})(?:\s|[\)\}\].,;:'"?!]|$)/).flatten
+    end
+
     def find_linked_commits(text)
       result = {}
 
-      shas = text.scan(/(?:\s|\(|^)([a-f0-9]{8,})(?:\s|\)|$)/).flatten
+      shas = detect_shas(text)
       if shas.length > 0
 
         like_clause = shas.map { |sha| "f.value LIKE '#{sha}%'" }.join(' OR ')

@@ -2,6 +2,28 @@ require 'rails_helper'
 
 module DiscourseCodeReview
   describe Importer do
+
+    it "has robust sha detection" do
+      text = (<<~STR).strip
+        hello abcdf672, a723c123444!
+        (abc2345662) {abcd87234} [1209823bc]
+        ,7862abcdf abcdefg722
+        abc7827421119a
+      STR
+
+      shas = Importer.new(nil).detect_shas(text)
+
+      expect(shas).to eq(%w{
+       abcdf672
+       a723c123444
+       abc2345662
+       abcd87234
+       1209823bc
+       7862abcdf
+       abc7827421119a
+      })
+    end
+
     it "can look up a category id consistently" do
 
       # lets muck stuff up first ... and create a dupe category
