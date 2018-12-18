@@ -47,7 +47,7 @@ module DiscourseCodeReview
     end
 
     def detect_shas(text)
-      text.scan(/(?:\s|[\(\[\{"',;:.]|^)([a-f0-9]{8,})(?:\s|[\)\}\].,;:'"?!]|$)/).flatten
+      text.scan(/(?:[^a-zA-Z0-9]|^)([a-f0-9]{8,})(?:[^a-zA-Z0-9]|$)/).flatten
     end
 
     def find_linked_commits(text)

@@ -6,7 +6,7 @@ module DiscourseCodeReview
     it "has robust sha detection" do
       text = (<<~STR).strip
         hello abcdf672, a723c123444!
-        (abc2345662) {abcd87234} [1209823bc]
+        (abc2345662) {abcd87234} [#1209823bc]
         ,7862abcdf abcdefg722
         abc7827421119a
       STR
