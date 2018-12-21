@@ -61,4 +61,23 @@ describe DiscourseCodeReview::CodeReviewController do
       expect(commit.topic.tags.pluck(:name)).to eq(["hi", SiteSetting.code_review_followup_tag])
     end
   end
+
+  context '.render_next_topic' do
+
+    let(:user) { Fabricate(:admin) }
+    let(:other_user) { Fabricate(:admin) }
+
+    it 'prefers unread topics over read ones' do
+      commit = create_post(raw: "this is a fake commit", user: other_user, tags: ["hi", SiteSetting.code_review_pending_tag])
+      read_commit = create_post(raw: "this is a read commit", user: other_user, tags: ["hi", SiteSetting.code_review_pending_tag], created_at: Time.zone.now + 1.hour)
+      unread_commit = create_post(raw: "this is an unread commit", user: other_user, tags: ["hi", SiteSetting.code_review_pending_tag], created_at: Time.zone.now + 2.hours)
+      TopicUser.create!(topic: read_commit.topic, user: user, last_read_post_number: read_commit.topic.highest_post_number)
+
+      sign_in user
+
+      post '/code-review/approve.json', params: { topic_id: commit.topic_id }
+      json = JSON.parse(response.body)
+      expect(json["next_topic_url"]).to eq(unread_commit.topic.relative_url)
+    end
+  end
 end

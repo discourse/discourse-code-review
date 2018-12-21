@@ -111,10 +111,10 @@ module DiscourseCodeReview
     def render_next_topic(category_id)
       next_topic = Topic
         .joins(:tags)
+        .joins("LEFT OUTER JOIN topic_users ON (topics.id = topic_users.topic_id AND topic_users.user_id = #{current_user.id})")
         .where('tags.name = ?', SiteSetting.code_review_pending_tag)
-        .where(category_id: category_id)
-        .where('user_id <> ?', current_user.id)
-        .order('bumped_at asc')
+        .where('topics.user_id <> ?', current_user.id)
+        .order('case when last_read_post_number IS NULL then 0 else 1 end asc', "case when category_id = #{category_id.to_i} then 0 else 1 end asc", 'bumped_at asc')
         .first
 
       url = next_topic&.relative_url
