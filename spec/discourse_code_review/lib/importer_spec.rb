@@ -65,26 +65,31 @@ module DiscourseCodeReview
 
     end
 
-    it "can escape diff ```" do
+    it "can handle complex imports" do
 
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new)
 
       diff = "```\nwith a diff"
 
+      body = <<~MD
+      this is [amazing](http://amaz.ing)
+      MD
+
       commit = {
         subject: "hello world",
-        body: "this is the body",
+        body: body,
         email: "sam@sam.com",
         github_login: "sam",
         github_id: "111",
         date: 1.day.ago,
-        diff: diff
+        diff: diff,
+        hash: SecureRandom.hex
       }
 
       post = Importer.new(repo).import_commit(commit)
 
       expect(post.cooked.scan("code").length).to eq(2)
-      expect(post.excerpt).to eq("this is the body")
+      expect(post.excerpt).to eq("this is <a href=\"http://amaz.ing\">amazing</a>")
     end
   end
 end

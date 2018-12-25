@@ -95,7 +95,7 @@ module DiscourseCodeReview
 
       short_hash = "<small>sha: #{commit[:hash][0...8]}</small>"
 
-      raw = "<div class='excerpt'>\n#{body}\n</div>\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link} #{short_hash}"
+      raw = "[excerpt]\n#{body}\n[/excerpt]\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link} #{short_hash}"
 
       user = ensure_user(
         email: commit[:email],
