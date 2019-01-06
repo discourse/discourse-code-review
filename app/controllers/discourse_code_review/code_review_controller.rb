@@ -71,6 +71,10 @@ module DiscourseCodeReview
         action_code: "followup"
       )
 
+      if SiteSetting.code_review_auto_assign_on_followup && topic.user.staff?
+        DiscourseEvent.trigger(:assign_topic, topic, topic.user, current_user)
+      end
+
       render_next_topic(topic.category_id)
 
     end
@@ -101,6 +105,10 @@ module DiscourseCodeReview
         post_type: Post.types[:small_action],
         action_code: "approved"
       )
+
+      if SiteSetting.code_review_auto_unassign_on_approve && topic.user.staff?
+        DiscourseEvent.trigger(:unassign_topic, topic, current_user)
+      end
 
       render_next_topic(topic.category_id)
 

@@ -16,3 +16,5 @@ plugins:
   code_review_allow_self_approval:
     client: true
     default: false
+  code_review_auto_assign_on_followup: true
+  code_review_auto_unassign_on_approve: true
