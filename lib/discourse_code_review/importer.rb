@@ -235,13 +235,17 @@ module DiscourseCodeReview
           MD
         end
 
+        custom_fields = { DiscourseCodeReview::GithubId => comment[:id] }
+        custom_fields[DiscourseCodeReview::CommentPath] = comment[:path] if comment[:path].present?
+        custom_fields[DiscourseCodeReview::CommentPosition] = comment[:position] if comment[:position].present?
+
         PostCreator.create!(
           user,
           raw: context + comment[:body],
           skip_validations: true,
           created_at: comment[:created_at],
           topic_id: topic_id,
-          custom_fields: { DiscourseCodeReview::GithubId => comment[:id] }
+          custom_fields: custom_fields
         )
       end
     end
