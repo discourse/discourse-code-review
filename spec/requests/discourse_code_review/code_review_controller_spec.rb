@@ -80,4 +80,27 @@ describe DiscourseCodeReview::CodeReviewController do
       expect(json["next_topic_url"]).to eq(unread_commit.topic.relative_url)
     end
   end
+
+  it 'assigns and unassigns topic on followup and approve' do
+    skip if !defined?(TopicAssigner)
+
+    SiteSetting.assign_enabled = true
+    SiteSetting.code_review_auto_assign_on_followup = true
+    SiteSetting.code_review_auto_unassign_on_approve = true
+    SiteSetting.code_review_allow_self_approval = true
+
+    user = Fabricate(:admin)
+    commit = create_post(raw: "this is a fake commit", user: user, tags: ["hi", SiteSetting.code_review_pending_tag])
+
+    sign_in user
+
+    post '/code-review/followup.json', params: { topic_id: commit.topic_id }
+    expect(response.status).to eq(200)
+    expect(TopicQuery.new(user, assigned: user.username).list_latest.topics).to eq([commit.topic])
+
+    post '/code-review/approve.json', params: { topic_id: commit.topic_id }
+    expect(response.status).to eq(200)
+    expect(TopicQuery.new(user, assigned: user.username).list_latest.topics).to eq([])
+  end
+
 end
