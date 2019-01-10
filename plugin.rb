@@ -115,18 +115,15 @@ after_initialize do
       if !post.custom_fields[DiscourseCodeReview::GithubId] && post.user
         if token = post.user.custom_fields[DiscourseCodeReview::UserToken]
           client = Octokit::Client.new(access_token: token)
-          path, position = begin
-            fields = post.reply_to_post&.custom_fields
-            if fields.present? && fields[DiscourseCodeReview::CommentPath].present? && fields[DiscourseCodeReview::CommentPosition].present?
-              [fields[DiscourseCodeReview::CommentPath], fields[DiscourseCodeReview::CommentPosition]]
-            else
-              [nil, nil]
-            end
-          end
+          fields = post.reply_to_post&.custom_fields || {}
+          path = fields[DiscourseCodeReview::CommentPath]
+          position = fields[DiscourseCodeReview::CommentPosition]
 
           if repo = post.topic.category.custom_fields[DiscourseCodeReview::Importer::GithubRepoName]
             comment = client.create_commit_comment(repo, hash, post.raw, path, nil, position)
             post.custom_fields[DiscourseCodeReview::GithubId] = comment.id
+            post.custom_fields[DiscourseCodeReview::CommentPath] = path if path.present?
+            post.custom_fields[DiscourseCodeReview::CommentPosition] = position if position.present?
             post.save_custom_fields
           end
         end
