@@ -1,9 +1,12 @@
 require 'rails_helper'
 
 describe DiscourseCodeReview::CodeReviewController do
+
   before do
     SiteSetting.code_review_enabled = true
+    SiteSetting.tagging_enabled = true
   end
+
   context '.approve' do
     it 'allows you to approve your own commit if enabled' do
 
@@ -16,6 +19,40 @@ describe DiscourseCodeReview::CodeReviewController do
 
       post '/code-review/approve.json', params: { topic_id: commit.topic_id }
       expect(response.status).to eq(403)
+    end
+
+    it 'skips commits from muted categories' do
+      admin = Fabricate(:admin)
+      admin2 = Fabricate(:admin)
+
+      muted_category = Fabricate(:category)
+
+      CategoryUser.create!(
+        user_id: admin.id,
+        category_id: muted_category.id,
+        notification_level: CategoryUser.notification_levels[:muted]
+      )
+
+      commit = create_post(
+        raw: "this is a fake commit",
+        tags: [SiteSetting.code_review_pending_tag],
+        user: admin2
+      )
+
+      _muted_commit = create_post(
+        raw: "this is a fake commit 2",
+        tags: [SiteSetting.code_review_pending_tag],
+        category: muted_category.name,
+        user: admin2
+      )
+
+      sign_in admin
+
+      post '/code-review/approve.json', params: { topic_id: commit.topic_id }
+      expect(response.status).to eq(200)
+
+      json = JSON.parse(response.body)
+      expect(json["next_topic_url"]).to eq(nil)
     end
 
     it 'allows you to approve your own commit if enabled' do
