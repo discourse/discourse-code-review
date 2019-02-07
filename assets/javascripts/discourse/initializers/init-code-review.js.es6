@@ -89,7 +89,7 @@ function initialize(api) {
     label: "code_review.approve.label",
     title: "code_review.approve.title",
     action() { actOnCommit(this.get("topic"), "approve"); },
-    dropdown() { return this.site.movileView; },
+    dropdown() { return this.site.mobileView; },
     classNames: ["approve"],
     dependentKeys: ["topic.tags"],
     displayed() {
@@ -104,7 +104,7 @@ function initialize(api) {
     label: "code_review.followup.label",
     title: "code_review.followup.title",
     action() { actOnCommit(this.get("topic"), "followup"); },
-    dropdown() { return this.site.movileView; },
+    dropdown() { return this.site.mobileView; },
     classNames: ["followup"],
     dependentKeys: ["topic.tags"],
     displayed() {
