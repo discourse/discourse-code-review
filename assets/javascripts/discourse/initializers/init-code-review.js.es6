@@ -82,68 +82,41 @@ function initialize(api) {
     );
   }
 
-  api
-    .modifySelectKit("topic-footer-mobile-dropdown")
-    .modifyContent((context, existingContent) => {
-      const topic = context.get("topic");
-
-      if (allowUser()) {
-        if (allowApprove(topic))
-          existingContent.push({
-            id: "approve",
-            icon: "thumbs-up",
-            name: I18n.t("code_review.approve.label")
-          });
-
-        if (allowFollowup(topic))
-          existingContent.push({
-            id: "followup",
-            icon: "clock-o",
-            name: I18n.t("code_review.followup.label")
-          });
-      }
-      return existingContent;
-    })
-    .onSelect((context, value) => {
-      if (value === "approve" || value === "followup") {
-        const topic = context.get("topic");
-        actOnCommit(topic, value);
-        return true;
-      }
-    });
-
-  api.registerConnectorClass(
-    "topic-footer-main-buttons-before-create",
-    "approve",
-    {
-      setupComponent(args) {
-        this.set("topic", args.topic);
-        this.set("showApprove", allowApprove(args.topic));
-        this.set("showFollowup", allowFollowup(args.topic));
-      },
-      shouldRender: function(args, component) {
-        if (component.get("site.mobileView")) {
-          return false;
-        }
-        return allowUser(args.topic);
-      },
-
-      actions: {
-        followupCommit() {
-          actOnCommit(this.get("topic"), "followup");
-        },
-        approveCommit() {
-          actOnCommit(this.get("topic"), "approve");
-        }
-      }
+  api.registerTopicFooterButton({
+    id: "approve",
+    icon: "thumbs-up",
+    priority: 250,
+    label: "code_review.approve.label",
+    title: "code_review.approve.title",
+    action() { actOnCommit(this.get("topic"), "approve"); },
+    dropdown() { return this.site.movileView; },
+    classNames: ["approve"],
+    dependentKeys: ["topic.tags"],
+    displayed() {
+      return allowUser() && allowApprove(this.get("topic"));
     }
-  );
+  });
+
+  api.registerTopicFooterButton({
+    id: "followup",
+    icon: "clock-o",
+    priority: 250,
+    label: "code_review.followup.label",
+    title: "code_review.followup.title",
+    action() { actOnCommit(this.get("topic"), "followup"); },
+    dropdown() { return this.site.movileView; },
+    classNames: ["followup"],
+    dependentKeys: ["topic.tags"],
+    displayed() {
+      return allowUser() && allowFollowup(this.get("topic"));
+    }
+  });
 }
 
 export default {
   name: "discourse-code-review",
 
   initialize() {
-    withPluginApi("0.8.7", initialize);
+    withPluginApi("0.8.28", initialize);
   }
 };
