@@ -1,9 +1,9 @@
 import { replaceCurrentUser, acceptance } from "helpers/qunit-helpers";
 import Fixtures from "fixtures/topic";
 
-acceptance("review desktop", {
+acceptance("review mobile", {
   loggedIn: true,
-  mobileView: false,
+  mobileView: true,
   settings: {
     code_review_approved_tag: "approved",
     code_review_pending_tag: "pending",
@@ -22,7 +22,10 @@ QUnit.test("shows approve button by default", async assert => {
 
   await visit("/t/internationalization-localization/281");
 
-  assert.ok(count("#topic-footer-button-approve") > 0);
+  const menu = selectKit(".topic-footer-mobile-dropdown");
+  await menu.expand();
+
+  assert.ok(menu.rowByValue("approve").exists());
 });
 
 QUnit.test("hides approve button if user is self", async assert => {
@@ -30,5 +33,8 @@ QUnit.test("hides approve button if user is self", async assert => {
 
   await visit("/t/this-is-a-test-topic/9/1");
 
-  assert.ok(count("#topic-footer-button-approve") === 0);
+  const menu = selectKit(".topic-footer-mobile-dropdown");
+  await menu.expand();
+
+  assert.notOk(menu.rowByValue("approve").exists());
 });

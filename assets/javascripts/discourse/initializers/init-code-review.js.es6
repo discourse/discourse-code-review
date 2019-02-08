@@ -37,23 +37,20 @@ function initialize(api) {
     }.property("authProviders")
   });
 
-  function allowUser() {
-    const currentUser = api.getCurrentUser();
+  function allowUser(currentUser) {
     if (!currentUser) {
       return false;
     }
+
     return currentUser.get("staff");
   }
 
-  function allowApprove(topic) {
-    const currentUser = api.getCurrentUser();
+  function allowApprove(currentUser, topic, siteSettings) {
     if (!currentUser) {
       return false;
     }
 
-    const siteSettings = api.container.lookup("site-settings:main");
     const allowSelfApprove = siteSettings.code_review_allow_self_approval;
-
     const approvedTag = siteSettings.code_review_approved_tag;
     const pendingTag = siteSettings.code_review_pending_tag;
     const followupTag = siteSettings.code_review_followup_tag;
@@ -67,9 +64,7 @@ function initialize(api) {
     );
   }
 
-  function allowFollowup(topic) {
-    const siteSettings = api.container.lookup("site-settings:main");
-
+  function allowFollowup(topic, siteSettings) {
     const approvedTag = siteSettings.code_review_approved_tag;
     const pendingTag = siteSettings.code_review_pending_tag;
     const followupTag = siteSettings.code_review_followup_tag;
@@ -93,7 +88,7 @@ function initialize(api) {
     classNames: ["approve"],
     dependentKeys: ["topic.tags"],
     displayed() {
-      return allowUser() && allowApprove(this.get("topic"));
+      return allowUser(this.currentUser) && allowApprove(this.currentUser, this.get("topic"), this.siteSettings);
     }
   });
 
@@ -108,7 +103,7 @@ function initialize(api) {
     classNames: ["followup"],
     dependentKeys: ["topic.tags"],
     displayed() {
-      return allowUser() && allowFollowup(this.get("topic"));
+      return allowUser(this.currentUser) && allowFollowup(this.get("topic"), this.siteSettings);
     }
   });
 }
