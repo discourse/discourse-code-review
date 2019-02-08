@@ -1,22 +1,12 @@
 import { replaceCurrentUser, acceptance } from "helpers/qunit-helpers";
-import { clearCallbacks } from "select-kit/mixins/plugin-api";
 import Fixtures from "fixtures/topic";
 
-acceptance("review mobile", {
+acceptance("review desktop", {
   loggedIn: true,
-  mobileView: true,
   settings: {
     code_review_approved_tag: "approved",
     code_review_pending_tag: "pending",
     code_review_followup_tag: "followup"
-  },
-  afterEach() {
-    clearCallbacks();
-  },
-  beforeEach() {
-    // we need to clean this up in core
-    // plugin api keeps being re-initialized
-    clearCallbacks();
   }
 });
 
@@ -31,10 +21,7 @@ QUnit.test("shows approve button by default", async assert => {
 
   await visit("/t/internationalization-localization/281");
 
-  const menu = selectKit(".topic-footer-mobile-dropdown");
-  await menu.expand();
-
-  assert.ok(menu.rowByValue("approve").exists());
+  assert.ok(exists("#topic-footer-button-approve"));
 });
 
 QUnit.test("hides approve button if user is self", async assert => {
@@ -42,8 +29,5 @@ QUnit.test("hides approve button if user is self", async assert => {
 
   await visit("/t/this-is-a-test-topic/9/1");
 
-  const menu = selectKit(".topic-footer-mobile-dropdown");
-  await menu.expand();
-
-  assert.ok(!menu.rowByValue("approve").exists());
+  assert.ok(!exists("#topic-footer-button-approve"));
 });
