@@ -5,7 +5,7 @@ import DiscourseURL from "discourse/lib/url";
 import { findAll } from "discourse/models/login-method";
 
 function actOnCommit(topic, action) {
-  let topicId = topic.get("id");
+  const topicId = topic.get("id");
   return ajax(`/code-review/${action}.json`, {
     type: "POST",
     data: { topic_id: topicId }
@@ -38,11 +38,7 @@ function initialize(api) {
   });
 
   function allowUser(currentUser) {
-    if (!currentUser) {
-      return false;
-    }
-
-    return currentUser.get("staff");
+    return currentUser && currentUser.get("staff");
   }
 
   function allowApprove(currentUser, topic, siteSettings) {
@@ -83,12 +79,19 @@ function initialize(api) {
     priority: 250,
     label: "code_review.approve.label",
     title: "code_review.approve.title",
-    action() { actOnCommit(this.get("topic"), "approve"); },
-    dropdown() { return this.site.mobileView; },
+    action() {
+      actOnCommit(this.get("topic"), "approve");
+    },
+    dropdown() {
+      return this.site.mobileView;
+    },
     classNames: ["approve"],
     dependentKeys: ["topic.tags"],
     displayed() {
-      return allowUser(this.currentUser) && allowApprove(this.currentUser, this.get("topic"), this.siteSettings);
+      return (
+        allowUser(this.currentUser) &&
+        allowApprove(this.currentUser, this.get("topic"), this.siteSettings)
+      );
     }
   });
 
@@ -98,12 +101,19 @@ function initialize(api) {
     priority: 250,
     label: "code_review.followup.label",
     title: "code_review.followup.title",
-    action() { actOnCommit(this.get("topic"), "followup"); },
-    dropdown() { return this.site.mobileView; },
+    action() {
+      actOnCommit(this.get("topic"), "followup");
+    },
+    dropdown() {
+      return this.site.mobileView;
+    },
     classNames: ["followup"],
     dependentKeys: ["topic.tags"],
     displayed() {
-      return allowUser(this.currentUser) && allowFollowup(this.get("topic"), this.siteSettings);
+      return (
+        allowUser(this.currentUser) &&
+        allowFollowup(this.get("topic"), this.siteSettings)
+      );
     }
   });
 }
