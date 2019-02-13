@@ -33,17 +33,21 @@ module DiscourseCodeReview
       end
     end
 
-    def auto_link_commits(text)
+    def auto_link_commits(text, doc = nil)
       linked_commits = find_linked_commits(text)
       if (linked_commits.length > 0)
+        doc ||= Nokogiri::HTML::fragment(PrettyText.cook(text))
+        skip_tags = ["a", "code"]
         linked_commits.each do |hash, topic|
-          # this is the ultra naive implementation
-          # the ultra correct one here is to convert to HTML, modify HTML
-          # convert back to Markdown, lets see what milege this gives
-          text.gsub!(hash, "[#{hash}](#{topic.url})")
+          doc.traverse do |node|
+            if node.text? && !skip_tags.include?(node.parent&.name)
+              node.replace node.content.gsub(hash, "<a href='#{topic.url}'>#{hash}</a>")
+            end
+          end
+          text = HtmlToMarkdown.new(doc.to_html).to_markdown
         end
       end
-      [text, linked_commits]
+      [text, linked_commits, doc]
     end
 
     def detect_shas(text)
