@@ -91,5 +91,20 @@ module DiscourseCodeReview
       expect(post.cooked.scan("code").length).to eq(2)
       expect(post.excerpt).to eq("this is <a href=\"http://amaz.ing\">amazing</a>")
     end
+
+    it "#auto_link_commits" do
+      topic = Fabricate(:topic)
+      topic.custom_fields[DiscourseCodeReview::CommitHash] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
+      topic.save
+      topic2 = Fabricate(:topic)
+      topic2.custom_fields[DiscourseCodeReview::CommitHash] = "a1db15feadc7951d8a2b4ae63384babd6c568ae0"
+      topic2.save
+
+      result = Importer.new(nil).auto_link_commits("a1db15feadc and another one dbbadb5c357")
+      markdown = "[a1db15feadc](#{topic2.url}) and another one [dbbadb5c357](#{topic.url})"
+      cooked = PrettyText.cook(markdown)
+      expect(result[0]).to eq(markdown)
+      expect(result[2].to_html).to eq(cooked)
+    end
   end
 end
