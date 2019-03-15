@@ -78,7 +78,7 @@ describe DiscourseCodeReview::CodeReviewController do
 
       commit.topic.reload
 
-      expect(commit.topic.tags.pluck(:name)).to eq(["hi", SiteSetting.code_review_approved_tag])
+      expect(commit.topic.tags.pluck(:name)).to include("hi", SiteSetting.code_review_approved_tag)
     end
   end
 
@@ -95,7 +95,7 @@ describe DiscourseCodeReview::CodeReviewController do
 
       commit.topic.reload
 
-      expect(commit.topic.tags.pluck(:name)).to eq(["hi", SiteSetting.code_review_followup_tag])
+      expect(commit.topic.tags.pluck(:name)).to include("hi", SiteSetting.code_review_followup_tag)
     end
   end
 
