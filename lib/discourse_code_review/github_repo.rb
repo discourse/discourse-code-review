@@ -32,16 +32,28 @@ module DiscourseCodeReview
     end
 
     def last_commit
-      PluginStore.get(DiscourseCodeReview::PluginName, LastCommit + @name).presence ||
-        begin
-          commits = [SiteSetting.code_review_catch_up_commits, 1].max - 1
-          (self.last_commit = git("rev-parse HEAD~#{commits}", backup_command: 'rev-list --max-parents=0 HEAD'))
-        end
+      commit_hash = PluginStore.get(DiscourseCodeReview::PluginName, LastCommit + @name)
+      if commit_hash.present? && !commit_hash_valid?(commit_hash)
+        Rails.logger.warn("Discourse Code Review: Failed to detect commit hash `#{commit_hash}` in #{path}, resetting last commit hash.")
+        commit_hash = nil
+      end
+      if !commit_hash
+        commits = [SiteSetting.code_review_catch_up_commits, 1].max - 1
+        commit_hash = (self.last_commit = git("rev-parse HEAD~#{commits}", backup_command: 'rev-list --max-parents=0 HEAD'))
+      end
+
+      commit_hash
     end
 
     def last_commit=(v)
       PluginStore.set(DiscourseCodeReview::PluginName, LastCommit + @name, v)
       v
+    end
+
+    def commit_hash_valid?(hash)
+      git("cat-file -t #{hash}") == "commit"
+    rescue
+      false
     end
 
     def commit_comments(page = nil)

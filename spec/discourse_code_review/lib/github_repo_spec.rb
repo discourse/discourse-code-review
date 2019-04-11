@@ -90,5 +90,30 @@ module DiscourseCodeReview
         expect(repo.last_commit).to eq(sha)
       end
     end
+
+    it "does not explode on force pushing (bad hash)" do
+      Dir.chdir(@git_path) do
+        `git init .`
+        File.write('a', 'hello')
+        `git add a`
+        `git commit -am 'first commit'`
+        File.write('a', 'hello2')
+        `git commit -am 'second commit'`
+
+        repo = GithubRepo.new('fake_repo/fake_repo', nil)
+        repo.path = @git_path
+
+        # mimic force push event
+        repo.last_commit = "98ab71e61d89149bac528e1d01b9c6d17e5f677a"
+
+        File.write('a', 'hello3')
+        `git commit -am 'third commit'`
+
+        SiteSetting.code_review_catch_up_commits = 1
+
+        sha = `git rev-parse HEAD~0`.strip
+        expect(repo.last_commit).to eq(sha)
+      end
+    end
   end
 end
