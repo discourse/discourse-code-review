@@ -80,6 +80,14 @@ describe DiscourseCodeReview::CodeReviewController do
 
       expect(commit.topic.tags.pluck(:name)).to include("hi", SiteSetting.code_review_approved_tag)
     end
+
+    it 'does nothing when approving already approved posts' do
+      sign_in Fabricate(:admin)
+      commit = create_post(raw: "this is a fake commit", tags: ["hi", SiteSetting.code_review_pending_tag])
+
+      expect { post '/code-review/approve.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(1)
+      expect { post '/code-review/approve.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(0)
+    end
   end
 
   context '.followup' do
@@ -96,6 +104,14 @@ describe DiscourseCodeReview::CodeReviewController do
       commit.topic.reload
 
       expect(commit.topic.tags.pluck(:name)).to include("hi", SiteSetting.code_review_followup_tag)
+    end
+
+    it 'does nothing when following-up already followed-up posts' do
+      sign_in Fabricate(:admin)
+      commit = create_post(raw: "this is a fake commit", tags: ["hi", SiteSetting.code_review_pending_tag])
+
+      expect { post '/code-review/followup.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(1)
+      expect { post '/code-review/followup.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(0)
     end
   end
 
