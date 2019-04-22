@@ -54,25 +54,27 @@ module DiscourseCodeReview
 
       tags = topic.tags.pluck(:name)
 
-      tags -= [
-        SiteSetting.code_review_approved_tag,
-        SiteSetting.code_review_pending_tag
-      ]
+      if !tags.include?(SiteSetting.code_review_followup_tag)
+        tags -= [
+          SiteSetting.code_review_approved_tag,
+          SiteSetting.code_review_pending_tag
+        ]
 
-      tags << SiteSetting.code_review_followup_tag
+        tags << SiteSetting.code_review_followup_tag
 
-      DiscourseTagging.tag_topic_by_names(topic, Guardian.new(current_user), tags)
+        DiscourseTagging.tag_topic_by_names(topic, Guardian.new(current_user), tags)
 
-      topic.add_moderator_post(
-        current_user,
-        nil,
-        bump: false,
-        post_type: Post.types[:small_action],
-        action_code: "followup"
-      )
+        topic.add_moderator_post(
+          current_user,
+          nil,
+          bump: false,
+          post_type: Post.types[:small_action],
+          action_code: "followup"
+        )
 
-      if SiteSetting.code_review_auto_assign_on_followup && topic.user.staff?
-        DiscourseEvent.trigger(:assign_topic, topic, topic.user, current_user)
+        if SiteSetting.code_review_auto_assign_on_followup && topic.user.staff?
+          DiscourseEvent.trigger(:assign_topic, topic, topic.user, current_user)
+        end
       end
 
       render_next_topic(topic.category_id)
@@ -89,25 +91,27 @@ module DiscourseCodeReview
 
       tags = topic.tags.pluck(:name)
 
-      tags -= [
-        SiteSetting.code_review_followup_tag,
-        SiteSetting.code_review_pending_tag
-      ]
+      if !tags.include?(SiteSetting.code_review_approved_tag)
+        tags -= [
+          SiteSetting.code_review_followup_tag,
+          SiteSetting.code_review_pending_tag
+        ]
 
-      tags << SiteSetting.code_review_approved_tag
+        tags << SiteSetting.code_review_approved_tag
 
-      DiscourseTagging.tag_topic_by_names(topic, Guardian.new(current_user), tags)
+        DiscourseTagging.tag_topic_by_names(topic, Guardian.new(current_user), tags)
 
-      topic.add_moderator_post(
-        current_user,
-        nil,
-        bump: false,
-        post_type: Post.types[:small_action],
-        action_code: "approved"
-      )
+        topic.add_moderator_post(
+          current_user,
+          nil,
+          bump: false,
+          post_type: Post.types[:small_action],
+          action_code: "approved"
+        )
 
-      if SiteSetting.code_review_auto_unassign_on_approve && topic.user.staff?
-        DiscourseEvent.trigger(:unassign_topic, topic, current_user)
+        if SiteSetting.code_review_auto_unassign_on_approve && topic.user.staff?
+          DiscourseEvent.trigger(:unassign_topic, topic, current_user)
+        end
       end
 
       render_next_topic(topic.category_id)

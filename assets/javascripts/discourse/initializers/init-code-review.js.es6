@@ -13,6 +13,8 @@ function actOnCommit(topic, action) {
     .then(result => {
       if (result.next_topic_url) {
         DiscourseURL.routeTo(result.next_topic_url);
+      } else {
+        DiscourseURL.routeTo("/");
       }
     })
     .catch(popupAjaxError);
