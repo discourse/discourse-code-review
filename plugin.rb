@@ -5,12 +5,10 @@
 # url: https://github.com/discourse/discourse-code-review
 
 # match version in discourse dev
-begin
-  require 'octokit'
-rescue LoadError
-  gem 'sawyer', '0.8.1'
-  gem 'octokit', '4.9.0'
-end
+gem 'public_suffix', '3.0.3'
+gem 'addressable', '2.5.2'
+gem 'sawyer', '0.8.1'
+gem 'octokit', '4.9.0'
 
 enabled_site_setting :code_review_enabled
 
