@@ -99,7 +99,7 @@ module DiscourseCodeReview
       git("pull")
       begin
         git("log -1 #{hash}", warn: false)
-        commits_since(hash, single: true, pull: false)
+        commits_since(hash, single: true, pull: false).first
       rescue StandardError
         nil
       end
