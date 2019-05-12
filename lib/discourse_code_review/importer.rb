@@ -8,6 +8,21 @@ module DiscourseCodeReview
       @github_repo = github_repo
     end
 
+    def self.import_commit(sha)
+      client = DiscourseCodeReview.octokit_client
+      CategoryCustomField.where(name: GithubRepoName).pluck(:value).each do |repo_name|
+        repo = GithubRepo.new(repo_name, client)
+        importer = Importer.new(repo)
+
+        if commit = repo.commit(sha)
+          importer.import_commit(commit)
+          return repo_name
+        end
+      end
+
+      nil
+    end
+
     def category_id
       @category_id ||=
         begin

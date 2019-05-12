@@ -95,7 +95,17 @@ module DiscourseCodeReview
 
     end
 
-    def commits_since(hash = nil, merge_github_info: true, pull: true)
+    def commit(hash)
+      git("pull")
+      begin
+        git("log -1 #{hash}", warn: false)
+        commits_since(hash, single: true, pull: false)
+      rescue StandardError
+        nil
+      end
+    end
+
+    def commits_since(hash = nil, merge_github_info: true, pull: true, single: false)
       if pull
         git("pull")
       end
@@ -104,7 +114,9 @@ module DiscourseCodeReview
 
       github_info = []
 
-      commits = git("log #{hash}.. --pretty=%H").split("\n").map { |x| x.strip }
+      range = single ? "-1 #{hash}" : "#{hash}.."
+
+      commits = git("log #{range} --pretty=%H").split("\n").map { |x| x.strip }
 
       if merge_github_info
         commits.each_slice(30).each do |x|
@@ -126,7 +138,7 @@ module DiscourseCodeReview
       # hash name email subject body
       format = %w{%H %aN %aE %s %B %at}.join(FEILD_END) << LINE_END
 
-      data = git("log #{hash}.. --pretty='#{format}'")
+      data = git("log #{range} --pretty='#{format}'")
 
       data.split(LINE_END).map do |line|
         fields = line.split(FEILD_END).map { |f| f.strip if f }
@@ -190,7 +202,7 @@ module DiscourseCodeReview
       `git clone #{url} '#{path}'`
     end
 
-    def git(command, backup_command: nil, raise_error: true)
+    def git(command, backup_command: nil, raise_error: true, warn: true)
       FileUtils.mkdir_p(Rails.root + "tmp/code-review-repo")
 
       if !File.exist?(path)
@@ -208,7 +220,9 @@ module DiscourseCodeReview
           end
 
           if $?.exitstatus != 0
-            Rails.logger.warn("Discourse Code Review: Failed to run `#{command}` in #{path} error code: #{$?}")
+            if warn
+              Rails.logger.warn("Discourse Code Review: Failed to run `#{command}` in #{path} error code: #{$?}")
+            end
 
             if raise_error
               raise StandardError, "Failed to run git command #{command} on #{@name} in tmp/code-review-repo"
