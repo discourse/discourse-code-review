@@ -17,7 +17,7 @@ module DiscourseCodeReview
         importer = Importer.new(repo)
 
         if commit = repo.commit(sha)
-          importer.import_commit(commit)
+          importer.import_commit(commit, update_last_commit: false)
           return repo_name
         end
       end
@@ -97,7 +97,7 @@ module DiscourseCodeReview
       result
     end
 
-    def import_commit(commit)
+    def import_commit(commit, update_last_commit: true)
       link = <<~LINK
         [<small>GitHub</small>](https://github.com/#{github_repo.name}/commit/#{commit[:hash]})
       LINK
@@ -143,7 +143,9 @@ module DiscourseCodeReview
           value: commit[:hash]
         )
 
-        github_repo.last_commit = commit[:hash]
+        if update_last_commit
+          github_repo.last_commit = commit[:hash]
+        end
 
         linked_topics.values.each do |topic|
           topic.add_moderator_post(
