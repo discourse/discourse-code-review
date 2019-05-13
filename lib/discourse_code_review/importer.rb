@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DiscourseCodeReview
   class Importer
     attr_reader :github_repo

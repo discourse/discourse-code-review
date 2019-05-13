@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # name: discourse-code-review
 # about: use discourse for after the fact code reviews
 # version: 0.1
