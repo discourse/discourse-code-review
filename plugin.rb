@@ -43,8 +43,6 @@ module HackGithubAuthenticator
       scope = "user:email,repo"
     end
 
-    scope = "user:email,repo"
-
     omniauth.provider :github,
            setup: lambda { |env|
              strategy = env["omniauth.strategy"]
