@@ -39,7 +39,7 @@ module DiscourseCodeReview
       end
       if !commit_hash
         commits = [SiteSetting.code_review_catch_up_commits, 1].max - 1
-        commit_hash = (self.last_commit = git("rev-parse HEAD~#{commits}", backup_command: 'rev-list --max-parents=0 HEAD'))
+        commit_hash = (self.last_commit = git("rev-parse", "HEAD~#{commits}", backup_command: ['rev-list', '--max-parents=0', 'HEAD']))
       end
 
       commit_hash
@@ -51,7 +51,7 @@ module DiscourseCodeReview
     end
 
     def commit_hash_valid?(hash)
-      git("cat-file -t #{hash}") == "commit"
+      git("cat-file", "-t", hash) == "commit"
     rescue
       false
     end
@@ -68,7 +68,7 @@ module DiscourseCodeReview
 
         if hash[:path].present? && hash[:position].present?
 
-          diff = git("diff #{hash[:commit_id]}~1 #{hash[:commit_id]} #{hash[:path]}", raise_error: false)
+          diff = git("diff", "#{hash[:commit_id]}~1", hash[:commit_id], hash[:path], raise_error: false)
           if diff.present?
             # 5 is preamble
             start = [hash[:position] + 5 - 3, 5].max
@@ -98,7 +98,7 @@ module DiscourseCodeReview
     def commit(hash)
       git("pull")
       begin
-        git("log -1 #{hash}", warn: false)
+        git("log", "-1", hash, warn: false)
         commits_since(hash, single: true, pull: false).first
       rescue StandardError
         nil
@@ -116,7 +116,7 @@ module DiscourseCodeReview
 
       range = single ? "-1 #{hash}" : "#{hash}.."
 
-      commits = git("log #{range} --pretty=%H").split("\n").map { |x| x.strip }
+      commits = git("log", range, "--pretty=%H").split("\n").map { |x| x.strip }
 
       if merge_github_info
         commits.each_slice(30).each do |x|
@@ -138,7 +138,7 @@ module DiscourseCodeReview
       # hash name email subject body
       format = %w{%H %aN %aE %s %B %at}.join(FIELD_END) << LINE_END
 
-      data = git("log #{range} --pretty='#{format}'")
+      data = git("log", range, "--pretty=#{format}")
 
       data.split(LINE_END).map do |line|
         fields = line.split(FIELD_END).map { |f| f.strip if f }
@@ -147,7 +147,7 @@ module DiscourseCodeReview
 
         body = fields[4] || ''
 
-        diff = git("show --format=%b #{hash}")
+        diff = git("show", "--format=%b", hash)
 
         if diff.present?
           diff_lines = diff[0..MAX_DIFF_LENGTH + body.length]
@@ -202,7 +202,7 @@ module DiscourseCodeReview
       `git clone #{url} '#{path}'`
     end
 
-    def git(command, backup_command: nil, raise_error: true, warn: true)
+    def git(*command, backup_command: [], raise_error: true, warn: true)
       FileUtils.mkdir_p(Rails.root + "tmp/code-review-repo")
 
       if !File.exist?(path)
@@ -213,19 +213,28 @@ module DiscourseCodeReview
       end
 
       Dir.chdir(path) do
-        result = `git #{command}`.strip
-        if $?.exitstatus != 0
-          if backup_command
-            result = `git #{backup_command}`.strip
+        last_command = command
+        begin
+          result = Discourse::Utils.execute_command('git', *command).strip
+        rescue RuntimeError => e
+        end
+
+        if result.nil?
+          unless backup_command.empty?
+            last_command = backup_command
+            begin
+              result = Discourse::Utils.execute_command('git', *backup_command).strip
+            rescue RuntimeError => e
+            end
           end
 
-          if $?.exitstatus != 0
+          if result.nil?
             if warn
-              Rails.logger.warn("Discourse Code Review: Failed to run `#{command}` in #{path} error code: #{$?}")
+              Rails.logger.warn("Discourse Code Review: Failed to run `#{last_command.join(' ')}` in #{path} with error: #{e}")
             end
 
             if raise_error
-              raise StandardError, "Failed to run git command #{command} on #{@name} in tmp/code-review-repo"
+              raise StandardError, "Failed to run git command #{last_command.join(' ')} on #{@name} in tmp/code-review-repo"
             end
           end
         end
