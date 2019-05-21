@@ -9,7 +9,7 @@ module DiscourseCodeReview
     CommentPage = 'comment page'
 
     LINE_END = "52fc72dfa9cafa9da5e6266810b884ae"
-    FEILD_END = "52fc72dfa9cafa9da5e6266810b884ff"
+    FIELD_END = "52fc72dfa9cafa9da5e6266810b884ff"
 
     MAX_DIFF_LENGTH = 8000
 
@@ -136,12 +136,12 @@ module DiscourseCodeReview
       end
 
       # hash name email subject body
-      format = %w{%H %aN %aE %s %B %at}.join(FEILD_END) << LINE_END
+      format = %w{%H %aN %aE %s %B %at}.join(FIELD_END) << LINE_END
 
       data = git("log #{range} --pretty='#{format}'")
 
       data.split(LINE_END).map do |line|
-        fields = line.split(FEILD_END).map { |f| f.strip if f }
+        fields = line.split(FIELD_END).map { |f| f.strip if f }
 
         hash = fields[0].strip
 
