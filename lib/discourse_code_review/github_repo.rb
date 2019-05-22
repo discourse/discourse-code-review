@@ -214,9 +214,11 @@ module DiscourseCodeReview
 
       Dir.chdir(path) do
         last_command = command
+        last_error = nil
         begin
           result = Discourse::Utils.execute_command('git', *command).strip
         rescue RuntimeError => e
+          last_error = e
         end
 
         if result.nil?
@@ -225,12 +227,13 @@ module DiscourseCodeReview
             begin
               result = Discourse::Utils.execute_command('git', *backup_command).strip
             rescue RuntimeError => e
+              last_error = e
             end
           end
 
           if result.nil?
             if warn
-              Rails.logger.warn("Discourse Code Review: Failed to run `#{last_command.join(' ')}` in #{path} with error: #{e}")
+              Rails.logger.warn("Discourse Code Review: Failed to run `#{last_command.join(' ')}` in #{path} with error: #{last_error}")
             end
 
             if raise_error
