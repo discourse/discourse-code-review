@@ -109,21 +109,23 @@ after_initialize do
   end
 
   on(:post_process_cooked) do |doc, post|
-    if post.post_number > 1 && !post.whisper? && post.raw.present? && (topic = post.topic) && (hash = topic.custom_fields[DiscourseCodeReview::CommitHash])
+    if SiteSetting.code_review_sync_to_github?
+      if post.post_number > 1 && !post.whisper? && post.raw.present? && (topic = post.topic) && (hash = topic.custom_fields[DiscourseCodeReview::CommitHash])
 
-      if !post.custom_fields[DiscourseCodeReview::GithubId] && post.user
-        if token = post.user.custom_fields[DiscourseCodeReview::UserToken]
-          client = Octokit::Client.new(access_token: token)
-          fields = post.reply_to_post&.custom_fields || {}
-          path = fields[DiscourseCodeReview::CommentPath]
-          position = fields[DiscourseCodeReview::CommentPosition]
+        if !post.custom_fields[DiscourseCodeReview::GithubId] && post.user
+          if token = post.user.custom_fields[DiscourseCodeReview::UserToken]
+            client = Octokit::Client.new(access_token: token)
+            fields = post.reply_to_post&.custom_fields || {}
+            path = fields[DiscourseCodeReview::CommentPath]
+            position = fields[DiscourseCodeReview::CommentPosition]
 
-          if repo = post.topic.category.custom_fields[DiscourseCodeReview::Importer::GithubRepoName]
-            comment = client.create_commit_comment(repo, hash, post.raw, path, nil, position)
-            post.custom_fields[DiscourseCodeReview::GithubId] = comment.id
-            post.custom_fields[DiscourseCodeReview::CommentPath] = path if path.present?
-            post.custom_fields[DiscourseCodeReview::CommentPosition] = position if position.present?
-            post.save_custom_fields
+            if repo = post.topic.category.custom_fields[DiscourseCodeReview::Importer::GithubRepoName]
+              comment = client.create_commit_comment(repo, hash, post.raw, path, nil, position)
+              post.custom_fields[DiscourseCodeReview::GithubId] = comment.id
+              post.custom_fields[DiscourseCodeReview::CommentPath] = path if path.present?
+              post.custom_fields[DiscourseCodeReview::CommentPosition] = position if position.present?
+              post.save_custom_fields
+            end
           end
         end
       end
