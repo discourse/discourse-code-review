@@ -20,36 +20,18 @@ module HackGithubAuthenticator
   def after_authenticate(auth_token, existing_account: nil)
     result = super(auth_token, existing_account: existing_account)
 
-    if SiteSetting.code_review_enabled
+    if SiteSetting.code_review_enabled?
       if user_id = result.user&.id
         token = auth_token.credentials.token
 
         user = result.user
-        user.custom_fields[DiscourseCodeReview::UserToken] = token
         user.custom_fields[DiscourseCodeReview::GithubId] = auth_token[:uid]
         user.custom_fields[DiscourseCodeReview::GithubLogin] = auth_token.info.nickname
         user.save_custom_fields
-
       end
     end
 
     result
-  end
-
-  def register_middleware(omniauth)
-    scope = "user:email"
-
-    if SiteSetting.code_review_enabled
-      scope = "user:email,repo"
-    end
-
-    omniauth.provider :github,
-           setup: lambda { |env|
-             strategy = env["omniauth.strategy"]
-              strategy.options[:client_id] = SiteSetting.github_client_id
-              strategy.options[:client_secret] = SiteSetting.github_client_secret
-           },
-           scope: scope
   end
 end
 
@@ -67,30 +49,64 @@ after_initialize do
   module ::DiscourseCodeReview
     PluginName = 'discourse-code-review'
 
+    class APIUserError < StandardError
+    end
+
     class Engine < ::Rails::Engine
       engine_name 'code-review'
       isolate_namespace DiscourseCodeReview
     end
 
-    UserToken = 'github user token'
     CommitHash = 'commit hash'
     GithubId = 'github id'
     GithubLogin = 'github login'
     CommentPath = 'comment path'
     CommentPosition = 'comment position'
 
-    def self.octokit_client
-      client = Octokit::Client.new
+    def self.octokit_bot_client
+      token = SiteSetting.code_review_github_token
 
-      if username = SiteSetting.code_review_api_username.presence
-        username = username.downcase
-        id = User.where(username_lower: username).pluck(:id).first
-        if id && (token = UserCustomField.where(user_id: id, name: DiscourseCodeReview::UserToken).pluck(:value).first)
-          client = Octokit::Client.new(access_token: token)
-        end
+      if token.nil? || token.empty?
+        raise APIUserError, "code_review_github_token not set"
       end
 
-      client
+      Octokit::Client.new(access_token: token)
+    end
+
+    def self.octokit_client
+      self.octokit_bot_client
+    rescue APIUserError
+      Octokit::Client.new
+    end
+
+    def self.sync_post_to_github(client, post)
+      topic = post.topic
+      hash = topic&.custom_fields[DiscourseCodeReview::CommitHash]
+      user = post.user
+
+      if post.post_number > 1 && !post.whisper? && post.raw.present? && topic && hash && user
+        if !post.custom_fields[DiscourseCodeReview::GithubId]
+          fields = post.reply_to_post&.custom_fields || {}
+          path = fields[DiscourseCodeReview::CommentPath]
+          position = fields[DiscourseCodeReview::CommentPosition]
+
+          if repo = post.topic.category.custom_fields[DiscourseCodeReview::Importer::GithubRepoName]
+            post_user_name = user.name || user.username
+
+            github_post_contents = [
+              "[#{post_user_name} posted](#{post.full_url}):",
+              '',
+              post.raw
+            ].join("\n")
+
+            comment = client.create_commit_comment(repo, hash, github_post_contents, path, nil, position)
+            post.custom_fields[DiscourseCodeReview::GithubId] = comment.id
+            post.custom_fields[DiscourseCodeReview::CommentPath] = path if path.present?
+            post.custom_fields[DiscourseCodeReview::CommentPosition] = position if position.present?
+            post.save_custom_fields
+          end
+        end
+      end
     end
   end
 
@@ -110,25 +126,8 @@ after_initialize do
 
   on(:post_process_cooked) do |doc, post|
     if SiteSetting.code_review_sync_to_github?
-      if post.post_number > 1 && !post.whisper? && post.raw.present? && (topic = post.topic) && (hash = topic.custom_fields[DiscourseCodeReview::CommitHash])
-
-        if !post.custom_fields[DiscourseCodeReview::GithubId] && post.user
-          if token = post.user.custom_fields[DiscourseCodeReview::UserToken]
-            client = Octokit::Client.new(access_token: token)
-            fields = post.reply_to_post&.custom_fields || {}
-            path = fields[DiscourseCodeReview::CommentPath]
-            position = fields[DiscourseCodeReview::CommentPosition]
-
-            if repo = post.topic.category.custom_fields[DiscourseCodeReview::Importer::GithubRepoName]
-              comment = client.create_commit_comment(repo, hash, post.raw, path, nil, position)
-              post.custom_fields[DiscourseCodeReview::GithubId] = comment.id
-              post.custom_fields[DiscourseCodeReview::CommentPath] = path if path.present?
-              post.custom_fields[DiscourseCodeReview::CommentPosition] = position if position.present?
-              post.save_custom_fields
-            end
-          end
-        end
-      end
+      client = DiscourseCodeReview.octokit_bot_client
+      DiscourseCodeReview.sync_post_to_github(client, post)
     end
   end
 
@@ -137,4 +136,9 @@ after_initialize do
       doc = DiscourseCodeReview::Importer.new(nil).auto_link_commits(post.raw, doc)[2]
     end
   end
+end
+
+Rake::Task.define_task code_review_delete_user_github_access_tokens: :environment do
+  num_deleted = UserCustomField.where(name: 'github user token').delete_all
+  puts "deleted #{num_deleted} user_custom_fields"
 end

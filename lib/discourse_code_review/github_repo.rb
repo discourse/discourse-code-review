@@ -193,9 +193,11 @@ module DiscourseCodeReview
     end
 
     def clone(path)
+      github_token = SiteSetting.code_review_github_token
+
       url =
-        if (SiteSetting.code_review_allow_private_clone && SiteSetting.code_review_api_username.present?)
-          "https://#{octokit_client.access_token}@github.com/#{@name}.git"
+        if (SiteSetting.code_review_allow_private_clone && github_token.present?)
+          "https://#{github_token}@github.com/#{@name}.git"
         else
           "https://github.com/#{@name}.git"
         end
