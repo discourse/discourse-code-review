@@ -44,7 +44,7 @@ describe DiscourseCodeReview::CodeReviewController do
       _muted_commit = create_post(
         raw: "this is a fake commit 2",
         tags: [SiteSetting.code_review_pending_tag],
-        category: muted_category.name,
+        category: muted_category.id,
         user: admin2
       )
 
