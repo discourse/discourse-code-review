@@ -17,3 +17,5 @@ en:
       followup:
         title: "Follow up commit"
         label: "Follow Up"
+      approval_given: "Approval Given"
+      approval_pending: "Approval Pending"

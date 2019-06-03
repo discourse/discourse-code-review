@@ -121,6 +121,9 @@ after_initialize do
   end
 
   Discourse::Application.routes.append do
+    get '/topics/approval-given/:username' => 'list#approval_given', as: :topics_approval_given
+    get '/topics/approval-pending/:username' => 'list#approval_pending', as: :topics_approval_pending
+
     mount ::DiscourseCodeReview::Engine, at: '/code-review'
   end
 
@@ -135,6 +138,24 @@ after_initialize do
     unless post.topic.custom_fields[DiscourseCodeReview::CommitHash].present? && post.post_number == 1
       doc = DiscourseCodeReview::Importer.new(nil).auto_link_commits(post.raw, doc)[2]
     end
+  end
+
+  add_to_class(:list_controller, :approval_given) do
+    respond_with_list(
+      TopicQuery.new(
+        current_user,
+        tags: [SiteSetting.code_review_approved_tag]
+      ).list_topics_by(current_user)
+    )
+  end
+
+  add_to_class(:list_controller, :approval_pending) do
+    respond_with_list(
+      TopicQuery.new(
+        current_user,
+        tags: [SiteSetting.code_review_pending_tag]
+      ).list_topics_by(current_user)
+    )
   end
 end
 
