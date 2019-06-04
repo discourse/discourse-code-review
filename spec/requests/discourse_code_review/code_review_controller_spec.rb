@@ -94,6 +94,8 @@ describe DiscourseCodeReview::CodeReviewController do
 
   context '.followup' do
     it 'allows you to approve your own commit' do
+      # If discourse-assign is present, we need to enable methods defined by the plugin.
+      SiteSetting.assign_enabled = true if defined?(TopicAssigner)
 
       user = Fabricate(:admin)
       commit = create_post(raw: "this is a fake commit", user: user, tags: ["hi", SiteSetting.code_review_approved_tag])
@@ -144,7 +146,8 @@ describe DiscourseCodeReview::CodeReviewController do
     SiteSetting.code_review_auto_unassign_on_approve = true
     SiteSetting.code_review_allow_self_approval = true
 
-    user = Fabricate(:admin)
+    default_allowed_group = Group.find_by(name: 'staff')
+    user = Fabricate(:admin, groups: [default_allowed_group])
     commit = create_post(raw: "this is a fake commit", user: user, tags: ["hi", SiteSetting.code_review_pending_tag])
 
     sign_in user
