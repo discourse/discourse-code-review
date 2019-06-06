@@ -1,3 +1,4 @@
+import selectKit from "helpers/select-kit-helper";
 import { replaceCurrentUser, acceptance } from "helpers/qunit-helpers";
 import Fixtures from "fixtures/topic";
 
