@@ -4,6 +4,12 @@ en:
       approved: "Approved"
       followup: "Follow Up"
       followed_up: "Followed Up"
+    notifications:
+      code_review:
+        commit_approved:
+          one: "Your commit was approved"
+          many: "{{num_approved_commits}} of your commits were approved"
+          title: "commit approved"
     code_review:
       approve:
         title: "Approve commit"
