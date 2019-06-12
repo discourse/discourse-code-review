@@ -83,6 +83,92 @@ describe DiscourseCodeReview::CodeReviewController do
       expect { post '/code-review/approve.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(1)
       expect { post '/code-review/approve.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(0)
     end
+
+    it 'notifies the topic author' do
+      author = Fabricate(:user)
+      commit =
+        create_post(
+          user: author,
+          raw: "this is a fake commit",
+          tags: ["hi", SiteSetting.code_review_pending_tag]
+        )
+
+      expect(commit.user.notifications.count).to eq(0)
+
+      post '/code-review/approve.json', params: { topic_id: commit.topic_id }
+
+      expect(commit.user.notifications.count).to eq(1)
+      notification = commit.user.notifications.first
+      expect(JSON.parse(notification.data)).to eq({"num_approved_commits" => 1})
+      expect(notification.topic_id).to eq(commit.topic.id)
+      expect(notification.post_number).to eq(2)
+    end
+
+    it 'collapses commit approved notifications' do
+      author = Fabricate(:user)
+
+      commit1 =
+        create_post(
+          user: author,
+          raw: "this is a fake commit",
+          tags: ["hi", SiteSetting.code_review_pending_tag]
+        )
+      commit2 =
+        create_post(
+          user: author,
+          raw: "this is another fake commit",
+          tags: ["hi", SiteSetting.code_review_pending_tag]
+        )
+
+      expect(author.notifications.count).to eq(0)
+
+      post '/code-review/approve.json', params: { topic_id: commit1.topic_id }
+      post '/code-review/approve.json', params: { topic_id: commit2.topic_id }
+
+      expect(author.notifications.count).to eq(1)
+      notification = author.notifications.first
+      expect(JSON.parse(notification.data)).to eq({"num_approved_commits" => 2})
+      expect(notification.topic_id).to be_nil
+      expect(notification.post_number).to be_nil
+    end
+
+    it 'doesn\'t disturb tracking users' do
+      author = Fabricate(:user)
+      commit =
+        create_post(
+          user: author,
+          raw: "this is a fake commit",
+          tags: ["hi", SiteSetting.code_review_pending_tag]
+        )
+
+      bystander = Fabricate(:user)
+
+      PostTiming.record_new_timing(
+        topic_id: commit.topic_id,
+        msecs: 1000,
+        user_id: bystander.id,
+        post_number: 1,
+      )
+
+      TopicUser.change(
+        bystander.id,
+        commit.topic_id,
+        notification_level: TopicUser.notification_levels[:tracking],
+        last_read_post_number: 1,
+        highest_seen_post_number: 1,
+      )
+
+      post '/code-review/approve.json', params: { topic_id: commit.topic_id }
+
+      topic_user =
+        TopicUser.where(
+          user_id: bystander.id,
+          topic_id: commit.topic_id,
+        ).first
+
+      expect(topic_user.last_read_post_number).to eq(2)
+      expect(topic_user.highest_seen_post_number).to eq(2)
+    end
   end
 
   context '.followup' do
