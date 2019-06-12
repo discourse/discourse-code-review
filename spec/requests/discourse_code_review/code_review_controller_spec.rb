@@ -3,10 +3,13 @@
 require 'rails_helper'
 
 describe DiscourseCodeReview::CodeReviewController do
+  fab!(:signed_in_user) { Fabricate(:admin) }
 
   before do
     SiteSetting.code_review_enabled = true
     SiteSetting.tagging_enabled = true
+
+    sign_in signed_in_user
   end
 
   context '.approve' do
@@ -14,23 +17,19 @@ describe DiscourseCodeReview::CodeReviewController do
 
       SiteSetting.code_review_allow_self_approval = false
 
-      user = Fabricate(:admin)
-      commit = create_post(raw: "this is a fake commit", user: user, tags: ["hi", SiteSetting.code_review_pending_tag])
-
-      sign_in user
+      commit = create_post(raw: "this is a fake commit", user: signed_in_user, tags: ["hi", SiteSetting.code_review_pending_tag])
 
       post '/code-review/approve.json', params: { topic_id: commit.topic_id }
       expect(response.status).to eq(403)
     end
 
     it 'skips commits from muted categories' do
-      admin = Fabricate(:admin)
       admin2 = Fabricate(:admin)
 
       muted_category = Fabricate(:category)
 
       CategoryUser.create!(
-        user_id: admin.id,
+        user_id: signed_in_user.id,
         category_id: muted_category.id,
         notification_level: CategoryUser.notification_levels[:muted]
       )
@@ -47,8 +46,6 @@ describe DiscourseCodeReview::CodeReviewController do
         category: muted_category.id,
         user: admin2
       )
-
-      sign_in admin
 
       post '/code-review/approve.json', params: { topic_id: commit.topic_id }
       expect(response.status).to eq(200)
@@ -67,10 +64,7 @@ describe DiscourseCodeReview::CodeReviewController do
         user: Fabricate(:admin)
       )
 
-      user = Fabricate(:admin)
-      commit = create_post(raw: "this is a fake commit", user: user, tags: ["hi", SiteSetting.code_review_pending_tag])
-
-      sign_in user
+      commit = create_post(raw: "this is a fake commit", user: signed_in_user, tags: ["hi", SiteSetting.code_review_pending_tag])
 
       post '/code-review/approve.json', params: { topic_id: commit.topic_id }
       expect(response.status).to eq(200)
@@ -84,7 +78,6 @@ describe DiscourseCodeReview::CodeReviewController do
     end
 
     it 'does nothing when approving already approved posts' do
-      sign_in Fabricate(:admin)
       commit = create_post(raw: "this is a fake commit", tags: ["hi", SiteSetting.code_review_pending_tag])
 
       expect { post '/code-review/approve.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(1)
@@ -97,10 +90,7 @@ describe DiscourseCodeReview::CodeReviewController do
       # If discourse-assign is present, we need to enable methods defined by the plugin.
       SiteSetting.assign_enabled = true if defined?(TopicAssigner)
 
-      user = Fabricate(:admin)
-      commit = create_post(raw: "this is a fake commit", user: user, tags: ["hi", SiteSetting.code_review_approved_tag])
-
-      sign_in user
+      commit = create_post(raw: "this is a fake commit", user: signed_in_user, tags: ["hi", SiteSetting.code_review_approved_tag])
 
       post '/code-review/followup.json', params: { topic_id: commit.topic_id }
       expect(response.status).to eq(200)
@@ -111,7 +101,6 @@ describe DiscourseCodeReview::CodeReviewController do
     end
 
     it 'does nothing when following-up already followed-up posts' do
-      sign_in Fabricate(:admin)
       commit = create_post(raw: "this is a fake commit", tags: ["hi", SiteSetting.code_review_pending_tag])
 
       expect { post '/code-review/followup.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(1)
@@ -120,17 +109,13 @@ describe DiscourseCodeReview::CodeReviewController do
   end
 
   context '.render_next_topic' do
-
-    let(:user) { Fabricate(:admin) }
     let(:other_user) { Fabricate(:admin) }
 
     it 'prefers unread topics over read ones' do
       commit = create_post(raw: "this is a fake commit", user: other_user, tags: ["hi", SiteSetting.code_review_pending_tag])
       read_commit = create_post(raw: "this is a read commit", user: other_user, tags: ["hi", SiteSetting.code_review_pending_tag], created_at: Time.zone.now + 1.hour)
       unread_commit = create_post(raw: "this is an unread commit", user: other_user, tags: ["hi", SiteSetting.code_review_pending_tag], created_at: Time.zone.now + 2.hours)
-      TopicUser.create!(topic: read_commit.topic, user: user, last_read_post_number: read_commit.topic.highest_post_number)
-
-      sign_in user
+      TopicUser.create!(topic: read_commit.topic, user: signed_in_user, last_read_post_number: read_commit.topic.highest_post_number)
 
       post '/code-review/approve.json', params: { topic_id: commit.topic_id }
       json = JSON.parse(response.body)
@@ -147,18 +132,17 @@ describe DiscourseCodeReview::CodeReviewController do
     SiteSetting.code_review_allow_self_approval = true
 
     default_allowed_group = Group.find_by(name: 'staff')
-    user = Fabricate(:admin, groups: [default_allowed_group])
-    commit = create_post(raw: "this is a fake commit", user: user, tags: ["hi", SiteSetting.code_review_pending_tag])
+    Fabricate(:group_user, user: user, group: default_allowed_group)
 
-    sign_in user
+    commit = create_post(raw: "this is a fake commit", user: signed_in_user, tags: ["hi", SiteSetting.code_review_pending_tag])
 
     post '/code-review/followup.json', params: { topic_id: commit.topic_id }
     expect(response.status).to eq(200)
-    expect(TopicQuery.new(user, assigned: user.username).list_latest.topics).to eq([commit.topic])
+    expect(TopicQuery.new(signed_in_user, assigned: signed_in_user.username).list_latest.topics).to eq([commit.topic])
 
     post '/code-review/approve.json', params: { topic_id: commit.topic_id }
     expect(response.status).to eq(200)
-    expect(TopicQuery.new(user, assigned: user.username).list_latest.topics).to eq([])
+    expect(TopicQuery.new(signed_in_user, assigned: signed_in_user.username).list_latest.topics).to eq([])
   end
 
 end
