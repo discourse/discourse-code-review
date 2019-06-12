@@ -10,7 +10,7 @@ describe DiscourseCodeReview::CodeReviewController do
   end
 
   context '.approve' do
-    it 'allows you to approve your own commit if enabled' do
+    it 'doesn\'t allow you to approve your own commit if disabled' do
 
       SiteSetting.code_review_allow_self_approval = false
 
