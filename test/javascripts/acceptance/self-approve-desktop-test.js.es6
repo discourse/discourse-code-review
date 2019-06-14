@@ -15,6 +15,7 @@ QUnit.test("shows approve button by default", async assert => {
 
   json.tags = ["pending"];
 
+  /* global server */
   server.get("/t/281.json", () => {
     return [200, { "Content-Type": "application/json" }, json];
   });
