@@ -1,5 +1,5 @@
 import selectKit from "helpers/select-kit-helper";
-import { replaceCurrentUser, acceptance } from "helpers/qunit-helpers";
+import { updateCurrentUser, acceptance } from "helpers/qunit-helpers";
 import Fixtures from "fixtures/topic";
 
 acceptance("review mobile", {
@@ -30,7 +30,7 @@ QUnit.test("shows approve button by default", async assert => {
 });
 
 QUnit.test("hides approve button if user is self", async assert => {
-  replaceCurrentUser({ id: 1 });
+  updateCurrentUser({ id: 1 });
 
   await visit("/t/this-is-a-test-topic/9/1");
 
