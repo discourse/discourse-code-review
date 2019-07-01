@@ -12,7 +12,7 @@ createWidgetFrom(DefaultNotificationItem, "code-review-commit-approved-notificat
   text(notificationName, data) {
     const num_approved_commits = data.num_approved_commits;
 
-    if (num_approved_commits == 1) {
+    if (num_approved_commits === 1) {
       return I18n.t("notifications.code_review.commit_approved.one");
     } else {
       return I18n.t("notifications.code_review.commit_approved.many", { num_approved_commits });
