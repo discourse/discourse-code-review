@@ -136,12 +136,12 @@ module DiscourseCodeReview
               notification_type: Notification.types[:code_review_commit_approved],
               topic_id: topic.id,
               post_number: post.post_number,
-              data: {num_approved_commits: 1}.to_json
+              data: { num_approved_commits: 1 }.to_json
             )
           else
             topic.user.notifications.create(
               notification_type: Notification.types[:code_review_commit_approved],
-              data: {num_approved_commits: previous_approved + 1}.to_json
+              data: { num_approved_commits: previous_approved + 1 }.to_json
             )
           end
         end
