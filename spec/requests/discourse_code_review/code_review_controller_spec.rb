@@ -218,7 +218,7 @@ describe DiscourseCodeReview::CodeReviewController do
     SiteSetting.code_review_allow_self_approval = true
 
     default_allowed_group = Group.find_by(name: 'staff')
-    Fabricate(:group_user, user: user, group: default_allowed_group)
+    Fabricate(:group_user, group: default_allowed_group)
 
     commit = create_post(raw: "this is a fake commit", user: signed_in_user, tags: ["hi", SiteSetting.code_review_pending_tag])
 
