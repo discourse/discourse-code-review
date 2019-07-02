@@ -99,7 +99,7 @@ describe DiscourseCodeReview::CodeReviewController do
 
       expect(commit.user.notifications.count).to eq(1)
       notification = commit.user.notifications.first
-      expect(JSON.parse(notification.data)).to eq({"num_approved_commits" => 1})
+      expect(JSON.parse(notification.data)).to eq({ "num_approved_commits" => 1 })
       expect(notification.topic_id).to eq(commit.topic.id)
       expect(notification.post_number).to eq(2)
     end
@@ -127,7 +127,7 @@ describe DiscourseCodeReview::CodeReviewController do
 
       expect(author.notifications.count).to eq(1)
       notification = author.notifications.first
-      expect(JSON.parse(notification.data)).to eq({"num_approved_commits" => 2})
+      expect(JSON.parse(notification.data)).to eq({ "num_approved_commits" => 2 })
       expect(notification.topic_id).to be_nil
       expect(notification.post_number).to be_nil
     end
@@ -210,7 +210,6 @@ describe DiscourseCodeReview::CodeReviewController do
   end
 
   it 'assigns and unassigns topic on followup and approve' do
-    skip
     skip if !defined?(TopicAssigner)
 
     SiteSetting.assign_enabled = true
@@ -219,17 +218,19 @@ describe DiscourseCodeReview::CodeReviewController do
     SiteSetting.code_review_allow_self_approval = true
 
     default_allowed_group = Group.find_by(name: 'staff')
-    Fabricate(:group_user, group: default_allowed_group)
 
-    commit = create_post(raw: "this is a fake commit", user: signed_in_user, tags: ["hi", SiteSetting.code_review_pending_tag])
+    Fabricate(:group_user, user: signed_in_user, group: default_allowed_group)
+
+    author = Fabricate(:admin)
+    commit = create_post(raw: "this is a fake commit", user: author, tags: ["hi", SiteSetting.code_review_pending_tag])
 
     post '/code-review/followup.json', params: { topic_id: commit.topic_id }
     expect(response.status).to eq(200)
-    expect(TopicQuery.new(signed_in_user, assigned: signed_in_user.username).list_latest.topics).to eq([commit.topic])
+    expect(TopicQuery.new(signed_in_user, assigned: author.username).list_latest.topics).to eq([commit.topic])
 
     post '/code-review/approve.json', params: { topic_id: commit.topic_id }
     expect(response.status).to eq(200)
-    expect(TopicQuery.new(signed_in_user, assigned: signed_in_user.username).list_latest.topics).to eq([])
+    expect(TopicQuery.new(signed_in_user, assigned: author.username).list_latest.topics).to eq([])
   end
 
 end
