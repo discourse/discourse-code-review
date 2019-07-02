@@ -79,6 +79,10 @@ after_initialize do
       Octokit::Client.new
     end
 
+    def self.github_user_syncer
+      @github_user_syncer ||= GithubUserSyncer.new
+    end
+
     def self.sync_post_to_github(client, post)
       topic = post.topic
       hash = topic&.custom_fields[DiscourseCodeReview::CommitHash]
@@ -111,6 +115,7 @@ after_initialize do
   end
 
   require File.expand_path("../app/controllers/discourse_code_review/code_review_controller.rb", __FILE__)
+  require File.expand_path("../lib/discourse_code_review/github_user_syncer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/importer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_repo.rb", __FILE__)
 

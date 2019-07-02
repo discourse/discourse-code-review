@@ -118,7 +118,7 @@ module DiscourseCodeReview
 
       raw = "[excerpt]\n#{body}\n[/excerpt]\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link} #{short_hash}"
 
-      user = ensure_user(
+      user = DiscourseCodeReview.github_user_syncer.ensure_user(
         email: commit[:email],
         name: commit[:name],
         github_login: commit[:author_login],
@@ -178,59 +178,6 @@ module DiscourseCodeReview
       end
     end
 
-    def ensure_user(email:, name:, github_login: nil, github_id: nil)
-      user = nil
-
-      if github_id
-        if user_id = UserCustomField.where(name: DiscourseCodeReview::GithubId, value: github_id).pluck(:user_id).first
-          user = User.find_by(id: user_id)
-        end
-      end
-
-      if !user && github_login
-        if user_id = UserCustomField.where(name: DiscourseCodeReview::GithubLogin, value: github_login).pluck(:user_id).first
-          user = User.find_by(id: user_id)
-        end
-      end
-
-      user ||= User.find_by_email(email)
-
-      if !user
-        username = UserNameSuggester.sanitize_username(github_login || name)
-        begin
-          user = User.create!(
-            email: email,
-            username: UserNameSuggester.suggest(username.presence || email),
-            name: name.presence || User.suggest_name(email),
-            staged: true
-          )
-        end
-      end
-
-      if github_login
-
-        rel = UserCustomField.where(name: DiscourseCodeReview::GithubLogin, value: github_login)
-        existing = rel.pluck(:user_id)
-
-        if existing != [user.id]
-          rel.destroy_all
-          UserCustomField.create!(name: DiscourseCodeReview::GithubLogin, value: github_login, user_id: user.id)
-        end
-      end
-
-      if github_id
-
-        rel = UserCustomField.where(name: DiscourseCodeReview::GithubId, value: github_id)
-        existing = rel.pluck(:user_id)
-
-        if existing != [user.id]
-          rel.destroy_all
-          UserCustomField.create!(name: DiscourseCodeReview::GithubId, value: github_id, user_id: user.id)
-        end
-      end
-      user
-    end
-
     protected
 
     def import_comment(comment)
@@ -241,7 +188,7 @@ module DiscourseCodeReview
       # do we have the commit?
       if topic_id = TopicCustomField.where(name: DiscourseCodeReview::CommitHash, value: comment[:commit_hash]).pluck(:topic_id).first
         login = comment[:login] || "unknown"
-        user = ensure_user(email: "#{login}@fake.github.com", name: login, github_login: login)
+        user = DiscourseCodeReview.github_user_syncer.ensure_user(name: login, github_login: login)
 
         context = ""
         if comment[:line_content]
