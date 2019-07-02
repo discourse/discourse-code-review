@@ -94,7 +94,7 @@ after_initialize do
           path = fields[DiscourseCodeReview::CommentPath]
           position = fields[DiscourseCodeReview::CommentPosition]
 
-          if repo = post.topic.category.custom_fields[DiscourseCodeReview::Importer::GithubRepoName]
+          if repo = post.topic.category.custom_fields[DiscourseCodeReview::GithubCategorySyncer::GithubRepoName]
             post_user_name = user.name || user.username
 
             github_post_contents = [
@@ -116,6 +116,7 @@ after_initialize do
 
   require File.expand_path("../app/controllers/discourse_code_review/code_review_controller.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_user_syncer.rb", __FILE__)
+  require File.expand_path("../lib/discourse_code_review/github_category_syncer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/importer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_repo.rb", __FILE__)
 

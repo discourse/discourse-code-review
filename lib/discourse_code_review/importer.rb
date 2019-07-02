@@ -4,15 +4,13 @@ module DiscourseCodeReview
   class Importer
     attr_reader :github_repo
 
-    GithubRepoName = "GitHub Repo Name"
-
     def initialize(github_repo)
       @github_repo = github_repo
     end
 
     def self.import_commit(sha)
       client = DiscourseCodeReview.octokit_client
-      CategoryCustomField.where(name: GithubRepoName).pluck(:value).each do |repo_name|
+      GithubCategorySyncer.each_repo_name do |repo_name|
         repo = GithubRepo.new(repo_name, client)
         importer = Importer.new(repo)
 
@@ -27,21 +25,9 @@ module DiscourseCodeReview
 
     def category_id
       @category_id ||=
-        begin
-          id = Category.where(<<~SQL, name: GithubRepoName, value: github_repo.name).order(:id).pluck(:id).first
-            id IN (SELECT category_id FROM category_custom_fields WHERE name = :name AND value = :value)
-          SQL
-          if !id
-            Category.transaction do
-              short_name = find_category_name(github_repo.name.split("/").last)
-              category = Category.create!(name: short_name, user: Discourse.system_user)
-              category.custom_fields[GithubRepoName] = github_repo.name
-              category.save_custom_fields
-              id = category.id
-            end
-          end
-          id
-        end
+        GithubCategorySyncer.ensure_category(
+          repo_name: github_repo.name
+        ).id
     end
 
     def import_commits
@@ -217,14 +203,6 @@ module DiscourseCodeReview
           topic_id: topic_id,
           custom_fields: custom_fields
         )
-      end
-    end
-
-    def find_category_name(name)
-      if Category.where(name: name).exists?
-        name += SecureRandom.hex
-      else
-        name
       end
     end
   end

@@ -28,7 +28,7 @@ describe DiscourseCodeReview do
     context 'when a category, topic and post exist with appropriate custom fields, a reply and another post have been created and sync_to_github is true' do
       fab!(:category) do
         Fabricate(:category).tap do |category|
-          category.custom_fields[DiscourseCodeReview::Importer::GithubRepoName] = 'some github repo'
+          category.custom_fields[DiscourseCodeReview::GithubCategorySyncer::GithubRepoName] = 'some github repo'
           category.save_custom_fields
         end
       end
