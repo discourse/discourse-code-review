@@ -8,7 +8,7 @@ createWidgetFrom(
   DefaultNotificationItem,
   "code-review-commit-approved-notification-item",
   {
-    title() {
+    notificationTitle() {
       return I18n.t("notifications.code_review.commit_approved.title");
     },
 
