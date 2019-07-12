@@ -11,6 +11,7 @@ gem 'public_suffix', '3.0.3'
 gem 'addressable', '2.5.2'
 gem 'sawyer', '0.8.1'
 gem 'octokit', '4.9.0'
+gem 'pqueue', '2.1.0'
 
 enabled_site_setting :code_review_enabled
 
@@ -79,8 +80,43 @@ after_initialize do
       Octokit::Client.new
     end
 
+    def self.graphql_client
+      @graphql_client ||= GraphQLClient.new(self.octokit_bot_client)
+    end
+
+    def self.github_pr_service
+      @github_pr_querier ||= GithubPRQuerier.new(self.graphql_client)
+      @github_pr_service ||=
+        GithubPRService.new(
+          self.octokit_bot_client,
+          @github_pr_querier
+        )
+    end
+
+    def self.github_user_querier
+      @github_user_querier ||= GithubUserQuerier.new(self.octokit_client)
+    end
+
     def self.github_user_syncer
-      @github_user_syncer ||= GithubUserSyncer.new
+      @github_user_syncer ||= GithubUserSyncer.new(self.github_user_querier)
+    end
+
+    def self.github_pr_syncer
+      @github_pr_syncer ||=
+        GithubPRSyncer.new(
+          self.github_pr_service,
+          self.github_user_syncer
+        )
+    end
+
+    def self.without_rate_limiting
+      previously_disabled = RateLimiter.disabled?
+
+      RateLimiter.disable
+
+      yield
+    ensure
+      RateLimiter.enable unless previously_disabled
     end
 
     def self.sync_post_to_github(client, post)
@@ -115,7 +151,13 @@ after_initialize do
   end
 
   require File.expand_path("../app/controllers/discourse_code_review/code_review_controller.rb", __FILE__)
-  require File.expand_path("../lib/typed_data.rb", __FILE__)
+  require File.expand_path("../lib/enumerators", __FILE__)
+  require File.expand_path("../lib/typed_data", __FILE__)
+  require File.expand_path("../lib/graphql_client", __FILE__)
+  require File.expand_path("../lib/discourse_code_review/github_pr_service", __FILE__)
+  require File.expand_path("../lib/discourse_code_review/github_pr_querier", __FILE__)
+  require File.expand_path("../lib/discourse_code_review/github_pr_syncer", __FILE__)
+  require File.expand_path("../lib/discourse_code_review/github_user_querier", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_user_syncer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_category_syncer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/importer.rb", __FILE__)
@@ -138,6 +180,8 @@ after_initialize do
     if SiteSetting.code_review_sync_to_github?
       client = DiscourseCodeReview.octokit_bot_client
       DiscourseCodeReview.sync_post_to_github(client, post)
+
+      DiscourseCodeReview.github_pr_syncer.mirror_pr_post(post)
     end
   end
 
@@ -183,4 +227,27 @@ end
 Rake::Task.define_task code_review_delete_user_github_access_tokens: :environment do
   num_deleted = UserCustomField.where(name: 'github user token').delete_all
   puts "deleted #{num_deleted} user_custom_fields"
+end
+
+Rake::Task.define_task code_review_tag_commits: :environment do
+  topics =
+    Topic
+      .where(
+        id:
+          TopicCustomField
+            .select(:topic_id)
+            .where(name: DiscourseCodeReview::CommitHash)
+      )
+      .to_a
+
+  puts "Tagging #{topics.size} topics"
+
+  topics.each do |topic|
+    DiscourseTagging.tag_topic_by_names(
+      topic,
+      Discourse.system_user.guardian,
+      [SiteSetting.code_review_commit_tag],
+      append: true
+    )
+  end
 end

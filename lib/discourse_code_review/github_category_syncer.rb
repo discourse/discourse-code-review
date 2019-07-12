@@ -39,6 +39,16 @@ module DiscourseCodeReview
           .each(&blk)
       end
 
+      def github_repo_category_fields
+        CategoryCustomField
+          .where(name: GithubRepoName)
+          .include(:category)
+      end
+
+      def get_repo_name_from_topic(topic)
+        topic.category.custom_fields[GithubRepoName]
+      end
+
       private
 
       def find_category_name(name)
