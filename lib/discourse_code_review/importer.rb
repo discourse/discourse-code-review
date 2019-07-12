@@ -14,7 +14,6 @@ module DiscourseCodeReview
         repo = GithubRepo.new(repo_name, client)
         importer = Importer.new(repo)
 
-
         if commit = repo.commit(sha)
           importer.sync_commit(commit)
           return repo_name
@@ -22,6 +21,13 @@ module DiscourseCodeReview
       end
 
       nil
+    end
+
+    def self.sync_commit_from_repo(repo_name, sha)
+      client = DiscourseCodeReview.octokit_client
+      repo = GithubRepo.new(repo_name, client)
+      importer = Importer.new(repo)
+      importer.sync_commit_sha(sha)
     end
 
     def category_id
@@ -167,6 +173,8 @@ module DiscourseCodeReview
           else
             [SiteSetting.code_review_unmerged_tag]
           end
+
+        tags << SiteSetting.code_review_commit_tag
 
         post = PostCreator.create!(
           user,

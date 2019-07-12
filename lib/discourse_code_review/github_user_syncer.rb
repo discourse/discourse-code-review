@@ -2,6 +2,10 @@
 
 module DiscourseCodeReview
   class GithubUserSyncer
+    def initialize(user_querier)
+      @user_querier = user_querier
+    end
+
     def ensure_user(name:, email: nil, github_login: nil, github_id: nil)
       user = nil
 
@@ -70,8 +74,10 @@ module DiscourseCodeReview
 
     private
 
+    attr_reader :user_querier
+
     def email_for(github_login)
-      "#{github_login}@fake.github.com"
+      user_querier.get_user_email(github_login) || "#{github_login}@fake.github.com"
     end
   end
 end
