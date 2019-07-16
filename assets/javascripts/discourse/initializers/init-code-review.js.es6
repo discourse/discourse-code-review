@@ -99,7 +99,7 @@ function initialize(api) {
 
   api.registerTopicFooterButton({
     id: "followup",
-    icon: "clock-o",
+    icon: "far-clock",
     priority: 250,
     label: "code_review.followup.label",
     title: "code_review.followup.title",
