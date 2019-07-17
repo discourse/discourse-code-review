@@ -1,6 +1,8 @@
 import { createWidgetFrom } from "discourse/widgets/widget";
 import { DefaultNotificationItem } from "discourse/widgets/default-notification-item";
 import { replaceIcon } from "discourse-common/lib/icon-library";
+import { postUrl } from "discourse/lib/utilities";
+import { userPath } from "discourse/lib/url";
 
 replaceIcon("notification.code_review_commit_approved", "check");
 
@@ -13,14 +15,26 @@ createWidgetFrom(
     },
 
     text(notificationName, data) {
-      const num_approved_commits = data.num_approved_commits;
+      const numApprovedCommits = data.num_approved_commits;
 
-      if (num_approved_commits === 1) {
-        return I18n.t("notifications.code_review.commit_approved.one");
+      if (numApprovedCommits === 1) {
+        return I18n.t("notifications.code_review.commit_approved.one", {
+          topicTitle: this.attrs.fancy_title
+        });
       } else {
         return I18n.t("notifications.code_review.commit_approved.many", {
-          num_approved_commits
+          numApprovedCommits
         });
+      }
+    },
+
+    url() {
+      const topicId = this.attrs.topic_id;
+
+      if (topicId) {
+        return postUrl(this.attrs.slug, topicId, 1);
+      } else {
+        return userPath(`${this.currentUser.username}/activity/approval-given`);
       }
     }
   }
