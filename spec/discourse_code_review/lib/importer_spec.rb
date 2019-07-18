@@ -4,6 +4,9 @@ require 'rails_helper'
 
 module DiscourseCodeReview
   describe Importer do
+    def first_post_of(topic_id)
+      Topic.find(topic_id).posts.order(:id).first
+    end
 
     it "has robust sha detection" do
       text = (<<~STR).strip
@@ -54,11 +57,16 @@ module DiscourseCodeReview
         hash: "a1db15feadc7951d8a2b4ae63384babd6c568ae0"
       }
 
-      post = Importer.new(repo).import_commit(commit)
+      repo.expects(:master_contains?).with(commit[:hash]).returns(true)
+
+      post = first_post_of(Importer.new(repo).import_commit(commit))
 
       commit[:hash] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
       commit[:body] = "ab2787347ff (this is\nfollowing up on a1db15fe)"
-      post2 = Importer.new(repo).import_commit(commit)
+
+      repo.expects(:master_contains?).with(commit[:hash]).returns(true)
+
+      post2 = first_post_of(Importer.new(repo).import_commit(commit))
 
       expect(post2.cooked).to include(post.topic.url)
 
@@ -88,7 +96,9 @@ module DiscourseCodeReview
         hash: SecureRandom.hex
       }
 
-      post = Importer.new(repo).import_commit(commit)
+      repo.expects(:master_contains?).with(commit[:hash]).returns(true)
+
+      post = first_post_of(Importer.new(repo).import_commit(commit))
 
       expect(post.cooked.scan("code").length).to eq(2)
       expect(post.excerpt).to eq("this is <a href=\"http://amaz.ing\">amazing</a>")

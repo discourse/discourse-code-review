@@ -8,14 +8,15 @@ module DiscourseCodeReview
       @github_repo = github_repo
     end
 
-    def self.import_commit(sha)
+    def self.sync_commit(sha)
       client = DiscourseCodeReview.octokit_client
       GithubCategorySyncer.each_repo_name do |repo_name|
         repo = GithubRepo.new(repo_name, client)
         importer = Importer.new(repo)
 
+
         if commit = repo.commit(sha)
-          importer.import_commit(commit, update_last_commit: false)
+          importer.sync_commit(commit)
           return repo_name
         end
       end
@@ -30,9 +31,12 @@ module DiscourseCodeReview
         ).id
     end
 
-    def import_commits
+    def sync_merged_commits
+      last_commit = nil
       github_repo.commits_since.each do |commit|
-        import_commit(commit)
+        sync_commit(commit)
+
+        github_repo.last_commit = commit[:hash]
       end
     end
 
@@ -83,7 +87,20 @@ module DiscourseCodeReview
       result
     end
 
-    def import_commit(commit, update_last_commit: true)
+    def sync_commit_sha(commit_sha)
+      commit = github_repo.commit(commit_sha)
+      sync_commit(commit)
+    end
+
+    def sync_commit(commit)
+      topic_id = import_commit(commit)
+      import_comments(topic_id, commit[:hash])
+      topic_id
+    end
+
+    def import_commit(commit)
+      return unless github_repo.master_contains?(commit[:hash])
+
       link = <<~LINK
         [<small>GitHub</small>](https://github.com/#{github_repo.name}/commit/#{commit[:hash]})
       LINK
@@ -111,8 +128,17 @@ module DiscourseCodeReview
         github_id: commit[:author_id]
       )
 
-      if !TopicCustomField.exists?(name: DiscourseCodeReview::CommitHash, value: commit[:hash])
+      topic_id =
+        TopicCustomField
+          .where(
+            name: DiscourseCodeReview::CommitHash,
+            value: commit[:hash]
+          )
+          .limit(1)
+          .pluck(:topic_id)
+          .first
 
+      if topic_id.nil?
         post = PostCreator.create!(
           user,
           raw: raw,
@@ -129,10 +155,6 @@ module DiscourseCodeReview
           value: commit[:hash]
         )
 
-        if update_last_commit
-          github_repo.last_commit = commit[:hash]
-        end
-
         linked_topics.values.each do |topic|
           topic.add_moderator_post(
             user,
@@ -143,66 +165,47 @@ module DiscourseCodeReview
           )
         end
 
-        post
+        topic_id = post.topic_id
       end
+
+      topic_id
     end
 
-    def import_comments
-      page = github_repo.current_comment_page
+    def import_comments(topic_id, commit_sha)
+      github_repo.commit_comments(commit_sha).each do |comment|
+        # skip if we already have the comment
+        unless PostCustomField.exists?(name: DiscourseCodeReview::GithubId, value: comment[:id])
+          login = comment[:login] || "unknown"
+          user = DiscourseCodeReview.github_user_syncer.ensure_user(name: login, github_login: login)
 
-      while true
-        comments = github_repo.commit_comments(page)
+          context = ""
+          if comment[:line_content]
+            context = <<~MD
+              [quote]
+              #{comment[:path]}
 
-        break if comments.blank?
+              ```diff
+              #{comment[:line_content]}
+              ```
 
-        comments.each do |comment|
-          import_comment(comment)
+              [/quote]
+
+            MD
+          end
+
+          custom_fields = { DiscourseCodeReview::GithubId => comment[:id] }
+          custom_fields[DiscourseCodeReview::CommentPath] = comment[:path] if comment[:path].present?
+          custom_fields[DiscourseCodeReview::CommentPosition] = comment[:position] if comment[:position].present?
+
+          PostCreator.create!(
+            user,
+            raw: context + comment[:body],
+            skip_validations: true,
+            created_at: comment[:created_at],
+            topic_id: topic_id,
+            custom_fields: custom_fields
+          )
         end
-
-        github_repo.current_comment_page = page
-        page += 1
-      end
-    end
-
-    protected
-
-    def import_comment(comment)
-
-      # skip if we already have the comment
-      return if PostCustomField.exists?(name: DiscourseCodeReview::GithubId, value: comment[:id])
-
-      # do we have the commit?
-      if topic_id = TopicCustomField.where(name: DiscourseCodeReview::CommitHash, value: comment[:commit_hash]).pluck(:topic_id).first
-        login = comment[:login] || "unknown"
-        user = DiscourseCodeReview.github_user_syncer.ensure_user(name: login, github_login: login)
-
-        context = ""
-        if comment[:line_content]
-          context = <<~MD
-            [quote]
-            #{comment[:path]}
-
-            ```diff
-            #{comment[:line_content]}
-            ```
-
-            [/quote]
-
-          MD
-        end
-
-        custom_fields = { DiscourseCodeReview::GithubId => comment[:id] }
-        custom_fields[DiscourseCodeReview::CommentPath] = comment[:path] if comment[:path].present?
-        custom_fields[DiscourseCodeReview::CommentPosition] = comment[:position] if comment[:position].present?
-
-        PostCreator.create!(
-          user,
-          raw: context + comment[:body],
-          skip_validations: true,
-          created_at: comment[:created_at],
-          topic_id: topic_id,
-          custom_fields: custom_fields
-        )
       end
     end
   end

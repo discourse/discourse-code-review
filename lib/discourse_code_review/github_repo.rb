@@ -18,15 +18,6 @@ module DiscourseCodeReview
       @octokit_client = octokit_client
     end
 
-    def current_comment_page
-      (PluginStore.get(DiscourseCodeReview::PluginName, CommentPage + @name) || 1).to_i
-    end
-
-    def current_comment_page=(v)
-      PluginStore.set(DiscourseCodeReview::PluginName, CommentPage + @name, v)
-      v
-    end
-
     def clean_name
       @name.gsub(/[^a-z0-9]/i, "_")
     end
@@ -56,18 +47,20 @@ module DiscourseCodeReview
       false
     end
 
-    def commit_comments(page = nil)
-      # TODO add a distributed lock here
+    def master_contains?(ref)
+      git('pull')
+
+      hash = git('rev-parse', ref)
+      git('merge-base', 'origin/master', hash) == hash
+    end
+
+    def commit_comments(commit_sha)
       git("pull")
 
-      page ||= current_comment_page
-
-      octokit_client.list_commit_comments(@name, page: page).map do |hash|
-
+      octokit_client.commit_comments(@name, commit_sha).map do |hash|
         line_content = nil
 
         if hash[:path].present? && hash[:position].present?
-
           diff = git("diff", "#{hash[:commit_id]}~1", hash[:commit_id], hash[:path], raise_error: false)
           if diff.present?
             # 5 is preamble
@@ -92,7 +85,6 @@ module DiscourseCodeReview
           line_content: line_content
         }
       end
-
     end
 
     def commit(hash)

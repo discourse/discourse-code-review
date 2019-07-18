@@ -40,9 +40,11 @@ module DiscourseCodeReview
         importer = Importer.new(repo)
 
         if type == "commit_comment"
-          importer.import_comments
+          commit_sha = params["comment"]["commit_id"]
+
+          importer.sync_commit_sha(commit_sha)
         elsif type == "push"
-          importer.import_commits
+          importer.sync_merged_commits
         end
       end
 
