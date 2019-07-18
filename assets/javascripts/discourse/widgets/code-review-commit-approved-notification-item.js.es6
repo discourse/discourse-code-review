@@ -18,11 +18,11 @@ createWidgetFrom(
       const numApprovedCommits = data.num_approved_commits;
 
       if (numApprovedCommits === 1) {
-        return I18n.t("notifications.code_review.commit_approved.one", {
+        return I18n.t("notifications.code_review.commit_approved.single", {
           topicTitle: this.attrs.fancy_title
         });
       } else {
-        return I18n.t("notifications.code_review.commit_approved.many", {
+        return I18n.t("notifications.code_review.commit_approved.multiple", {
           numApprovedCommits
         });
       }
