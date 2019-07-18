@@ -146,6 +146,20 @@ after_initialize do
     end
   end
 
+  on(:post_destroyed) do |post, opts, user|
+    if (github_id = post.custom_fields[DiscourseCodeReview::GithubId]).present?
+      client = DiscourseCodeReview.octokit_bot_client
+      category = post&.topic&.category
+
+      repo_name =
+        category && category.custom_fields[DiscourseCodeReview::GithubCategorySyncer::GithubRepoName]
+
+      if repo_name.present?
+        client.delete_commit_comment(repo_name, github_id)
+      end
+    end
+  end
+
   add_to_class(:list_controller, :approval_given) do
     respond_with_list(
       TopicQuery.new(
