@@ -115,6 +115,7 @@ after_initialize do
   end
 
   require File.expand_path("../app/controllers/discourse_code_review/code_review_controller.rb", __FILE__)
+  require File.expand_path("../lib/typed_data.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_user_syncer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_category_syncer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/importer.rb", __FILE__)
