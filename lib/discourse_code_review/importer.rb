@@ -99,7 +99,7 @@ module DiscourseCodeReview
     end
 
     def import_commit(commit)
-      return unless github_repo.master_contains?(commit[:hash])
+      merged = github_repo.master_contains?(commit[:hash])
 
       link = <<~LINK
         [<small>GitHub</small>](https://github.com/#{github_repo.name}/commit/#{commit[:hash]})
@@ -138,14 +138,43 @@ module DiscourseCodeReview
           .pluck(:topic_id)
           .first
 
-      if topic_id.nil?
+      if topic_id.present?
+        if merged
+          topic = Topic.find(topic_id)
+          tags = topic.tags.pluck(:name)
+
+          merged_tags = [
+            SiteSetting.code_review_pending_tag,
+            SiteSetting.code_review_approved_tag,
+            SiteSetting.code_review_followup_tag
+          ]
+
+          if (tags & merged_tags).empty?
+            tags << SiteSetting.code_review_pending_tag
+            tags -= [SiteSetting.code_review_unmerged_tag]
+
+            DiscourseTagging.tag_topic_by_names(
+              topic,
+              Discourse.system_user.guardian,
+              tags
+            )
+          end
+        end
+      else
+        tags =
+          if merged
+            [SiteSetting.code_review_pending_tag]
+          else
+            [SiteSetting.code_review_unmerged_tag]
+          end
+
         post = PostCreator.create!(
           user,
           raw: raw,
           title: title,
           created_at: commit[:date],
           category: category_id,
-          tags: [SiteSetting.code_review_pending_tag],
+          tags: tags,
           skip_validations: true,
         )
 

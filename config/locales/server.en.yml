@@ -8,6 +8,7 @@ en:
     code_review_pending_tag: 'Tag to apply to pending commits'
     code_review_followup_tag: 'Tag to apply to follow up commits'
     code_review_approved_tag: 'Tag to apply to approved commits'
+    code_review_unmerged_tag: 'Tag to apply to unmerged commits'
     code_review_github_webhook_secret: 'web hook secret string to use use for https://sitename/code-review/webhook'
     code_review_allow_self_approval: 'Allow self approval of commits'
     code_review_auto_assign_on_followup: 'Automatically assign topic to author on followup'

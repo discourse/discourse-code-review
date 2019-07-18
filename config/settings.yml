@@ -13,6 +13,7 @@ plugins:
   code_review_followup_tag:
     client: true
     default: "follow-up"
+  code_review_unmerged_tag: "unmerged"
   code_review_github_webhook_secret: ""
   code_review_allow_self_approval:
     client: true
