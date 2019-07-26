@@ -3,7 +3,6 @@ import { DefaultNotificationItem } from "discourse/widgets/default-notification-
 import { replaceIcon } from "discourse-common/lib/icon-library";
 import { postUrl } from "discourse/lib/utilities";
 import { userPath } from "discourse/lib/url";
-import { i18n } from "discourse/lib/computed";
 
 replaceIcon("notification.code_review_commit_approved", "check");
 
@@ -11,7 +10,9 @@ createWidgetFrom(
   DefaultNotificationItem,
   "code-review-commit-approved-notification-item",
   {
-    notificationTitle: i18n("notifications.code_review.commit_approved.title"),
+    notificationTitle() {
+      return I18n.t("notifications.code_review.commit_approved.title");
+    },
 
     text(notificationName, data) {
       const numApprovedCommits = data.num_approved_commits;
