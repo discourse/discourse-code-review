@@ -1,11 +1,10 @@
 import UserTopicListRoute from "discourse/routes/user-topic-list";
 
 export default UserTopicListRoute.extend({
-  model: function() {
+  model() {
+    const username = this.modelFor("user").username_lower;
     return this.store.findFiltered("topicList", {
-      filter: `topics/approval-pending/${this.modelFor("user").get(
-        "username_lower"
-      )}`
+      filter: `topics/approval-pending/${username}`
     });
   }
 });

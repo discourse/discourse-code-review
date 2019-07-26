@@ -11,7 +11,7 @@ acceptance("review desktop", {
 });
 
 QUnit.test("shows approve button by default", async assert => {
-  const json = $.extend(true, {}, Fixtures["/t/280/1.json"]);
+  const json = Object.assign({}, Fixtures["/t/280/1.json"]);
 
   json.tags = ["pending"];
 
