@@ -5,10 +5,9 @@ import DiscourseURL from "discourse/lib/url";
 import { findAll } from "discourse/models/login-method";
 
 function actOnCommit(topic, action) {
-  const topicId = topic.get("id");
   return ajax(`/code-review/${action}.json`, {
     type: "POST",
-    data: { topic_id: topicId }
+    data: { topic_id: topic.id }
   })
     .then(result => {
       if (result.next_topic_url) {
@@ -31,17 +30,13 @@ function initialize(api) {
   // note there are slightly cleaner ways of doing this but we would need
   // to amend core for the plugin which is not feeling right
   api.modifyClass("controller:preferences/account", {
-    canUpdateAssociatedAccounts: function() {
+    canUpdateAssociatedAccounts: Ember.computed("authProviders", function() {
       return (
         findAll(this.siteSettings, this.capabilities, this.site.isMobileDevice)
           .length > 0
       );
-    }.property("authProviders")
+    })
   });
-
-  function allowUser(currentUser) {
-    return currentUser && currentUser.get("staff");
-  }
 
   function allowApprove(currentUser, topic, siteSettings) {
     if (!currentUser) {
@@ -52,11 +47,10 @@ function initialize(api) {
     const approvedTag = siteSettings.code_review_approved_tag;
     const pendingTag = siteSettings.code_review_pending_tag;
     const followupTag = siteSettings.code_review_followup_tag;
-
-    const tags = topic.get("tags") || [];
+    const tags = topic.tags || [];
 
     return (
-      (allowSelfApprove || currentUser.get("id") !== topic.get("user_id")) &&
+      (allowSelfApprove || currentUser.id !== topic.user_id) &&
       !tags.includes(approvedTag) &&
       (tags.includes(pendingTag) || tags.includes(followupTag))
     );
@@ -67,7 +61,7 @@ function initialize(api) {
     const pendingTag = siteSettings.code_review_pending_tag;
     const followupTag = siteSettings.code_review_followup_tag;
 
-    const tags = topic.get("tags") || [];
+    const tags = topic.tags || [];
 
     return (
       !tags.includes(followupTag) &&
@@ -82,7 +76,7 @@ function initialize(api) {
     label: "code_review.approve.label",
     title: "code_review.approve.title",
     action() {
-      actOnCommit(this.get("topic"), "approve");
+      actOnCommit(this.topic, "approve");
     },
     dropdown() {
       return this.site.mobileView;
@@ -91,8 +85,8 @@ function initialize(api) {
     dependentKeys: ["topic.tags"],
     displayed() {
       return (
-        allowUser(this.currentUser) &&
-        allowApprove(this.currentUser, this.get("topic"), this.siteSettings)
+        this.get("currentUser.staff") &&
+        allowApprove(this.currentUser, this.topic, this.siteSettings)
       );
     }
   });
@@ -104,7 +98,7 @@ function initialize(api) {
     label: "code_review.followup.label",
     title: "code_review.followup.title",
     action() {
-      actOnCommit(this.get("topic"), "followup");
+      actOnCommit(this.topic, "followup");
     },
     dropdown() {
       return this.site.mobileView;
@@ -113,8 +107,8 @@ function initialize(api) {
     dependentKeys: ["topic.tags"],
     displayed() {
       return (
-        allowUser(this.currentUser) &&
-        allowFollowup(this.get("topic"), this.siteSettings)
+        this.get("currentUser.staff") &&
+        allowFollowup(this.topic, this.siteSettings)
       );
     }
   });
