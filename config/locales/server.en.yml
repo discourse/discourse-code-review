@@ -15,3 +15,4 @@ en:
     code_review_allow_self_approval: 'Allow self approval of commits'
     code_review_auto_assign_on_followup: 'Automatically assign topic to author on followup'
     code_review_auto_unassign_on_approve: 'Automatically unassign topic on approve'
+    code_review_github_organizations: 'Github organizations (comma separated) containing repos that should be synced here'

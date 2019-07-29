@@ -13,6 +13,7 @@ en:
           multiple: "{{numApprovedCommits}} commits were approved"
           title: "commit approved"
     code_review:
+      title: 'Code Review'
       approve:
         title: "Approve commit"
         label: "Approve"
@@ -21,3 +22,6 @@ en:
         label: "Follow Up"
       approval_given: "Approval Given"
       approval_pending: "Approval Pending"
+      github_webhooks: "Github Webhooks"
+      configure_webhooks: "Configure Webhooks"
+      configure_webhook: "Configure Webhook"

@@ -1,0 +1,31 @@
+<h1>{{i18n 'code_review.github_webhooks'}}</h1>
+
+{{d-button action=(action "configureWebhooks") label="code_review.configure_webhooks" class="code-review-configure-webhooks-button"}}
+
+<div class=code-review-webhook-tree>
+  {{#each this.organizations as |organization|}}
+    <div class=code-review-webhook-org>
+      <h2>{{organization.name}}</h2>
+      {{#each organization.repos as |repo|}}
+        <div class=code-review-webhook-repo>
+          <h3>{{repo.name}}</h3>
+          {{# if repo.receivedWebhookState }}
+            {{# if repo.hasConfiguredWebhook }}
+              <div class="code-review-webhook-configured">
+                {{d-icon "check"}}
+              </div>
+            {{else}}
+              <div class="code-review-webhook-not-configured">
+                {{d-icon "times"}}
+                {{d-button
+                    action=(action "configureWebhook" organization repo)
+                    label="code_review.configure_webhook"
+                }}
+              </div>
+            {{/if}}
+          {{/if}}
+        </div>
+      {{/each}}
+    </div>
+  {{/each}}
+</div>

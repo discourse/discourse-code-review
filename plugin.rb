@@ -15,7 +15,10 @@ gem 'pqueue', '2.1.0'
 
 enabled_site_setting :code_review_enabled
 
+register_asset 'stylesheets/code_review.scss'
+
 require_dependency 'auth/github_authenticator'
+require_dependency 'lib/staff_constraint'
 module HackGithubAuthenticator
 
   def after_authenticate(auth_token, existing_account: nil)
@@ -148,9 +151,19 @@ after_initialize do
         end
       end
     end
+
+    def self.github_organizations
+      SiteSetting
+        .code_review_github_organizations
+        .split(',')
+        .map(&:strip)
+    end
   end
 
   require File.expand_path("../app/controllers/discourse_code_review/code_review_controller.rb", __FILE__)
+  require File.expand_path("../app/controllers/discourse_code_review/organizations_controller.rb", __FILE__)
+  require File.expand_path("../app/controllers/discourse_code_review/repos_controller.rb", __FILE__)
+  require File.expand_path("../app/controllers/discourse_code_review/admin_code_review_controller.rb", __FILE__)
   require File.expand_path("../lib/enumerators", __FILE__)
   require File.expand_path("../lib/typed_data", __FILE__)
   require File.expand_path("../lib/graphql_client", __FILE__)
@@ -163,17 +176,38 @@ after_initialize do
   require File.expand_path("../lib/discourse_code_review/importer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_repo.rb", __FILE__)
 
+  add_admin_route 'code_review.title', 'code-review'
+
   DiscourseCodeReview::Engine.routes.draw do
-    post '/approve' => 'code_review#approve'
-    post '/followup' => 'code_review#followup'
-    post '/webhook' => 'code_review#webhook'
+    scope '/code-review' do
+      post '/approve' => 'code_review#approve'
+      post '/followup' => 'code_review#followup'
+      post '/webhook' => 'code_review#webhook'
+    end
+
+    scope '/admin/plugins/code-review', as: 'admin_code_review', constraints: StaffConstraint.new do
+      scope format: false do
+        get '/' => 'admin_code_review#index'
+      end
+
+      scope format: true, constraints: { format: 'json' } do
+        resources :organizations, only: [:index] do
+          resources :repos, only: [:index] do
+            member do
+              get '/has-configured-webhook' => 'repos#has_configured_webhook'
+              post '/configure-webhook' => 'repos#configure_webhook'
+            end
+          end
+        end
+      end
+    end
   end
 
   Discourse::Application.routes.append do
     get '/topics/approval-given/:username' => 'list#approval_given', as: :topics_approval_given
     get '/topics/approval-pending/:username' => 'list#approval_pending', as: :topics_approval_pending
 
-    mount ::DiscourseCodeReview::Engine, at: '/code-review'
+    mount ::DiscourseCodeReview::Engine, at: '/'
   end
 
   on(:post_process_cooked) do |doc, post|
