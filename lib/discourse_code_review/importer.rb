@@ -14,7 +14,6 @@ module DiscourseCodeReview
         repo = GithubRepo.new(repo_name, client)
         importer = Importer.new(repo)
 
-
         if commit = repo.commit(sha)
           importer.sync_commit(commit)
           return repo_name
@@ -184,8 +183,8 @@ module DiscourseCodeReview
           value: commit[:hash]
         )
 
-        linked_topics.values.each do |topic|
-          topic.add_moderator_post(
+        linked_topics.values.each do |topik|
+          topik.add_moderator_post(
             user,
             " #{post.topic.url}",
             bump: false,

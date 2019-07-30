@@ -99,7 +99,7 @@ describe DiscourseCodeReview::CodeReviewController do
 
       expect(commit.user.notifications.count).to eq(1)
       notification = commit.user.notifications.first
-      expect(JSON.parse(notification.data)).to eq({ "num_approved_commits" => 1 })
+      expect(JSON.parse(notification.data)).to eq("num_approved_commits" => 1)
       expect(notification.topic_id).to eq(commit.topic.id)
       expect(notification.post_number).to eq(2)
     end
@@ -127,7 +127,7 @@ describe DiscourseCodeReview::CodeReviewController do
 
       expect(author.notifications.count).to eq(1)
       notification = author.notifications.first
-      expect(JSON.parse(notification.data)).to eq({ "num_approved_commits" => 2 })
+      expect(JSON.parse(notification.data)).to eq("num_approved_commits" => 2)
       expect(notification.topic_id).to be_nil
       expect(notification.post_number).to be_nil
     end

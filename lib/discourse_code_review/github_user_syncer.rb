@@ -7,13 +7,13 @@ module DiscourseCodeReview
 
       user ||=
         if github_id
-            User.find_by(
-              id:
-                UserCustomField
-                  .select(:user_id)
-                  .where(name: GithubId, value: github_id)
-                  .limit(1)
-            )
+          User.find_by(
+            id:
+              UserCustomField
+                .select(:user_id)
+                .where(name: GithubId, value: github_id)
+                .limit(1)
+          )
         end
 
       user ||=
