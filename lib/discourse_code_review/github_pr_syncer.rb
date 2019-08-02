@@ -251,7 +251,14 @@ module DiscourseCodeReview
       topic = post.topic
       user = post.user
 
-      if post.post_number > 1 && !post.whisper? && post.custom_fields[GITHUB_NODE_ID].nil?
+      conditions = [
+        post.post_number > 1,
+        !post.whisper?,
+        post.post_type == Post.types[:regular],
+        post.custom_fields[GITHUB_NODE_ID].nil?
+      ]
+
+      if conditions.all?
         repo_name = topic.category.custom_fields[GithubCategorySyncer::GITHUB_REPO_NAME]
         issue_number = topic.custom_fields[GITHUB_ISSUE_NUMBER]
 
