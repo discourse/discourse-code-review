@@ -2,7 +2,7 @@
 
 module TypedData
   module TypedStruct
-    def self.new(base=Object, **attributes, &blk)
+    def self.new(base = Object, **attributes, &blk)
       ordered_attribute_keys = attributes.keys.sort
 
       Class.new(base) do

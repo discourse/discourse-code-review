@@ -128,7 +128,7 @@ module DiscourseCodeReview
         )
 
         Enumerators::FlattenMerge
-          .new(enumerables) {|a, b|
+          .new(enumerables) { |a, b|
             a[0].created_at < b[0].created_at
           }
           .each(&blk)
