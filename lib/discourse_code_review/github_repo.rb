@@ -5,8 +5,7 @@ module DiscourseCodeReview
 
     attr_reader :name, :octokit_client
 
-    LastCommit = 'last commit'
-    CommentPage = 'comment page'
+    LAST_COMMIT = 'last commit'
 
     LINE_END = "52fc72dfa9cafa9da5e6266810b884ae"
     FIELD_END = "52fc72dfa9cafa9da5e6266810b884ff"
@@ -23,7 +22,7 @@ module DiscourseCodeReview
     end
 
     def last_commit
-      commit_hash = PluginStore.get(DiscourseCodeReview::PluginName, LastCommit + @name)
+      commit_hash = PluginStore.get(DiscourseCodeReview::PluginName, LAST_COMMIT + @name)
       if commit_hash.present? && !commit_hash_valid?(commit_hash)
         Rails.logger.warn("Discourse Code Review: Failed to detect commit hash `#{commit_hash}` in #{path}, resetting last commit hash.")
         commit_hash = nil
@@ -37,7 +36,7 @@ module DiscourseCodeReview
     end
 
     def last_commit=(v)
-      PluginStore.set(DiscourseCodeReview::PluginName, LastCommit + @name, v)
+      PluginStore.set(DiscourseCodeReview::PluginName, LAST_COMMIT + @name, v)
       v
     end
 

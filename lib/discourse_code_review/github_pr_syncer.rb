@@ -2,9 +2,9 @@
 
 module DiscourseCodeReview
   class GithubPRSyncer
-    GithubNodeId = "github node id"
-    GithubIssueNumber = "github issue number"
-    GithubThreadId = "github thread id"
+    GITHUB_NODE_ID = "github node id"
+    GITHUB_ISSUE_NUMBER = "github issue number"
+    GITHUB_THREAD_ID = "github thread id"
 
     class GithubPRPoster
       def initialize(topic:, author:, github_id:, created_at:)
@@ -84,7 +84,7 @@ module DiscourseCodeReview
           ensure_pr_post(body: body, post_type: :small_action, action_code: 'renamed') do |post|
             topic = post.topic
 
-            issue_number = topic.custom_fields[GithubIssueNumber]
+            issue_number = topic.custom_fields[GITHUB_ISSUE_NUMBER]
 
             topic.title = "#{event.new_title} (PR ##{issue_number})"
             topic.save!(validate: false)
@@ -118,7 +118,7 @@ module DiscourseCodeReview
           last_post.created_at = created_at
           last_post.save!
 
-          last_post.custom_fields[GithubNodeId] = github_id
+          last_post.custom_fields[GITHUB_NODE_ID] = github_id
           last_post.save_custom_fields
         end
       end
@@ -128,7 +128,7 @@ module DiscourseCodeReview
           id:
             PostCustomField
               .select(:post_id)
-              .where(name: GithubNodeId, value: github_id)
+              .where(name: GITHUB_NODE_ID, value: github_id)
               .limit(1)
         ).first
       end
@@ -151,7 +151,7 @@ module DiscourseCodeReview
                 id:
                   PostCustomField
                     .select(:post_id)
-                    .where(name: GithubNodeId, value: reply_to_github_id)
+                    .where(name: GITHUB_NODE_ID, value: reply_to_github_id)
                     .limit(1)
               ).pluck(:post_number).first
             end
@@ -170,8 +170,8 @@ module DiscourseCodeReview
               )
             end
 
-          post.custom_fields[GithubNodeId] = github_id
-          post.custom_fields[GithubThreadId] = thread_id if thread_id.present?
+          post.custom_fields[GITHUB_NODE_ID] = github_id
+          post.custom_fields[GITHUB_THREAD_ID] = thread_id if thread_id.present?
           post.save_custom_fields
 
           yield post if block_given?
@@ -251,9 +251,9 @@ module DiscourseCodeReview
       topic = post.topic
       user = post.user
 
-      if post.post_number > 1 && !post.whisper? && post.custom_fields[GithubNodeId].nil?
-        repo_name = topic.category.custom_fields[GithubCategorySyncer::GithubRepoName]
-        issue_number = topic.custom_fields[GithubIssueNumber]
+      if post.post_number > 1 && !post.whisper? && post.custom_fields[GITHUB_NODE_ID].nil?
+        repo_name = topic.category.custom_fields[GithubCategorySyncer::GITHUB_REPO_NAME]
+        issue_number = topic.custom_fields[GITHUB_ISSUE_NUMBER]
 
         if repo_name && issue_number
           issue_number = issue_number.to_i
@@ -266,7 +266,7 @@ module DiscourseCodeReview
 
           thread_id =
             if reply_to.present?
-              reply_to.custom_fields[GithubThreadId]
+              reply_to.custom_fields[GITHUB_THREAD_ID]
             end
 
           post_user_name = user.name || user.username
@@ -313,7 +313,7 @@ module DiscourseCodeReview
         id:
           TopicCustomField
             .select(:topic_id)
-            .where(name: GithubNodeId, value: github_id)
+            .where(name: GITHUB_NODE_ID, value: github_id)
             .limit(1)
       ).first
     end
@@ -339,8 +339,8 @@ module DiscourseCodeReview
               ).topic
             end
 
-          topic.custom_fields[GithubNodeId] = github_id
-          topic.custom_fields[GithubIssueNumber] = issue_number.to_s
+          topic.custom_fields[GITHUB_NODE_ID] = github_id
+          topic.custom_fields[GITHUB_ISSUE_NUMBER] = issue_number.to_s
           topic.save_custom_fields
         end
 

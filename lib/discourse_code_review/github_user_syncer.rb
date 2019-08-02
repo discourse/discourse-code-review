@@ -15,7 +15,7 @@ module DiscourseCodeReview
             id:
               UserCustomField
                 .select(:user_id)
-                .where(name: GithubId, value: github_id)
+                .where(name: GITHUB_ID, value: github_id)
                 .limit(1)
           )
         end
@@ -27,7 +27,7 @@ module DiscourseCodeReview
               id:
                 UserCustomField
                   .select(:user_id)
-                  .where(name: GithubLogin, value: github_login)
+                  .where(name: GITHUB_LOGIN, value: github_login)
                   .limit(1)
             )
         end
@@ -50,23 +50,23 @@ module DiscourseCodeReview
       end
 
       if github_login
-        rel = UserCustomField.where(name: GithubLogin, value: github_login)
+        rel = UserCustomField.where(name: GITHUB_LOGIN, value: github_login)
         existing = rel.pluck(:user_id)
 
         if existing != [user.id]
           rel.destroy_all
-          UserCustomField.create!(name: GithubLogin, value: github_login, user_id: user.id)
+          UserCustomField.create!(name: GITHUB_LOGIN, value: github_login, user_id: user.id)
         end
       end
 
       if github_id
 
-        rel = UserCustomField.where(name: GithubId, value: github_id)
+        rel = UserCustomField.where(name: GITHUB_ID, value: github_id)
         existing = rel.pluck(:user_id)
 
         if existing != [user.id]
           rel.destroy_all
-          UserCustomField.create!(name: GithubId, value: github_id, user_id: user.id)
+          UserCustomField.create!(name: GITHUB_ID, value: github_id, user_id: user.id)
         end
       end
       user

@@ -76,7 +76,7 @@ module DiscourseCodeReview
         like_clause = shas.map { |sha| "f.value LIKE '#{sha}%'" }.join(' OR ')
 
         topics = Topic.select("topics.*, value AS sha")
-          .joins("JOIN topic_custom_fields f ON topics.id = topic_id AND f.name = '#{DiscourseCodeReview::CommitHash}'")
+          .joins("JOIN topic_custom_fields f ON topics.id = topic_id AND f.name = '#{DiscourseCodeReview::COMMIT_HASH}'")
           .where(like_clause)
 
         topics.each do |topic|
@@ -137,7 +137,7 @@ module DiscourseCodeReview
       topic_id =
         TopicCustomField
           .where(
-            name: DiscourseCodeReview::CommitHash,
+            name: DiscourseCodeReview::COMMIT_HASH,
             value: commit[:hash]
           )
           .limit(1)
@@ -188,7 +188,7 @@ module DiscourseCodeReview
 
         TopicCustomField.create!(
           topic_id: post.topic_id,
-          name: DiscourseCodeReview::CommitHash,
+          name: DiscourseCodeReview::COMMIT_HASH,
           value: commit[:hash]
         )
 
@@ -211,7 +211,7 @@ module DiscourseCodeReview
     def import_comments(topic_id, commit_sha)
       github_repo.commit_comments(commit_sha).each do |comment|
         # skip if we already have the comment
-        unless PostCustomField.exists?(name: DiscourseCodeReview::GithubId, value: comment[:id])
+        unless PostCustomField.exists?(name: DiscourseCodeReview::GITHUB_ID, value: comment[:id])
           login = comment[:login] || "unknown"
           user = DiscourseCodeReview.github_user_syncer.ensure_user(name: login, github_login: login)
 
@@ -230,9 +230,9 @@ module DiscourseCodeReview
             MD
           end
 
-          custom_fields = { DiscourseCodeReview::GithubId => comment[:id] }
-          custom_fields[DiscourseCodeReview::CommentPath] = comment[:path] if comment[:path].present?
-          custom_fields[DiscourseCodeReview::CommentPosition] = comment[:position] if comment[:position].present?
+          custom_fields = { DiscourseCodeReview::GITHUB_ID => comment[:id] }
+          custom_fields[DiscourseCodeReview::COMMENT_PATH] = comment[:path] if comment[:path].present?
+          custom_fields[DiscourseCodeReview::COMMENT_POSITION] = comment[:position] if comment[:position].present?
 
           PostCreator.create!(
             user,

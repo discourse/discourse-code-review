@@ -106,10 +106,10 @@ module DiscourseCodeReview
 
     it "#auto_link_commits" do
       topic = Fabricate(:topic)
-      topic.custom_fields[DiscourseCodeReview::CommitHash] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
+      topic.custom_fields[DiscourseCodeReview::COMMIT_HASH] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
       topic.save
       topic2 = Fabricate(:topic)
-      topic2.custom_fields[DiscourseCodeReview::CommitHash] = "a1db15feadc7951d8a2b4ae63384babd6c568ae0"
+      topic2.custom_fields[DiscourseCodeReview::COMMIT_HASH] = "a1db15feadc7951d8a2b4ae63384babd6c568ae0"
       topic2.save
 
       result = Importer.new(nil).auto_link_commits("a1db15feadc and another one dbbadb5c357")

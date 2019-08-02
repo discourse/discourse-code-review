@@ -26,8 +26,8 @@ module HackGithubAuthenticator
         token = auth_token.credentials.token
 
         user = result.user
-        user.custom_fields[DiscourseCodeReview::GithubId] = auth_token[:uid]
-        user.custom_fields[DiscourseCodeReview::GithubLogin] = auth_token.info.nickname
+        user.custom_fields[DiscourseCodeReview::GITHUB_ID] = auth_token[:uid]
+        user.custom_fields[DiscourseCodeReview::GITHUB_LOGIN] = auth_token.info.nickname
         user.save_custom_fields
       end
     end
@@ -58,11 +58,11 @@ after_initialize do
       isolate_namespace DiscourseCodeReview
     end
 
-    CommitHash = 'commit hash'
-    GithubId = 'github id'
-    GithubLogin = 'github login'
-    CommentPath = 'comment path'
-    CommentPosition = 'comment position'
+    COMMIT_HASH = 'commit hash'
+    GITHUB_ID = 'github id'
+    GITHUB_LOGIN = 'github login'
+    COMMENT_PATH = 'comment path'
+    COMMENT_POSITION = 'comment position'
 
     def self.octokit_bot_client
       token = SiteSetting.code_review_github_token
@@ -121,16 +121,16 @@ after_initialize do
 
     def self.sync_post_to_github(client, post)
       topic = post.topic
-      hash = topic&.custom_fields[DiscourseCodeReview::CommitHash]
+      hash = topic&.custom_fields[DiscourseCodeReview::COMMIT_HASH]
       user = post.user
 
       if post.post_number > 1 && !post.whisper? && post.raw.present? && topic && hash && user
-        if !post.custom_fields[DiscourseCodeReview::GithubId]
+        if !post.custom_fields[DiscourseCodeReview::GITHUB_ID]
           fields = post.reply_to_post&.custom_fields || {}
-          path = fields[DiscourseCodeReview::CommentPath]
-          position = fields[DiscourseCodeReview::CommentPosition]
+          path = fields[DiscourseCodeReview::COMMENT_PATH]
+          position = fields[DiscourseCodeReview::COMMENT_POSITION]
 
-          if repo = post.topic.category.custom_fields[DiscourseCodeReview::GithubCategorySyncer::GithubRepoName]
+          if repo = post.topic.category.custom_fields[DiscourseCodeReview::GithubCategorySyncer::GITHUB_REPO_NAME]
             post_user_name = user.name || user.username
 
             github_post_contents = [
@@ -140,9 +140,9 @@ after_initialize do
             ].join("\n")
 
             comment = client.create_commit_comment(repo, hash, github_post_contents, path, nil, position)
-            post.custom_fields[DiscourseCodeReview::GithubId] = comment.id
-            post.custom_fields[DiscourseCodeReview::CommentPath] = path if path.present?
-            post.custom_fields[DiscourseCodeReview::CommentPosition] = position if position.present?
+            post.custom_fields[DiscourseCodeReview::GITHUB_ID] = comment.id
+            post.custom_fields[DiscourseCodeReview::COMMENT_PATH] = path if path.present?
+            post.custom_fields[DiscourseCodeReview::COMMENT_POSITION] = position if position.present?
             post.save_custom_fields
           end
         end
@@ -186,18 +186,18 @@ after_initialize do
   end
 
   on(:before_post_process_cooked) do |doc, post|
-    unless post.topic.custom_fields[DiscourseCodeReview::CommitHash].present? && post.post_number == 1
+    unless post.topic.custom_fields[DiscourseCodeReview::COMMIT_HASH].present? && post.post_number == 1
       doc = DiscourseCodeReview::Importer.new(nil).auto_link_commits(post.raw, doc)[2]
     end
   end
 
   on(:post_destroyed) do |post, opts, user|
-    if (github_id = post.custom_fields[DiscourseCodeReview::GithubId]).present?
+    if (github_id = post.custom_fields[DiscourseCodeReview::GITHUB_ID]).present?
       client = DiscourseCodeReview.octokit_bot_client
       category = post&.topic&.category
 
       repo_name =
-        category && category.custom_fields[DiscourseCodeReview::GithubCategorySyncer::GithubRepoName]
+        category && category.custom_fields[DiscourseCodeReview::GithubCategorySyncer::GITHUB_REPO_NAME]
 
       if repo_name.present?
         client.delete_commit_comment(repo_name, github_id)
@@ -236,7 +236,7 @@ Rake::Task.define_task code_review_tag_commits: :environment do
         id:
           TopicCustomField
             .select(:topic_id)
-            .where(name: DiscourseCodeReview::CommitHash)
+            .where(name: DiscourseCodeReview::COMMIT_HASH)
       )
       .to_a
 
