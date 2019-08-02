@@ -116,6 +116,7 @@ module DiscourseCodeReview
           last_post = get_last_post
 
           last_post.created_at = created_at
+          last_post.skip_validation = true
           last_post.save!
 
           last_post.custom_fields[GITHUB_NODE_ID] = github_id
