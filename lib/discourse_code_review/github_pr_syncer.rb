@@ -285,20 +285,24 @@ module DiscourseCodeReview
             post.raw
           ].join("\n")
 
-          if thread_id
-            @pr_service.create_review_comment(
-              repo_name,
-              issue_number,
-              github_post_contents,
-              thread_id
-            )
-          else
-            @pr_service.create_issue_comment(
-              repo_name,
-              issue_number,
-              github_post_contents
-            )
-          end
+          response =
+            if thread_id
+              @pr_service.create_review_comment(
+                repo_name,
+                issue_number,
+                github_post_contents,
+                thread_id
+              )
+            else
+              @pr_service.create_issue_comment(
+                repo_name,
+                issue_number,
+                github_post_contents
+              )
+            end
+
+          post.custom_fields[GITHUB_NODE_ID] = response[:node_id]
+          post.save_custom_fields
         end
       end
     end
