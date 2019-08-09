@@ -98,13 +98,13 @@ describe DiscourseCodeReview::GithubPRSyncer do
     last_topic.posts.order('id DESC').first
   end
 
-  context "#sync_pull_request" do
-    before_all do
-      DiscourseCodeReview::GithubCategorySyncer.ensure_category(
-        repo_name: 'owner/name'
-      )
-    end
+  fab!(:category) do
+    DiscourseCodeReview::GithubCategorySyncer.ensure_category(
+      repo_name: 'owner/name'
+    )
+  end
 
+  context "#sync_pull_request" do
     context "when there are no events" do
       let!(:syncer) do
         pr_service =
@@ -526,6 +526,74 @@ describe DiscourseCodeReview::GithubPRSyncer do
         syncer.sync_pull_request('owner/name', 101)
 
         expect(last_topic).to_not be_closed
+      end
+    end
+  end
+
+  context "#mirror_pr_post" do
+    let!(:pr_service) { mock }
+    let!(:user_querier) { mock }
+    let!(:syncer) { create_pr_syncer(pr_service, user_querier) }
+    fab!(:topic) do
+      Fabricate(:topic, category: category).tap do |topic|
+        topic.custom_fields[DiscourseCodeReview::GithubPRSyncer::GITHUB_ISSUE_NUMBER] = "102"
+        topic.save_custom_fields
+      end
+    end
+
+    fab!(:first_post) { Fabricate(:post, topic: topic) }
+
+    context "when a whisper is provided" do
+      fab!(:post) { Fabricate(:post, topic: topic, post_type: Post.types[:whisper]) }
+
+      it "does not send the post to github" do
+        syncer.mirror_pr_post(post)
+      end
+    end
+
+    context "when a small action is provided" do
+      fab!(:post) { Fabricate(:post, topic: topic, post_type: Post.types[:small_action]) }
+
+      it "does not send the post to github" do
+        syncer.mirror_pr_post(post)
+      end
+    end
+
+    context "when a regular post is provided" do
+      fab!(:post) { Fabricate(:post, topic: topic) }
+
+      it "sends the post to github" do
+        pr_service
+          .expects(:create_issue_comment)
+          .with('owner/name', 102, is_a(String))
+          .returns(node_id: 'important node')
+
+        syncer.mirror_pr_post(post)
+
+        expect(
+          post.custom_fields[DiscourseCodeReview::GithubPRSyncer::GITHUB_NODE_ID]
+        ).to eq('important node')
+      end
+    end
+
+    context "when a reply is provided" do
+      fab!(:post) { Fabricate(:post, topic: topic, reply_to_post_number: 1) }
+      before_all do
+        first_post.custom_fields[DiscourseCodeReview::GithubPRSyncer::GITHUB_THREAD_ID] = 'thread 1'
+        first_post.save_custom_fields
+      end
+
+      it "sends the post to github" do
+        pr_service
+          .expects(:create_review_comment)
+          .with('owner/name', 102, is_a(String), 'thread 1')
+          .returns(node_id: 'important node')
+
+        syncer.mirror_pr_post(post)
+
+        expect(
+          post.custom_fields[DiscourseCodeReview::GithubPRSyncer::GITHUB_NODE_ID]
+        ).to eq('important node')
       end
     end
   end

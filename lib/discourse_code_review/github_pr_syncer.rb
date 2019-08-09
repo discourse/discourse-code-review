@@ -254,7 +254,6 @@ module DiscourseCodeReview
 
       conditions = [
         post.post_number > 1,
-        !post.whisper?,
         post.post_type == Post.types[:regular],
         post.custom_fields[GITHUB_NODE_ID].nil?
       ]
