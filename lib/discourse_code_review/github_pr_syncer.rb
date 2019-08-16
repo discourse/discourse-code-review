@@ -135,11 +135,15 @@ module DiscourseCodeReview
       end
 
       def unless_pr_post
-        ActiveRecord::Base.transaction(requires_new: true) do
-          post = find_pr_post(github_id)
+        # Without this mutex, concurrent transactions can create duplicate
+        # posts
+        DistributedMutex.synchronize('code-review:sync-pull-request-post') do
+          ActiveRecord::Base.transaction(requires_new: true) do
+            post = find_pr_post(github_id)
 
-          if post.nil?
-            yield
+            if post.nil?
+              yield
+            end
           end
         end
       end
@@ -330,32 +334,36 @@ module DiscourseCodeReview
     end
 
     def ensure_pr_topic(category:, author:, github_id:, created_at:, title:, body:, url:, issue_number:)
-      ActiveRecord::Base.transaction(requires_new: true) do
-        topic = find_pr_topic(github_id)
+      # Without this mutex, concurrent transactions can create duplicate
+      # topics
+      DistributedMutex.synchronize('code-review:sync-pull-request-topic') do
+        ActiveRecord::Base.transaction(requires_new: true) do
+          topic = find_pr_topic(github_id)
 
-        if topic.nil?
-          topic_title = "#{title} (PR ##{issue_number})"
-          raw = "#{body}\n\n[<small>GitHub</small>](#{url})"
+          if topic.nil?
+            topic_title = "#{title} (PR ##{issue_number})"
+            raw = "#{body}\n\n[<small>GitHub</small>](#{url})"
 
-          topic =
-            DiscourseCodeReview.without_rate_limiting do
-              PostCreator.create!(
-                author,
-                category: category.id,
-                created_at: created_at,
-                title: topic_title,
-                raw: raw,
-                tags: [SiteSetting.code_review_pull_request_tag],
-                skip_validations: true
-              ).topic
-            end
+            topic =
+              DiscourseCodeReview.without_rate_limiting do
+                PostCreator.create!(
+                  author,
+                  category: category.id,
+                  created_at: created_at,
+                  title: topic_title,
+                  raw: raw,
+                  tags: [SiteSetting.code_review_pull_request_tag],
+                  skip_validations: true
+                ).topic
+              end
 
-          topic.custom_fields[GITHUB_NODE_ID] = github_id
-          topic.custom_fields[GITHUB_ISSUE_NUMBER] = issue_number.to_s
-          topic.save_custom_fields
+            topic.custom_fields[GITHUB_NODE_ID] = github_id
+            topic.custom_fields[GITHUB_ISSUE_NUMBER] = issue_number.to_s
+            topic.save_custom_fields
+          end
+
+          topic
         end
-
-        topic
       end
     end
   end
