@@ -218,10 +218,10 @@ describe DiscourseCodeReview::CodeReviewController do
     SiteSetting.code_review_allow_self_approval = true
 
     default_allowed_group = Group.find_by(name: 'staff')
-
-    Fabricate(:group_user, user: signed_in_user, group: default_allowed_group)
+    default_allowed_group.add(signed_in_user)
 
     author = Fabricate(:admin)
+    default_allowed_group.add(author)
     commit = create_post(raw: "this is a fake commit", user: author, tags: ["hi", SiteSetting.code_review_pending_tag])
 
     post '/code-review/followup.json', params: { topic_id: commit.topic_id }
