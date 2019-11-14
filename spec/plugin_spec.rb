@@ -19,7 +19,7 @@ class MockClient
       options: options
     }
     @comment = MockComment.new('comment id')
-    return @comment
+    @comment
   end
 end
 
