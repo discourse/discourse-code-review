@@ -205,38 +205,35 @@ module DiscourseCodeReview
         end
       end
 
-      Dir.chdir(path) do
-        last_command = command
-        last_error = nil
-        begin
-          result = Discourse::Utils.execute_command('git', *command).strip
-        rescue RuntimeError => e
-          last_error = e
+      last_command = command
+      last_error = nil
+      begin
+        result = Discourse::Utils.execute_command('git', *command, chdir: path).strip
+      rescue RuntimeError => e
+        last_error = e
+      end
+
+      if result.nil?
+        unless backup_command.empty?
+          last_command = backup_command
+          begin
+            result = Discourse::Utils.execute_command('git', *backup_command, chdir: path).strip
+          rescue RuntimeError => e
+            last_error = e
+          end
         end
 
         if result.nil?
-          unless backup_command.empty?
-            last_command = backup_command
-            begin
-              result = Discourse::Utils.execute_command('git', *backup_command).strip
-            rescue RuntimeError => e
-              last_error = e
-            end
+          if warn
+            Rails.logger.warn("Discourse Code Review: Failed to run `#{last_command.join(' ')}` in #{path} with error: #{last_error}")
           end
 
-          if result.nil?
-            if warn
-              Rails.logger.warn("Discourse Code Review: Failed to run `#{last_command.join(' ')}` in #{path} with error: #{last_error}")
-            end
-
-            if raise_error
-              raise StandardError, "Failed to run git command #{last_command.join(' ')} on #{@name} in tmp/code-review-repo"
-            end
+          if raise_error
+            raise StandardError, "Failed to run git command #{last_command.join(' ')} on #{@name} in tmp/code-review-repo"
           end
         end
-        result
       end
-
+      result
     end
 
   end
