@@ -198,7 +198,7 @@ module DiscourseCodeReview
           user_id: current_user.id,
           notification_level: CategoryUser.notification_levels[:muted]
         )
-        .order('case when last_read_post_number IS NULL then 0 else 1 end asc', "case when category_id = #{category_id.to_i} then 0 else 1 end asc", 'bumped_at asc')
+        .order('case when last_read_post_number IS NULL then 0 else 1 end asc', "case when category_id = #{category_id.to_i} then 0 else 1 end asc", 'bumped_at desc')
         .first
 
       url = next_topic&.relative_url

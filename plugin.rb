@@ -26,8 +26,6 @@ module HackGithubAuthenticator
 
     if SiteSetting.code_review_enabled?
       if user_id = result.user&.id
-        token = auth_token.credentials.token
-
         user = result.user
         user.custom_fields[DiscourseCodeReview::GITHUB_ID] = auth_token[:uid]
         user.custom_fields[DiscourseCodeReview::GITHUB_LOGIN] = auth_token.info.nickname
