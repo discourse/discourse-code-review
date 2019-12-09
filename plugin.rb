@@ -9,8 +9,8 @@
 # match version in discourse dev
 gem 'public_suffix', '4.0.1'
 gem 'addressable', '2.7.0'
-gem 'sawyer', '0.8.1'
-gem 'octokit', '4.9.0'
+gem 'sawyer', '0.8.2'
+gem 'octokit', '4.14.0'
 gem 'pqueue', '2.1.0'
 
 enabled_site_setting :code_review_enabled
