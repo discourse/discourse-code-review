@@ -7,7 +7,6 @@
 # url: https://github.com/discourse/discourse-code-review
 
 # match version in discourse dev
-gem 'public_suffix', '4.0.1'
 gem 'addressable', '2.7.0'
 gem 'sawyer', '0.8.2'
 gem 'octokit', '4.14.0'
