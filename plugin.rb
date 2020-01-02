@@ -9,7 +9,7 @@
 # match version in discourse dev
 gem 'addressable', '2.7.0'
 gem 'sawyer', '0.8.2'
-gem 'octokit', '4.14.0'
+gem 'octokit', '4.15.0'
 gem 'pqueue', '2.1.0'
 
 enabled_site_setting :code_review_enabled
