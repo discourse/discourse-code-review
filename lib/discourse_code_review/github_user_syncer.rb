@@ -77,7 +77,13 @@ module DiscourseCodeReview
     attr_reader :user_querier
 
     def email_for(github_login)
-      user_querier.get_user_email(github_login) || "#{github_login}@fake.github.com"
+      email =
+        begin
+          user_querier.get_user_email(github_login)
+        rescue Octokit::NotFound
+          nil
+        end
+      email || "#{github_login}@fake.github.com"
     end
   end
 end
