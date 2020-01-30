@@ -201,8 +201,13 @@ after_initialize do
   end
 
   Discourse::Application.routes.append do
-    get '/topics/approval-given/:username' => 'list#approval_given', as: :topics_approval_given
-    get '/topics/approval-pending/:username' => 'list#approval_pending', as: :topics_approval_pending
+    get '/topics/approval-given/:username' => 'list#approval_given',
+        as: :topics_approval_given,
+        constraints: { username: RouteFormat.username }
+
+    get '/topics/approval-pending/:username' => 'list#approval_pending',
+        as: :topics_approval_pending,
+        constraints: { username: RouteFormat.username }
 
     mount ::DiscourseCodeReview::Engine, at: '/'
   end
