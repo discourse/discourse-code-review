@@ -192,8 +192,8 @@ module DiscourseCodeReview
           value: commit[:hash]
         )
 
-        linked_topics.values.each do |topik|
-          topik.add_moderator_post(
+        linked_topics.values.each do |linked_topic|
+          linked_topic.add_moderator_post(
             user,
             " #{post.topic.url}",
             bump: false,
