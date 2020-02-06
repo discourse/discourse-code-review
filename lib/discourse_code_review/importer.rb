@@ -154,113 +154,121 @@ module DiscourseCodeReview
     private
 
     def ensure_commit(commit:, merged:, user:, title:, raw:, category_id:, linked_topics:)
-      topic_id =
-        TopicCustomField
-          .where(
-            name: DiscourseCodeReview::COMMIT_HASH,
-            value: commit[:hash]
-          )
-          .limit(1)
-          .pluck(:topic_id)
-          .first
+      DistributedMutex.synchronize('code-review:create-commit-topic') do
+        ActiveRecord::Base.transaction(requires_new: true) do
+          topic_id =
+            TopicCustomField
+              .where(
+                name: DiscourseCodeReview::COMMIT_HASH,
+                value: commit[:hash]
+              )
+              .limit(1)
+              .pluck(:topic_id)
+              .first
 
-      if topic_id.present?
-        if merged
-          topic = Topic.find(topic_id)
-          tags = topic.tags.pluck(:name)
+          if topic_id.present?
+            if merged
+              topic = Topic.find(topic_id)
+              tags = topic.tags.pluck(:name)
 
-          merged_tags = [
-            SiteSetting.code_review_pending_tag,
-            SiteSetting.code_review_approved_tag,
-            SiteSetting.code_review_followup_tag
-          ]
+              merged_tags = [
+                SiteSetting.code_review_pending_tag,
+                SiteSetting.code_review_approved_tag,
+                SiteSetting.code_review_followup_tag
+              ]
 
-          if (tags & merged_tags).empty?
-            tags << SiteSetting.code_review_pending_tag
-            tags -= [SiteSetting.code_review_unmerged_tag]
+              if (tags & merged_tags).empty?
+                tags << SiteSetting.code_review_pending_tag
+                tags -= [SiteSetting.code_review_unmerged_tag]
 
-            DiscourseTagging.tag_topic_by_names(
-              topic,
-              Discourse.system_user.guardian,
-              tags
-            )
-          end
-        end
-      else
-        tags =
-          if merged
-            [SiteSetting.code_review_pending_tag]
+                DiscourseTagging.tag_topic_by_names(
+                  topic,
+                  Discourse.system_user.guardian,
+                  tags
+                )
+              end
+            end
           else
-            [SiteSetting.code_review_unmerged_tag]
+            tags =
+              if merged
+                [SiteSetting.code_review_pending_tag]
+              else
+                [SiteSetting.code_review_unmerged_tag]
+              end
+
+            tags << SiteSetting.code_review_commit_tag
+
+            post = PostCreator.create!(
+              user,
+              raw: raw,
+              title: title,
+              created_at: commit[:date],
+              category: category_id,
+              tags: tags,
+              skip_validations: true,
+            )
+
+            TopicCustomField.create!(
+              topic_id: post.topic_id,
+              name: DiscourseCodeReview::COMMIT_HASH,
+              value: commit[:hash]
+            )
+
+            linked_topics.values.each do |linked_topic|
+              linked_topic.add_moderator_post(
+                user,
+                " #{post.topic.url}",
+                bump: false,
+                post_type: Post.types[:small_action],
+                action_code: "followed_up"
+              )
+            end
+
+            topic_id = post.topic_id
           end
 
-        tags << SiteSetting.code_review_commit_tag
-
-        post = PostCreator.create!(
-          user,
-          raw: raw,
-          title: title,
-          created_at: commit[:date],
-          category: category_id,
-          tags: tags,
-          skip_validations: true,
-        )
-
-        TopicCustomField.create!(
-          topic_id: post.topic_id,
-          name: DiscourseCodeReview::COMMIT_HASH,
-          value: commit[:hash]
-        )
-
-        linked_topics.values.each do |linked_topic|
-          linked_topic.add_moderator_post(
-            user,
-            " #{post.topic.url}",
-            bump: false,
-            post_type: Post.types[:small_action],
-            action_code: "followed_up"
-          )
+          topic_id
         end
-
-        topic_id = post.topic_id
       end
-
-      topic_id
     end
 
     def ensure_commit_comment(topic_id, comment)
-      # skip if we already have the comment
-      unless PostCustomField.exists?(name: DiscourseCodeReview::GITHUB_ID, value: comment[:id])
-        login = comment[:login] || "unknown"
-        user = DiscourseCodeReview.github_user_syncer.ensure_user(name: login, github_login: login)
+      DistributedMutex.synchronize('code-review:create-commit-comment-post') do
+        ActiveRecord::Base.transaction(requires_new: true) do
+          # skip if we already have the comment
+          unless PostCustomField.exists?(name: DiscourseCodeReview::GITHUB_ID, value: comment[:id])
+            login = comment[:login] || "unknown"
+            user = DiscourseCodeReview.github_user_syncer.ensure_user(name: login, github_login: login)
 
-        context = ""
-        if comment[:line_content]
-          context = <<~MD
-            [quote]
-            #{comment[:path]}
+            context = ""
+            if comment[:line_content]
+              context = <<~MD
+                [quote]
+                #{comment[:path]}
 
-            ```diff
-            #{comment[:line_content]}
-            ```
+                ```diff
+                #{comment[:line_content]}
+                ```
 
-            [/quote]
+                [/quote]
 
-          MD
+              MD
+            end
+
+            custom_fields = { DiscourseCodeReview::GITHUB_ID => comment[:id] }
+            custom_fields[DiscourseCodeReview::COMMENT_PATH] = comment[:path] if comment[:path].present?
+            custom_fields[DiscourseCodeReview::COMMENT_POSITION] = comment[:position] if comment[:position].present?
+
+            PostCreator.create!(
+              user,
+              raw: context + comment[:body],
+              skip_validations: true,
+              created_at: comment[:created_at],
+              topic_id: topic_id,
+              custom_fields: custom_fields
+            )
+          end
         end
-
-        custom_fields = { DiscourseCodeReview::GITHUB_ID => comment[:id] }
-        custom_fields[DiscourseCodeReview::COMMENT_PATH] = comment[:path] if comment[:path].present?
-        custom_fields[DiscourseCodeReview::COMMENT_POSITION] = comment[:position] if comment[:position].present?
-
-        PostCreator.create!(
-          user,
-          raw: context + comment[:body],
-          skip_validations: true,
-          created_at: comment[:created_at],
-          topic_id: topic_id,
-          custom_fields: custom_fields
-        )
       end
     end
   end
