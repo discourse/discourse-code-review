@@ -134,6 +134,26 @@ module DiscourseCodeReview
         github_id: commit[:author_id]
       )
 
+      ensure_commit(
+        commit: commit,
+        merged: merged,
+        user: user,
+        title: title,
+        raw: raw,
+        category_id: category_id,
+        linked_topics: linked_topics
+      )
+    end
+
+    def import_comments(topic_id, commit_sha)
+      github_repo.commit_comments(commit_sha).each do |comment|
+        ensure_commit_comment(topic_id, comment)
+      end
+    end
+
+    private
+
+    def ensure_commit(commit:, merged:, user:, title:, raw:, category_id:, linked_topics:)
       topic_id =
         TopicCustomField
           .where(
@@ -208,41 +228,39 @@ module DiscourseCodeReview
       topic_id
     end
 
-    def import_comments(topic_id, commit_sha)
-      github_repo.commit_comments(commit_sha).each do |comment|
-        # skip if we already have the comment
-        unless PostCustomField.exists?(name: DiscourseCodeReview::GITHUB_ID, value: comment[:id])
-          login = comment[:login] || "unknown"
-          user = DiscourseCodeReview.github_user_syncer.ensure_user(name: login, github_login: login)
+    def ensure_commit_comment(topic_id, comment)
+      # skip if we already have the comment
+      unless PostCustomField.exists?(name: DiscourseCodeReview::GITHUB_ID, value: comment[:id])
+        login = comment[:login] || "unknown"
+        user = DiscourseCodeReview.github_user_syncer.ensure_user(name: login, github_login: login)
 
-          context = ""
-          if comment[:line_content]
-            context = <<~MD
-              [quote]
-              #{comment[:path]}
+        context = ""
+        if comment[:line_content]
+          context = <<~MD
+            [quote]
+            #{comment[:path]}
 
-              ```diff
-              #{comment[:line_content]}
-              ```
+            ```diff
+            #{comment[:line_content]}
+            ```
 
-              [/quote]
+            [/quote]
 
-            MD
-          end
-
-          custom_fields = { DiscourseCodeReview::GITHUB_ID => comment[:id] }
-          custom_fields[DiscourseCodeReview::COMMENT_PATH] = comment[:path] if comment[:path].present?
-          custom_fields[DiscourseCodeReview::COMMENT_POSITION] = comment[:position] if comment[:position].present?
-
-          PostCreator.create!(
-            user,
-            raw: context + comment[:body],
-            skip_validations: true,
-            created_at: comment[:created_at],
-            topic_id: topic_id,
-            custom_fields: custom_fields
-          )
+          MD
         end
+
+        custom_fields = { DiscourseCodeReview::GITHUB_ID => comment[:id] }
+        custom_fields[DiscourseCodeReview::COMMENT_PATH] = comment[:path] if comment[:path].present?
+        custom_fields[DiscourseCodeReview::COMMENT_POSITION] = comment[:position] if comment[:position].present?
+
+        PostCreator.create!(
+          user,
+          raw: context + comment[:body],
+          skip_validations: true,
+          created_at: comment[:created_at],
+          topic_id: topic_id,
+          custom_fields: custom_fields
+        )
       end
     end
   end
