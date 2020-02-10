@@ -234,6 +234,67 @@ module DiscourseCodeReview
       end
     end
 
+    def is_merged_into_master?(pr)
+      response =
+        graphql_client.execute("
+          query {
+            repository(owner: #{pr.owner.to_json}, name: #{pr.name.to_json}) {
+              pullRequest(number: #{pr.issue_number.to_json}) {
+                baseRefName,
+                merged,
+              }
+            }
+          }
+        ")
+
+      pr_response = response[:repository][:pullRequest]
+
+      pr_response[:baseRefName] == 'master' && pr_response[:merged]
+    end
+
+    def approvers(pr)
+      item_types = ["PULL_REQUEST_REVIEW"]
+
+      events =
+        graphql_client.paginated_query do |execute, cursor|
+          query = "
+            query {
+              repository(owner: #{pr.owner.to_json}, name: #{pr.name.to_json}) {
+                pullRequest(number: #{pr.issue_number.to_json}) {
+                  timelineItems(first: 100, itemTypes: [#{item_types.join(',')}], after: #{cursor.to_json}) {
+                    nodes {
+                      ... on PullRequestReview {
+                        state,
+                        author {
+                          login
+                        },
+                      }
+                    },
+                    pageInfo { endCursor, hasNextPage }
+                  }
+                }
+              }
+            }
+          "
+          response = execute.call(query)
+          data = response[:repository][:pullRequest][:timelineItems]
+
+          {
+            items: data[:nodes],
+            cursor: data[:pageInfo][:endCursor],
+            has_next_page: data[:pageInfo][:hasNextPage]
+          }
+        end
+
+      events
+        .select { |event| event[:state] == "APPROVED" }
+        .map { |event|
+          Actor.new(
+            github_login: event[:author][:login]
+          )
+        }
+    end
+
     def timeline(pr)
       item_types = [
         "CLOSED_EVENT",

@@ -181,6 +181,14 @@ module DiscourseCodeReview
       )
     end
 
+    def approved_to_merge_by(pr)
+      if pr_querier.is_merged_into_master?(pr)
+        pr_querier.approvers(pr)
+      else
+        []
+      end
+    end
+
     private
 
     attr_reader :pr_querier

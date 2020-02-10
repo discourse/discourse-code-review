@@ -252,6 +252,34 @@ module DiscourseCodeReview
       end
     end
 
+    def apply_github_approves(repo_name, commit_hash)
+      topic =
+        Topic
+          .where(
+            id:
+              TopicCustomField
+                .where(
+                  name: DiscourseCodeReview::COMMIT_HASH,
+                  value: commit_hash
+                )
+                .limit(1)
+                .select(:topic_id)
+          )
+          .first
+
+      if topic
+        pr_service.associated_pull_requests(repo_name, commit_hash).each do |pr|
+          pr_service.approved_to_merge_by(pr).each do |approver|
+            user = ensure_actor(approver)
+
+            if SiteSetting.code_review_allow_self_approval || topic.user_id != current_user.id
+              DiscourseCodeReview::CommitApprovalStateService.approve(topic, user)
+            end
+          end
+        end
+      end
+    end
+
     def mirror_pr_post(post)
       topic = post.topic
       user = post.user

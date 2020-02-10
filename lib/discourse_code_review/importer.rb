@@ -42,6 +42,8 @@ module DiscourseCodeReview
       github_repo.commits_since.each do |commit|
         sync_commit(commit)
 
+        yield commit[:hash] if block_given?
+
         github_repo.last_commit = commit[:hash]
       end
     end
