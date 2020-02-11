@@ -5,16 +5,14 @@ module DiscourseCodeReview
     def self.approve(topic, approver)
       tags = topic.tags.pluck(:name)
 
-      if !tags.include?(SiteSetting.code_review_approved_tag)
-        tags -= [
-          SiteSetting.code_review_followup_tag,
-          SiteSetting.code_review_pending_tag
-        ]
+      post =
+        Post.where(
+          topic_id: topic.id,
+          user_id: approver.id,
+          action_code: "approved"
+        ).first
 
-        tags << SiteSetting.code_review_approved_tag
-
-        DiscourseTagging.tag_topic_by_names(topic, Guardian.new(approver), tags)
-
+      unless post
         old_highest_post_number = topic.highest_post_number
         post =
           topic.add_moderator_post(
@@ -30,6 +28,17 @@ module DiscourseCodeReview
           old_highest_post_number,
           post.post_number
         )
+      end
+
+      if !tags.include?(SiteSetting.code_review_approved_tag)
+        tags -= [
+          SiteSetting.code_review_followup_tag,
+          SiteSetting.code_review_pending_tag
+        ]
+
+        tags << SiteSetting.code_review_approved_tag
+
+        DiscourseTagging.tag_topic_by_names(topic, Guardian.new(approver), tags)
 
         Notification.transaction do
           destroyed_notifications =

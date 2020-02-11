@@ -84,6 +84,16 @@ describe DiscourseCodeReview::CodeReviewController do
       expect { post '/code-review/approve.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(0)
     end
 
+    it 'allows multiple reviewers to approve a commit' do
+      commit = create_post(raw: "this is a fake commit", tags: ["hi", SiteSetting.code_review_pending_tag])
+      expect { post '/code-review/approve.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(1)
+
+      admin2 = Fabricate(:admin)
+      sign_in admin2
+
+      expect { post '/code-review/approve.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(1)
+    end
+
     it 'notifies the topic author' do
       author = Fabricate(:user)
       commit =
