@@ -44,8 +44,8 @@ module DiscourseCodeReview
 
           importer.sync_commit_sha(commit_sha)
         elsif type == "push"
-          if SiteSetting.code_review_approve_approved_prs
-            importer.sync_merged_commits do |commit_hash|
+          importer.sync_merged_commits do |commit_hash|
+            if SiteSetting.code_review_approve_approved_prs
               DiscourseCodeReview
                 .github_pr_syncer
                 .apply_github_approves(repo_name, commit_hash)
