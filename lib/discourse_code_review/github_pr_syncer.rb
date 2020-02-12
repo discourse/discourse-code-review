@@ -272,7 +272,7 @@ module DiscourseCodeReview
           pr_service.approved_to_merge_by(pr).each do |approver|
             user = ensure_actor(approver)
 
-            if SiteSetting.code_review_allow_self_approval || topic.user_id != current_user.id
+            if SiteSetting.code_review_allow_self_approval || topic.user_id != user.id
               DiscourseCodeReview::CommitApprovalStateService.approve(topic, user)
             end
           end
