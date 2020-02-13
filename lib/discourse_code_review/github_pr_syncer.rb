@@ -269,13 +269,23 @@ module DiscourseCodeReview
 
       if topic
         pr_service.associated_pull_requests(repo_name, commit_hash).each do |pr|
-          pr_service.approved_to_merge_by(pr).each do |approver|
-            user = ensure_actor(approver)
+          merge_info = pr_service.merge_info(pr)
+          merged_by = ensure_actor(merge_info[:merged_by])
 
-            if SiteSetting.code_review_allow_self_approval || topic.user_id != user.id
-              DiscourseCodeReview::CommitApprovalStateService.approve(topic, user)
-            end
-          end
+          approvers =
+            merge_info[:approvers]
+              .map(&method(:ensure_actor))
+              .select(&:staff?)
+              .select { |user|
+                SiteSetting.code_review_allow_self_approval || topic.user_id != user.id
+              }
+
+          DiscourseCodeReview::CommitApprovalStateService.approve(
+            topic,
+            approvers,
+            pr: pr,
+            merged_by: merged_by
+          )
         end
       end
     end

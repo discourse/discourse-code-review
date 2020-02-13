@@ -181,12 +181,20 @@ module DiscourseCodeReview
       )
     end
 
-    def approved_to_merge_by(pr)
-      if pr_querier.is_merged_into_master?(pr)
-        pr_querier.approvers(pr)
-      else
-        []
-      end
+    def merge_info(pr)
+      approvers =
+        if pr_querier.is_merged_into_master?(pr)
+          pr_querier.approvers(pr)
+        else
+          []
+        end
+
+      merged_by = pr_querier.merged_by(pr)
+
+      {
+        approvers: approvers,
+        merged_by: merged_by
+      }
     end
 
     private

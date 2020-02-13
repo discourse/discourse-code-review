@@ -95,7 +95,7 @@ module DiscourseCodeReview
 
       DiscourseCodeReview::CommitApprovalStateService.approve(
         topic,
-        current_user
+        [current_user]
       )
 
       render_next_topic(topic.category_id)

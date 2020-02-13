@@ -252,6 +252,25 @@ module DiscourseCodeReview
       pr_response[:baseRefName] == 'master' && pr_response[:merged]
     end
 
+    def merged_by(pr)
+      response =
+        graphql_client.execute("
+          query {
+            repository(owner: #{pr.owner.to_json}, name: #{pr.name.to_json}) {
+              pullRequest(number: #{pr.issue_number.to_json}) {
+                mergedBy {
+                  login
+                }
+              }
+            }
+          }
+        ")
+
+      Actor.new(
+        github_login: response[:repository][:pullRequest][:mergedBy][:login]
+      )
+    end
+
     def approvers(pr)
       item_types = ["PULL_REQUEST_REVIEW"]
 

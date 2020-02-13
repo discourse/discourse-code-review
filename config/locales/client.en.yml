@@ -6,6 +6,7 @@ en:
       followed_up: "Followed Up"
       merged: "Merged"
       renamed: "Renamed"
+      pr_merge_info: "PR Merge Info"
     notifications:
       code_review:
         commit_approved:
