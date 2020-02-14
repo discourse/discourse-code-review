@@ -167,6 +167,7 @@ after_initialize do
   require File.expand_path("../lib/discourse_code_review/commit_approval_state_service", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_pr_service", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_pr_querier", __FILE__)
+  require File.expand_path("../lib/discourse_code_review/github_pr_poster", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_pr_syncer", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_user_querier", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_user_syncer.rb", __FILE__)
