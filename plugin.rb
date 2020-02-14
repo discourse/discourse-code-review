@@ -124,7 +124,7 @@ after_initialize do
       hash = topic&.custom_fields[DiscourseCodeReview::COMMIT_HASH]
       user = post.user
 
-      if post.post_number > 1 && !post.whisper? && post.raw.present? && topic && hash && user
+      if post.post_number > 1 && post.post_type == Post.types[:regular] && post.raw.present? && topic && hash && user
         if !post.custom_fields[DiscourseCodeReview::GITHUB_ID]
           fields = post.reply_to_post&.custom_fields || {}
           path = fields[DiscourseCodeReview::COMMENT_PATH]

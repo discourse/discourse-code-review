@@ -170,6 +170,26 @@ describe DiscourseCodeReview do
           expect(client.call[:body]).to include(user.username)
         end
       end
+
+      context "when reply is a whisper" do
+        before { reply.post_type = Post.types[:whisper] }
+
+        it "does not send the reply to github" do
+          client.expects(:create_commit_comment).never
+
+          DiscourseCodeReview.sync_post_to_github(client, reply)
+        end
+      end
+
+      context "when reply is a small action" do
+        before { reply.post_type = Post.types[:small_action] }
+
+        it "does not send the reply to github" do
+          client.expects(:create_commit_comment).never
+
+          DiscourseCodeReview.sync_post_to_github(client, reply)
+        end
+      end
     end
   end
 end
