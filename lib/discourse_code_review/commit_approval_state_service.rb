@@ -164,13 +164,13 @@ module DiscourseCodeReview::CommitApprovalStateService
         unless approvers.empty?
           approvers_string =
             approvers
-              .map { |approver| "@#{approver.username}" }
+              .map(&:username)
               .to_sentence
 
           raw_parts << "approved by #{approvers_string}. It was"
         end
 
-        raw_parts << "merged by @#{merged_by.username}."
+        raw_parts << "merged by #{merged_by.username}."
 
         post =
           PostCreator.create!(
