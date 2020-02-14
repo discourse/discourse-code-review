@@ -547,6 +547,7 @@ describe DiscourseCodeReview::GithubPRSyncer do
       fab!(:post) { Fabricate(:post, topic: topic, post_type: Post.types[:whisper]) }
 
       it "does not send the post to github" do
+        pr_service.expects(:create_issue_comment).never
         syncer.mirror_pr_post(post)
       end
     end
@@ -555,6 +556,7 @@ describe DiscourseCodeReview::GithubPRSyncer do
       fab!(:post) { Fabricate(:post, topic: topic, post_type: Post.types[:small_action]) }
 
       it "does not send the post to github" do
+        pr_service.expects(:create_issue_comment).never
         syncer.mirror_pr_post(post)
       end
     end
