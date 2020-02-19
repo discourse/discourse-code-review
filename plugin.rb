@@ -84,6 +84,10 @@ after_initialize do
       @graphql_client ||= GraphQLClient.new(self.octokit_bot_client)
     end
 
+    def self.github_commit_querier
+      @github_commit_querier ||= CommitQuerier.new(self.graphql_client)
+    end
+
     def self.github_pr_service
       @github_pr_querier ||= GithubPRQuerier.new(self.graphql_client)
       @github_pr_service ||=
@@ -173,6 +177,7 @@ after_initialize do
   require File.expand_path("../lib/discourse_code_review/github_user_syncer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_category_syncer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/importer.rb", __FILE__)
+  require File.expand_path("../lib/discourse_code_review/commit_querier.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_repo.rb", __FILE__)
 
   add_admin_route 'code_review.title', 'code-review'

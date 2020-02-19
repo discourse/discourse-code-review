@@ -34,7 +34,7 @@ module DiscourseCodeReview
 
         `git merge test`
 
-        repo = GithubRepo.new('fake_repo/fake_repo', nil)
+        repo = GithubRepo.new('fake_repo/fake_repo', nil, nil)
 
         repo.path = @git_path
         repo.last_commit = nil
@@ -54,7 +54,7 @@ module DiscourseCodeReview
         File.write('a', 'hello2')
         `git commit -am 'second commit\n\nline 2'`
 
-        repo = GithubRepo.new('fake_repo/fake_repo', nil)
+        repo = GithubRepo.new('fake_repo/fake_repo', nil, nil)
 
         repo.path = @git_path
         repo.last_commit = nil
@@ -82,7 +82,7 @@ module DiscourseCodeReview
         File.write('a', 'hello3')
         `git commit -am 'third commit'`
 
-        repo = GithubRepo.new('fake_repo/fake_repo', nil)
+        repo = GithubRepo.new('fake_repo/fake_repo', nil, nil)
         repo.path = @git_path
 
         SiteSetting.code_review_catch_up_commits = 1
@@ -102,7 +102,7 @@ module DiscourseCodeReview
         File.write('a', 'hello2')
         `git commit -am 'second commit'`
 
-        repo = GithubRepo.new('fake_repo/fake_repo', nil)
+        repo = GithubRepo.new('fake_repo/fake_repo', nil, nil)
         repo.path = @git_path
 
         # mimic force push event

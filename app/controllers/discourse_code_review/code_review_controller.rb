@@ -36,7 +36,8 @@ module DiscourseCodeReview
 
       if ["commit_comment", "push"].include? type
         client = DiscourseCodeReview.octokit_client
-        repo = GithubRepo.new(repo_name, client)
+        github_commit_querier = DiscourseCodeReview.github_commit_querier
+        repo = GithubRepo.new(repo_name, client, github_commit_querier)
         importer = Importer.new(repo)
 
         if type == "commit_comment"

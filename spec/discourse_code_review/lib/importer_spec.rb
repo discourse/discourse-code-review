@@ -34,7 +34,7 @@ module DiscourseCodeReview
       # lets muck stuff up first ... and create a dupe category
       Category.create!(name: 'discourse', user: Discourse.system_user)
 
-      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new)
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
       id = Importer.new(repo).category_id
 
       expect(id).to be > 0
@@ -42,7 +42,7 @@ module DiscourseCodeReview
     end
 
     it "can cleanly associate old commits" do
-      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new)
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
 
       diff = "```\nwith a diff"
 
@@ -77,7 +77,7 @@ module DiscourseCodeReview
 
     it "can handle complex imports" do
 
-      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new)
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
 
       diff = "```\nwith a diff"
 

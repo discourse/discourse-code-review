@@ -12,9 +12,11 @@ module DiscourseCodeReview
 
     MAX_DIFF_LENGTH = 8000
 
-    def initialize(name, octokit_client)
+    def initialize(name, octokit_client, commit_querier)
+      @owner, @repo = name.split('/')
       @name = name
       @octokit_client = octokit_client
+      @commit_querier = commit_querier
     end
 
     def clean_name
@@ -106,27 +108,23 @@ module DiscourseCodeReview
 
       hash ||= last_commit
 
-      github_info = []
-
       range = single ? ["-1", hash] : ["#{hash}.."]
 
       commits = git("log", *range, "--pretty=%H").split("\n").map { |x| x.strip }
 
-      if merge_github_info
-        commits.each_slice(30).each do |x|
-          github_commits = octokit_client.commits(@name, sha: x.first)
-          github_info.concat(github_commits)
-        end
-      end
-
       lookup = {}
-      github_info.each do |commit|
-        lookup[commit.sha] = {
-          author_login: commit&.author&.login,
-          author_id: commit&.author&.id,
-          committer_login: commit&.committer&.login,
-          committer_id: commit&.committer&.id,
-        }
+
+      if merge_github_info
+        commits.each_slice(30).each do |chunk|
+          @commit_querier.commits_authors(@owner, @repo, chunk).each do |_, commit_info|
+            lookup[commit_info.oid] = {
+              author_login: commit_info.author&.login,
+              author_id: commit_info.author&.id,
+              committer_login: commit_info.committer&.login,
+              committer_id: commit_info.committer&.id,
+            }
+          end
+        end
       end
 
       # hash name email subject body

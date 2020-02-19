@@ -10,8 +10,9 @@ module DiscourseCodeReview
 
     def self.sync_commit(sha)
       client = DiscourseCodeReview.octokit_client
+      github_commit_querier = DiscourseCodeReview.github_commit_querier
       GithubCategorySyncer.each_repo_name do |repo_name|
-        repo = GithubRepo.new(repo_name, client)
+        repo = GithubRepo.new(repo_name, client, github_commit_querier)
         importer = Importer.new(repo)
 
         if commit = repo.commit(sha)
@@ -25,7 +26,8 @@ module DiscourseCodeReview
 
     def self.sync_commit_from_repo(repo_name, sha)
       client = DiscourseCodeReview.octokit_client
-      repo = GithubRepo.new(repo_name, client)
+      github_commit_querier = DiscourseCodeReview.github_commit_querier
+      repo = GithubRepo.new(repo_name, client, github_commit_querier)
       importer = Importer.new(repo)
       importer.sync_commit_sha(sha)
     end
