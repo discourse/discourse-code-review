@@ -62,9 +62,12 @@ module DiscourseCodeReview
         if hash[:path].present? && hash[:position].present?
           diff = git("diff", "#{hash[:commit_id]}~1", hash[:commit_id], hash[:path], raise_error: false)
           if diff.present?
-            # 5 is preamble
-            start = [hash[:position] + 5 - 3, 5].max
-            finish = hash[:position] + 5 + 3
+            # -1 since lines use 1-based indexing
+            # 5 lines in the preamble
+            # 3 lines of context before and after
+            # start and finish are inclusive
+            start = [hash[:position] - 1 + 5 - 3, 5].max
+            finish = hash[:position] - 1 + 5 + 3
             line_content = diff.split("\n")[start..finish].join("\n")
           end
         end
