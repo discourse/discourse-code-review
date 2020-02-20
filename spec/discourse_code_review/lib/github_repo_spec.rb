@@ -7,7 +7,7 @@ module DiscourseCodeReview
     def with_tmpdir(&blk)
       path = "#{Pathname.new(Dir.tmpdir).realpath}/#{SecureRandom.hex}"
       begin
-        return blk.call(path)
+        blk.call(path)
       ensure
         FileUtils.rm_rf(path)
       end
