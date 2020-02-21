@@ -11,7 +11,6 @@ gem 'addressable', '2.7.0'
 gem 'sawyer', '0.8.2'
 gem 'octokit', '4.16.0'
 gem 'pqueue', '2.1.0'
-gem 'rugged', '0.28.4.1'
 
 enabled_site_setting :code_review_enabled
 
@@ -179,7 +178,6 @@ after_initialize do
   require File.expand_path("../lib/discourse_code_review/github_category_syncer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/importer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/commit_querier.rb", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/git_repo.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_repo.rb", __FILE__)
 
   add_admin_route 'code_review.title', 'code-review'
