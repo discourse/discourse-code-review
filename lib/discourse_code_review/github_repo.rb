@@ -2,14 +2,9 @@
 
 module DiscourseCodeReview
   class GithubRepo
-
     attr_reader :name, :octokit_client
 
     LAST_COMMIT = 'last commit'
-
-    LINE_END = "52fc72dfa9cafa9da5e6266810b884ae"
-    FIELD_END = "52fc72dfa9cafa9da5e6266810b884ff"
-
     MAX_DIFF_LENGTH = 8000
 
     def initialize(name, octokit_client, commit_querier)
@@ -29,9 +24,11 @@ module DiscourseCodeReview
         Rails.logger.warn("Discourse Code Review: Failed to detect commit hash `#{commit_hash}` in #{path}, resetting last commit hash.")
         commit_hash = nil
       end
+
       if !commit_hash
         commits = [SiteSetting.code_review_catch_up_commits, 1].max - 1
-        commit_hash = (self.last_commit = git("rev-parse", "HEAD~#{commits}", backup_command: ['rev-list', '--max-parents=0', 'HEAD']))
+        commit_hash = git_repo.n_before('origin/master', commits)
+        self.last_commit = commit_hash
       end
 
       commit_hash
@@ -43,35 +40,28 @@ module DiscourseCodeReview
     end
 
     def commit_hash_valid?(hash)
-      git("cat-file", "-t", hash) == "commit"
-    rescue
-      false
+      git_repo.fetch
+      git_repo.commit_hash_valid?(hash)
     end
 
     def master_contains?(ref)
-      git('pull')
-
-      hash = git('rev-parse', ref)
-      git('merge-base', 'origin/master', hash) == hash
+      git_repo.fetch
+      git_repo.master_contains?(ref)
     end
 
     def commit_comments(commit_sha)
-      git("pull")
+      git_repo.fetch
 
       octokit_client.commit_comments(@name, commit_sha).map do |hash|
         line_content = nil
 
         if hash[:path].present? && hash[:position].present?
-          diff = git("diff", "#{hash[:commit_id]}~1", hash[:commit_id], hash[:path], raise_error: false)
-          if diff.present?
-            # -1 since lines use 1-based indexing
-            # 5 lines in the preamble
-            # 3 lines of context before and after
-            # start and finish are inclusive
-            start = [hash[:position] - 1 + 5 - 3, 5].max
-            finish = hash[:position] - 1 + 5 + 3
-            line_content = diff.split("\n")[start..finish].join("\n")
-          end
+          diff =
+            @git_repo.diff_excerpt(
+              hash[:commit_id],
+              hash[:path],
+              hash[:position],
+            )
         end
 
         login = hash[:user][:login] if hash[:user]
@@ -86,36 +76,39 @@ module DiscourseCodeReview
           created_at: hash[:created_at],
           updated_at: hash[:updated_at],
           body: hash[:body],
-          line_content: line_content
+          line_content: line_content,
         }
       end
     end
 
     def commit(hash)
-      git("pull")
       begin
-        git("log", "-1", hash, warn: false)
-        commits_since(hash, single: true, pull: false).first
-      rescue StandardError
+        commits_since(hash, single: true).first
+      rescue Rugged::ReferenceError
         nil
       end
     end
 
-    def commits_since(hash = nil, merge_github_info: true, pull: true, single: false)
+    def commits_since(ref = nil, merge_github_info: true, pull: true, single: false)
       if pull
-        git("pull")
+        git_repo.fetch
       end
 
-      hash ||= last_commit
+      ref ||= last_commit
 
-      range = single ? ["-1", hash] : ["#{hash}.."]
-
-      commits = git("log", *range, "--pretty=%H").split("\n").map { |x| x.strip }
+      commit_chunks =
+        if single
+          [[git_repo.rev_parse(ref)]]
+        else
+          git_repo
+            .commits_since(ref, 'origin/master')
+            .each_oid
+            .each_slice(30)
+        end
 
       lookup = {}
-
       if merge_github_info
-        commits.each_slice(30).each do |chunk|
+        commit_chunks.each do |chunk|
           @commit_querier.commits_authors(@owner, @repo, chunk).each do |_, commit_info|
             lookup[commit_info.oid] = {
               author_login: commit_info.author&.login,
@@ -127,78 +120,62 @@ module DiscourseCodeReview
         end
       end
 
-      # hash name email subject body
-      format = %w{%H %aN %aE %s %B %at}.join(FIELD_END) << LINE_END
+      commits =
+        if single
+          [git_repo.commit(ref)]
+        else
+          git_repo.commits_since(ref, 'origin/master')
+        end
 
-      data = git("log", *range, "--pretty=#{format}")
+      commits.map do |commit|
+        hash = commit.oid
+        body = commit.message
+        name = commit.author[:name]
+        email = commit.author[:email]
+        authored_at = commit.author[:time]
+        subject = commit.summary
+        truncated = false
 
-      data.split(LINE_END).map do |line|
-        fields = line.split(FIELD_END).map { |f| f.strip if f }
-
-        hash = fields[0].strip
-
-        body = fields[4] || ''
-
-        diff = git("show", "--format=%b", hash)
-
-        if diff.present?
-          diff_lines = diff[0..MAX_DIFF_LENGTH + body.length]
-            .strip
-            .split("\n")
-
-          while diff_lines[0] && !diff_lines[0].start_with?("diff --git")
-            diff_lines.delete_at(0)
+        if commit.parents.size == 1
+          diff = commit.diff(commit.parents[0]).patch
+          if diff.length > MAX_DIFF_LENGTH
+            diff_lines = diff[0..MAX_DIFF_LENGTH].split("\n")
+            diff_lines.pop
+            diff = diff_lines.join('\n')
+            truncated = true
           end
-
-          truncated = diff.length > (MAX_DIFF_LENGTH + body.length)
-          if truncated
-            diff_lines.delete_at(diff_lines.length - 1)
-          end
-
-          diff = diff_lines.join("\n")
+        else
+          diff = ""
         end
 
         github_data = lookup[hash] || {}
 
         {
           hash: hash,
-          name: fields[1],
-          email: fields[2],
-          subject: fields[3],
-          body: fields[4],
-          date: Time.at(fields[5].to_i).to_datetime,
+          name: name,
+          email: email,
+          subject: subject,
+          body: body,
+          date: authored_at.to_datetime,
           diff: diff,
-          diff_truncated: truncated
+          diff_truncated: truncated,
         }.merge(github_data)
-
       end.reverse
-
-    end
-
-    def trailers(ref)
-      git("pull")
-
-      message = git("show", "--no-patch", "--format=%b", ref)
-
-      last_section =
-        message
-          .strip
-          .gsub("\r", "")
-          .split("\n\n")
-          .last || ""
-
-      last_section
-        .split("\n")
-        .select { |line| line.count(':') == 1 }
-        .map { |line| line.split(':').map(&:strip) }
     end
 
     def followees(ref)
-      trailers(ref).select { |x| x.first == 'Follow-up-to' }.map(&:second)
+      git_repo
+        .trailers(ref)
+        .select { |x| x.first == 'Follow-up-to' }
+        .map(&:second)
     end
 
     def path
-      @path ||= (Rails.root + "tmp/code-review-repo/#{clean_name}").to_s
+      @path ||= begin
+        FileUtils.mkdir_p(Rails.root + "tmp/code-review-repo")
+
+        (Rails.root + "tmp/code-review-repo/#{clean_name}").to_s
+      end
     end
 
     # for testing
@@ -206,58 +183,20 @@ module DiscourseCodeReview
       @path = v
     end
 
-    def clone(path)
-      github_token = SiteSetting.code_review_github_token
+    def url
+      @url ||= begin
+        github_token = SiteSetting.code_review_github_token
 
-      url =
         if (SiteSetting.code_review_allow_private_clone && github_token.present?)
           "https://#{github_token}@github.com/#{@name}.git"
         else
           "https://github.com/#{@name}.git"
         end
-      `git clone #{url} '#{path}'`
+      end
     end
 
-    def git(*command, backup_command: [], raise_error: true, warn: true)
-      FileUtils.mkdir_p(Rails.root + "tmp/code-review-repo")
-
-      if !File.exist?(path)
-        clone(path)
-        if $?.exitstatus != 0
-          raise StandardError, "Failed to clone repo #{@name} in tmp/code-review-repo"
-        end
-      end
-
-      last_command = command
-      last_error = nil
-      begin
-        result = Discourse::Utils.execute_command('git', *command, chdir: path).strip
-      rescue RuntimeError => e
-        last_error = e
-      end
-
-      if result.nil?
-        unless backup_command.empty?
-          last_command = backup_command
-          begin
-            result = Discourse::Utils.execute_command('git', *backup_command, chdir: path).strip
-          rescue RuntimeError => e
-            last_error = e
-          end
-        end
-
-        if result.nil?
-          if warn
-            Rails.logger.warn("Discourse Code Review: Failed to run `#{last_command.join(' ')}` in #{path} with error: #{last_error}")
-          end
-
-          if raise_error
-            raise StandardError, "Failed to run git command #{last_command.join(' ')} on #{@name} in tmp/code-review-repo"
-          end
-        end
-      end
-      result
+    def git_repo
+      @git_repo ||= GitRepo.new(url, path)
     end
-
   end
 end
