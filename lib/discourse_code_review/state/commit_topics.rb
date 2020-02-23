@@ -63,74 +63,34 @@ module DiscourseCodeReview::State::CommitTopics
       end
     end
 
-    def create_commit(commit:, merged:, repo_name:, user:, category_id:)
-      link = <<~LINK
-        [<small>GitHub</small>](https://github.com/#{repo_name}/commit/#{commit[:hash]})
-      LINK
-
-      title = commit[:subject]
-      # we add a unicode zero width joiner so code block is not corrupted
-      diff = commit[:diff].gsub('```', "`\u200d``")
-
-      truncated_message =
-        if commit[:diff_truncated]
-          "\n[... diff too long, it was truncated ...]\n"
-        end
-
-      body, linked_topics = auto_link_commits(commit[:body])
-      linked_topics.merge! find_linked_commits(title)
-
-      short_hash = "<small>sha: #{commit[:hash][0...8]}</small>"
-
-      raw = "[excerpt]\n#{body}\n[/excerpt]\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link} #{short_hash}"
-
-      ensure_commit(
-        commit: commit,
-        merged: merged,
-        user: user,
-        title: title,
-        raw: raw,
-        category_id: category_id,
-        linked_topics: linked_topics
-      )
-    end
-
-    private
-
-    def ensure_commit(commit:, merged:, user:, title:, raw:, category_id:, linked_topics:)
+    def ensure_commit(commit:, merged:, repo_name:, user:, category_id:)
       DistributedMutex.synchronize('code-review:create-commit-topic') do
         ActiveRecord::Base.transaction(requires_new: true) do
-          topic_id =
-            TopicCustomField
-              .where(
-                name: DiscourseCodeReview::COMMIT_HASH,
-                value: commit[:hash]
-              )
-              .limit(1)
-              .pluck(:topic_id)
-              .first
+          link = <<~LINK
+            [<small>GitHub</small>](https://github.com/#{repo_name}/commit/#{commit[:hash]})
+          LINK
 
-          if topic_id.present?
+          title = commit[:subject]
+          # we add a unicode zero width joiner so code block is not corrupted
+          diff = commit[:diff].gsub('```', "`\u200d``")
+
+          truncated_message =
+            if commit[:diff_truncated]
+              "\n[... diff too long, it was truncated ...]\n"
+            end
+
+          body, linked_topics = auto_link_commits(commit[:body])
+          linked_topics.merge! find_linked_commits(title)
+
+          short_hash = "<small>sha: #{commit[:hash][0...8]}</small>"
+
+          raw = "[excerpt]\n#{body}\n[/excerpt]\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link} #{short_hash}"
+
+          topic = find_topic_by_commit_hash(commit[:hash])
+
+          if topic.present?
             if merged
-              topic = Topic.find(topic_id)
-              tags = topic.tags.pluck(:name)
-
-              merged_tags = [
-                SiteSetting.code_review_pending_tag,
-                SiteSetting.code_review_approved_tag,
-                SiteSetting.code_review_followup_tag
-              ]
-
-              if (tags & merged_tags).empty?
-                tags << SiteSetting.code_review_pending_tag
-                tags -= [SiteSetting.code_review_unmerged_tag]
-
-                DiscourseTagging.tag_topic_by_names(
-                  topic,
-                  Discourse.system_user.guardian,
-                  tags
-                )
-              end
+              set_merged(topic)
             end
           else
             tags =
@@ -168,11 +128,48 @@ module DiscourseCodeReview::State::CommitTopics
               )
             end
 
-            topic_id = post.topic_id
+            topic = post.topic
           end
 
-          topic_id
+          topic.id
         end
+      end
+    end
+
+    private
+
+    def find_topic_by_commit_hash(hash)
+      Topic
+        .where(
+          id:
+            TopicCustomField
+              .where(
+                name: DiscourseCodeReview::COMMIT_HASH,
+                value: hash,
+              )
+              .limit(1)
+              .select(:topic_id)
+        ).first
+    end
+
+    def set_merged(topic)
+      tags = topic.tags.pluck(:name)
+
+      merged_tags = [
+        SiteSetting.code_review_pending_tag,
+        SiteSetting.code_review_approved_tag,
+        SiteSetting.code_review_followup_tag
+      ]
+
+      if (tags & merged_tags).empty?
+        tags << SiteSetting.code_review_pending_tag
+        tags -= [SiteSetting.code_review_unmerged_tag]
+
+        DiscourseTagging.tag_topic_by_names(
+          topic,
+          Discourse.system_user.guardian,
+          tags
+        )
       end
     end
 

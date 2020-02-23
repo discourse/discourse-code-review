@@ -72,7 +72,7 @@ module DiscourseCodeReview
         github_id: commit[:author_id]
       )
 
-      State::CommitTopics.create_commit(
+      State::CommitTopics.ensure_commit(
         category_id: category_id,
         commit: commit,
         merged: merged,
