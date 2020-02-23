@@ -226,7 +226,9 @@ after_initialize do
 
   on(:before_post_process_cooked) do |doc, post|
     unless post.topic.custom_fields[DiscourseCodeReview::COMMIT_HASH].present? && post.post_number == 1
-      doc = DiscourseCodeReview::Importer.new(nil).auto_link_commits(post.raw, doc)[2]
+      doc =
+        DiscourseCodeReview::State::CommitTopics
+          .auto_link_commits(post.raw, doc)[2]
     end
   end
 
