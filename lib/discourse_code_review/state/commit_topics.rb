@@ -63,7 +63,7 @@ module DiscourseCodeReview::State::CommitTopics
       end
     end
 
-    def ensure_commit(commit:, merged:, repo_name:, user:, category_id:)
+    def ensure_commit(commit:, merged:, repo_name:, user:, category_id:, followees:)
       DistributedMutex.synchronize('code-review:create-commit-topic') do
         ActiveRecord::Base.transaction(requires_new: true) do
           link = <<~LINK
@@ -118,13 +118,22 @@ module DiscourseCodeReview::State::CommitTopics
               value: commit[:hash]
             )
 
-            linked_topics.values.each do |linked_topic|
-              linked_topic.add_moderator_post(
-                user,
-                " #{post.topic.url}",
-                bump: false,
-                post_type: Post.types[:small_action],
-                action_code: "followed_up"
+            followee_topics =
+              Topic
+                .where(
+                  id:
+                    TopicCustomField
+                      .where(
+                        name: DiscourseCodeReview::COMMIT_HASH,
+                        value: followees,
+                      )
+                      .select(:topic_id)
+                )
+
+            followee_topics.each do |followee_topic|
+              DiscourseCodeReview::State::CommitApproval.followed_up(
+                followee_topic,
+                post.topic,
               )
             end
 

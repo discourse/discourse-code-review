@@ -53,6 +53,30 @@ module DiscourseCodeReview::State::CommitApproval
       end
     end
 
+    def followed_up(followee_topic, follower_topic)
+      last_post =
+        followee_topic.add_moderator_post(
+          follower_topic.user,
+          " [#{follower_topic.title}](#{follower_topic.url})",
+          bump: false,
+          post_type: Post.types[:small_action],
+          action_code: "followed_up"
+        )
+
+      transition_to_approved(followee_topic) do
+        send_approved_notification(followee_topic, last_post)
+
+        if SiteSetting.code_review_auto_unassign_on_approve && followee_topic.user.staff?
+          DiscourseEvent.trigger(
+            :unassign_topic,
+            followee_topic,
+            followee_topic.user,
+            follower_topic.user,
+          )
+        end
+      end
+    end
+
     private
 
     def ensure_approved_post(topic, approver)

@@ -64,6 +64,7 @@ module DiscourseCodeReview
 
     def import_commit(commit)
       merged = github_repo.master_contains?(commit[:hash])
+      followees = github_repo.followees(commit[:hash])
 
       user = DiscourseCodeReview.github_user_syncer.ensure_user(
         email: commit[:email],
@@ -78,6 +79,7 @@ module DiscourseCodeReview
         merged: merged,
         repo_name: github_repo.name,
         user: user,
+        followees: followees,
       )
     end
 

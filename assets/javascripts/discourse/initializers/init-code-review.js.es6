@@ -22,7 +22,7 @@ function actOnCommit(topic, action) {
 function initialize(api) {
   api.addPostSmallActionIcon("followup", "far-clock");
   api.addPostSmallActionIcon("approved", "thumbs-up");
-  api.addPostSmallActionIcon("followed_up", "link");
+  api.addPostSmallActionIcon("followed_up", "backward");
   api.addPostSmallActionIcon("pr_merge_info", "info-circle");
 
   // we need to allow unconditional association even with 2fa

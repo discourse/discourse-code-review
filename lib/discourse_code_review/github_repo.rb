@@ -175,6 +175,28 @@ module DiscourseCodeReview
 
     end
 
+    def trailers(ref)
+      git("pull")
+
+      message = git("show", "--no-patch", "--format=%b", ref)
+
+      last_section =
+        message
+          .strip
+          .gsub("\r", "")
+          .split("\n\n")
+          .last || ""
+
+      last_section
+        .split("\n")
+        .select { |line| line.count(':') == 1 }
+        .map { |line| line.split(':').map(&:strip) }
+    end
+
+    def followees(ref)
+      trailers(ref).select { |x| x.first == 'Follow-up-to' }.map(&:second)
+    end
+
     def path
       @path ||= (Rails.root + "tmp/code-review-repo/#{clean_name}").to_s
     end
