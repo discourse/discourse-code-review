@@ -14,7 +14,7 @@ module DiscourseCodeReview
       committer: TypedData::OrNil[ActorWithId],
     )
 
-  class CommitQuerier
+  class Source::CommitQuerier
     def initialize(graphql_client)
       @graphql_client = graphql_client
     end

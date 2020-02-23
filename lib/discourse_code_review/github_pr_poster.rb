@@ -16,7 +16,7 @@ module DiscourseCodeReview
       when :commit_thread_started
         commit_sha = event.commit_sha[0...8]
 
-        repo_name = GithubCategorySyncer.get_repo_name_from_topic(topic)
+        repo_name = State::GithubRepoCategories.get_repo_name_from_topic(topic)
 
         discussion_topic =
           Topic.find(

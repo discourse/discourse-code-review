@@ -24,9 +24,10 @@ module DiscourseCodeReview
       pr_data = pr_service.pull_request_data(pr)
 
       category =
-        GithubCategorySyncer.ensure_category(
-          repo_name: repo_name
-        )
+        State::GithubRepoCategories
+          .ensure_category(
+            repo_name: repo_name
+          )
 
       url =
         "https://github.com/#{repo_name}/pull/#{issue_number}"
@@ -45,7 +46,7 @@ module DiscourseCodeReview
 
       pr_service.pull_request_events(pr).each do |event_info, event|
         poster =
-          DiscourseCodeReview::GithubPRPoster.new(
+          GithubPRPoster.new(
             topic: topic,
             author: ensure_actor(event_info.actor),
             github_id: event_info.github_id,
@@ -63,9 +64,10 @@ module DiscourseCodeReview
     end
 
     def sync_all
-      GithubCategorySyncer.github_repo_category_fields.each do |field|
-        sync_repo(field.value)
-      end
+      State::GithubRepoCategories
+        .github_repo_category_fields.each do |field|
+          sync_repo(field.value)
+        end
     end
 
     def sync_associated_pull_requests(repo_name, git_commit)
@@ -81,7 +83,7 @@ module DiscourseCodeReview
             id:
               TopicCustomField
                 .where(
-                  name: DiscourseCodeReview::COMMIT_HASH,
+                  name: COMMIT_HASH,
                   value: commit_hash
                 )
                 .limit(1)
@@ -102,7 +104,7 @@ module DiscourseCodeReview
                 SiteSetting.code_review_allow_self_approval || topic.user_id != user.id
               }
 
-          DiscourseCodeReview::CommitApprovalStateService.approve(
+          State::CommitApproval.approve(
             topic,
             approvers,
             pr: pr,
@@ -123,7 +125,11 @@ module DiscourseCodeReview
       ]
 
       if conditions.all?
-        repo_name = topic.category.custom_fields[GithubCategorySyncer::GITHUB_REPO_NAME]
+        repo_name =
+          topic.category.custom_fields[
+            State::GithubRepoCategories::GITHUB_REPO_NAME
+          ]
+
         issue_number = topic.custom_fields[GITHUB_ISSUE_NUMBER]
 
         if repo_name && issue_number

@@ -99,7 +99,7 @@ describe DiscourseCodeReview::GithubPRSyncer do
   end
 
   fab!(:category) do
-    DiscourseCodeReview::GithubCategorySyncer.ensure_category(
+    DiscourseCodeReview::State::GithubRepoCategories.ensure_category(
       repo_name: 'owner/name'
     )
   end

@@ -40,7 +40,7 @@ class MockPRQuerier
   end
 end
 
-describe DiscourseCodeReview::GithubPRService do
+describe DiscourseCodeReview::Source::GithubPRService do
   let!(:pr) {
     DiscourseCodeReview::PullRequest.new(
       owner: "owner",
@@ -169,7 +169,7 @@ describe DiscourseCodeReview::GithubPRService do
         )
 
       result =
-        DiscourseCodeReview::GithubPRService
+        DiscourseCodeReview::Source::GithubPRService
           .new(nil, pr_querier)
           .pull_request_events(pr)
           .to_a
@@ -189,7 +189,7 @@ describe DiscourseCodeReview::GithubPRService do
         )
 
       result =
-        DiscourseCodeReview::GithubPRService
+        DiscourseCodeReview::Source::GithubPRService
           .new(nil, pr_querier)
           .pull_request_events(pr)
           .to_a
@@ -206,7 +206,7 @@ describe DiscourseCodeReview::GithubPRService do
         )
 
       result =
-        DiscourseCodeReview::GithubPRService
+        DiscourseCodeReview::Source::GithubPRService
           .new(nil, pr_querier)
           .pull_request_events(pr)
           .to_a
@@ -226,7 +226,7 @@ describe DiscourseCodeReview::GithubPRService do
         )
 
       result =
-        DiscourseCodeReview::GithubPRService
+        DiscourseCodeReview::Source::GithubPRService
           .new(nil, pr_querier)
           .pull_request_events(pr)
           .to_a
@@ -246,7 +246,7 @@ describe DiscourseCodeReview::GithubPRService do
         )
 
       result =
-        DiscourseCodeReview::GithubPRService
+        DiscourseCodeReview::Source::GithubPRService
           .new(nil, pr_querier)
           .pull_request_events(pr)
           .to_a
@@ -269,7 +269,7 @@ describe DiscourseCodeReview::GithubPRService do
         )
 
       result =
-        DiscourseCodeReview::GithubPRService
+        DiscourseCodeReview::Source::GithubPRService
           .new(nil, pr_querier)
           .pull_request_events(pr)
           .to_a

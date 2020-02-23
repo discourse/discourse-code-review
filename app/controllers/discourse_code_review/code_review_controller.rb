@@ -79,7 +79,7 @@ module DiscourseCodeReview
     def followup
       topic = Topic.find_by(id: params[:topic_id])
 
-      DiscourseCodeReview::CommitApprovalStateService.followup(
+      State::CommitApproval.followup(
         topic,
         current_user
       )
@@ -94,7 +94,7 @@ module DiscourseCodeReview
         raise Discourse::InvalidAccess
       end
 
-      DiscourseCodeReview::CommitApprovalStateService.approve(
+      State::CommitApproval.approve(
         topic,
         [current_user]
       )

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DiscourseCodeReview::CommitApprovalStateService
+module DiscourseCodeReview::State::CommitApproval
   PR_MERGE_INFO_PR = "pr merge info pr"
   PR_MERGE_INFO_DATA = "pr merge info data"
 

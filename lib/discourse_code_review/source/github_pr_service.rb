@@ -74,7 +74,7 @@ module DiscourseCodeReview
       author: Actor
     )
 
-  class GithubPRService
+  class Source::GithubPRService
     class EventStream
       include Enumerable
 

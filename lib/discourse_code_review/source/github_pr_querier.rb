@@ -9,7 +9,7 @@ module DiscourseCodeReview
       commit_sha: String
     )
 
-  class GithubPRQuerier
+  class Source::GithubPRQuerier
     def initialize(graphql_client)
       @graphql_client = graphql_client
     end

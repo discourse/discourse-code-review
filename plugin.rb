@@ -85,20 +85,20 @@ after_initialize do
     end
 
     def self.github_commit_querier
-      @github_commit_querier ||= CommitQuerier.new(self.graphql_client)
+      @github_commit_querier ||= Source::CommitQuerier.new(self.graphql_client)
     end
 
     def self.github_pr_service
-      @github_pr_querier ||= GithubPRQuerier.new(self.graphql_client)
+      @github_pr_querier ||= Source::GithubPRQuerier.new(self.graphql_client)
       @github_pr_service ||=
-        GithubPRService.new(
+        Source::GithubPRService.new(
           self.octokit_bot_client,
           @github_pr_querier
         )
     end
 
     def self.github_user_querier
-      @github_user_querier ||= GithubUserQuerier.new(self.octokit_client)
+      @github_user_querier ||= Source::GithubUserQuerier.new(self.octokit_client)
     end
 
     def self.github_user_syncer
@@ -134,7 +134,7 @@ after_initialize do
           path = fields[DiscourseCodeReview::COMMENT_PATH]
           position = fields[DiscourseCodeReview::COMMENT_POSITION]
 
-          if repo = post.topic.category.custom_fields[DiscourseCodeReview::GithubCategorySyncer::GITHUB_REPO_NAME]
+          if repo = post.topic.category.custom_fields[DiscourseCodeReview::State::GithubRepoCategories::GITHUB_REPO_NAME]
             post_user_name = user.name || user.username
 
             github_post_contents = [
@@ -168,16 +168,12 @@ after_initialize do
   require File.expand_path("../lib/enumerators", __FILE__)
   require File.expand_path("../lib/typed_data", __FILE__)
   require File.expand_path("../lib/graphql_client", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/commit_approval_state_service", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/github_pr_service", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/github_pr_querier", __FILE__)
+  require File.expand_path("../lib/discourse_code_review/source.rb", __FILE__)
+  require File.expand_path("../lib/discourse_code_review/state.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_pr_poster", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_pr_syncer", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/github_user_querier", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_user_syncer.rb", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/github_category_syncer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/importer.rb", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/commit_querier.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_repo.rb", __FILE__)
 
   add_admin_route 'code_review.title', 'code-review'
@@ -240,7 +236,7 @@ after_initialize do
       category = post&.topic&.category
 
       repo_name =
-        category && category.custom_fields[DiscourseCodeReview::GithubCategorySyncer::GITHUB_REPO_NAME]
+        category && category.custom_fields[DiscourseCodeReview::State::GithubRepoCategories::GITHUB_REPO_NAME]
 
       if repo_name.present?
         client.delete_commit_comment(repo_name, github_id)
