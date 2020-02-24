@@ -49,9 +49,7 @@ module DiscourseCodeReview
 
       expect(post2.cooked).to include(post.topic.url)
 
-      # expect a backlink
-      expect(post.topic.posts.length).to eq(2)
-
+      expect(post.topic.posts.length).to eq(1)
     end
 
     it "can handle complex imports" do
@@ -76,6 +74,7 @@ module DiscourseCodeReview
       }
 
       repo.expects(:master_contains?).with(commit[:hash]).returns(true)
+      repo.expects(:followees).with(commit[:hash]).returns([])
 
       post = first_post_of(Importer.new(repo).import_commit(commit))
 
