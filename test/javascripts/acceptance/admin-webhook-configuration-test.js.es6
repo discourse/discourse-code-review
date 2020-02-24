@@ -49,7 +49,6 @@ acceptance("Github Webhook Configuration", {
       `${restPrefix}/organizations/org1/repos/repo1/configure-webhook.json`,
       () => {
         return helper.response({
-          // eslint-disable-line
           has_configured_webhook: true
         });
       }
@@ -59,7 +58,6 @@ acceptance("Github Webhook Configuration", {
       `${restPrefix}/organizations/org2/repos/repo3/configure-webhook.json`,
       () => {
         return helper.response({
-          // eslint-disable-line
           has_configured_webhook: true
         });
       }
