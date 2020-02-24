@@ -44,6 +44,26 @@ acceptance("Github Webhook Configuration", {
         });
       }
     );
+
+    server.post(
+      `${restPrefix}/organizations/org1/repos/repo1/configure-webhook.json`,
+      () => {
+        return helper.response({
+          // eslint-disable-line
+          has_configured_webhook: true
+        });
+      }
+    );
+
+    server.post(
+      `${restPrefix}/organizations/org2/repos/repo3/configure-webhook.json`,
+      () => {
+        return helper.response({
+          // eslint-disable-line
+          has_configured_webhook: true
+        });
+      }
+    );
   }
 });
 
@@ -54,7 +74,6 @@ QUnit.test("Should display correctly", async assert => {
   const organizations = tree.find(".code-review-webhook-org");
 
   assert.equal(organizations.length, 2);
-
   const [org1, org2] = organizations;
 
   assert.equal(
@@ -106,28 +125,6 @@ QUnit.test("Should display correctly", async assert => {
 QUnit.test(
   "Should send requests to change each unconfigured webhook",
   async assert => {
-    // prettier-ignore
-    server.post( // eslint-disable-line
-      `${restPrefix}/organizations/org1/repos/repo1/configure-webhook.json`,
-      () => {
-        // prettier-ignore
-        return pretender.response({ // eslint-disable-line
-          has_configured_webhook: true
-        });
-      }
-    );
-
-    // prettier-ignore
-    server.post( // eslint-disable-line
-      `${restPrefix}/organizations/org2/repos/repo3/configure-webhook.json`,
-      () => {
-        // prettier-ignore
-        return pretender.response({ // eslint-disable-line
-          has_configured_webhook: true
-        });
-      }
-    );
-
     await visit("/admin/plugins/code-review");
     await click(".code-review-configure-webhooks-button");
 
