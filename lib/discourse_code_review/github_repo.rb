@@ -137,7 +137,7 @@ module DiscourseCodeReview
         truncated = false
 
         if commit.parents.size == 1
-          diff = commit.diff(commit.parents[0]).patch
+          diff = commit.parents[0].diff(commit).patch
           if diff.length > MAX_DIFF_LENGTH
             diff_lines = diff[0..MAX_DIFF_LENGTH].split("\n")
             diff_lines.pop
