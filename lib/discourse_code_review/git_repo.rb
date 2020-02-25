@@ -2,11 +2,19 @@
 
 module DiscourseCodeReview
   class GitRepo
-    def initialize(url, location)
+    def initialize(url, location, credentials: nil)
+      @credentials = credentials
+
       begin
         @repo = Rugged::Repository.new(location)
       rescue Rugged::RepositoryError, Rugged::OSError
-        @repo = Rugged::Repository.clone_at(url, location, bare: true)
+        @repo =
+          Rugged::Repository.clone_at(
+            url,
+            location,
+            bare: true,
+            credentials: @credentials,
+        )
       end
     end
 
@@ -72,7 +80,7 @@ module DiscourseCodeReview
 
     def fetch
       @repo.remotes.each do |remote|
-        @repo.fetch(remote)
+        @repo.fetch(remote, credentials: @credentials)
       end
     end
   end

@@ -184,19 +184,24 @@ module DiscourseCodeReview
     end
 
     def url
-      @url ||= begin
+      @url ||= "https://github.com/#{@name}.git"
+    end
+
+    def credentials
+      @credentials ||= begin
         github_token = SiteSetting.code_review_github_token
 
         if (SiteSetting.code_review_allow_private_clone && github_token.present?)
-          "https://#{github_token}@github.com/#{@name}.git"
-        else
-          "https://github.com/#{@name}.git"
+          Rugged::Credentials::UserPassword.new(
+            username: github_token,
+            password: '',
+          )
         end
       end
     end
 
     def git_repo
-      @git_repo ||= GitRepo.new(url, path)
+      @git_repo ||= GitRepo.new(url, path, credentials: credentials)
     end
   end
 end
