@@ -2,6 +2,17 @@
 
 module DiscourseCodeReview::Source
   class GitRepo
+    Commit =
+      TypedData::TypedStruct.new(
+        oid: String,
+        message: String,
+        author_name: String,
+        author_email: String,
+        author_time: DateTime,
+        summary: String,
+        diff: TypedData::OrNil[String],
+      )
+
     def initialize(url, location, credentials: nil)
       @credentials = credentials
 
@@ -27,33 +38,28 @@ module DiscourseCodeReview::Source
         commit = commit.parents[0]
       end
 
-      commit.oid
-    end
-
-    def commit(ref)
-      @repo.rev_parse(ref)
+      sanitize_string(commit.oid)
     end
 
     def trailers(ref)
-      @repo.rev_parse(ref).trailers
+      @repo
+        .rev_parse(ref)
+        .trailers
+        .map { |trailer| trailer.map(&method(:sanitize_string)) }
     end
 
     def rev_parse(ref)
-      @repo.rev_parse_oid(ref)
-    end
-
-    def commits_since(from, to)
-      from = @repo.rev_parse(from)
-      to = @repo.rev_parse(to)
-
-      walker = Rugged::Walker.new(@repo)
-      walker.push(to)
-      walker.hide(from)
-      walker
+      sanitize_string(@repo.rev_parse_oid(ref))
     end
 
     def diff_excerpt(ref, path, position)
-      lines = @repo.diff("#{ref}^", ref, paths: [path]).patch.split("\n")
+      lines =
+        @repo
+          .diff("#{ref}^", ref, paths: [path])
+          .patch
+          .force_encoding(Encoding::UTF_8)
+          .split("\n")
+
       # -1 since lines use 1-based indexing
       # 5 lines in the preamble
       # 3 lines of context before and after
@@ -82,6 +88,57 @@ module DiscourseCodeReview::Source
       @repo.remotes.each do |remote|
         @repo.fetch(remote, credentials: @credentials)
       end
+    end
+
+    def commit(ref)
+      sanitize_commit(@repo.rev_parse(ref))
+    end
+
+    def commits_since(from, to)
+      Enumerators::MapEnumerator.new(
+        rugged_commits_since(from, to),
+        &method(:sanitize_commit)
+      )
+    end
+
+    def commit_oids_since(from, to)
+      Enumerators::MapEnumerator.new(
+        rugged_commits_since(from, to).each_oid,
+        &method(:sanitize_string)
+      )
+    end
+
+    private
+
+    def rugged_commits_since(from, to)
+      from = @repo.rev_parse(from)
+      to = @repo.rev_parse(to)
+
+      walker = Rugged::Walker.new(@repo)
+      walker.push(to)
+      walker.hide(from)
+      walker
+    end
+
+    def sanitize_commit(commit)
+      diff =
+        if commit.parents.size == 1
+          sanitize_string(commit.parents[0].diff(commit).patch)
+        end
+
+      Commit.new(
+        oid: sanitize_string(commit.oid),
+        message: sanitize_string(commit.message),
+        author_name: sanitize_string(commit.author[:name]),
+        author_email: sanitize_string(commit.author[:email]),
+        author_time: commit.author[:time].to_datetime,
+        summary: sanitize_string(commit.summary),
+        diff: diff,
+      )
+    end
+
+    def sanitize_string(value)
+      value.force_encoding(Encoding::UTF_8)
     end
   end
 end

@@ -101,8 +101,7 @@ module DiscourseCodeReview
           [[git_repo.rev_parse(ref)]]
         else
           git_repo
-            .commits_since(ref, 'origin/master')
-            .each_oid
+            .commit_oids_since(ref, 'origin/master')
             .each_slice(30)
         end
 
@@ -130,14 +129,14 @@ module DiscourseCodeReview
       commits.map do |commit|
         hash = commit.oid
         body = commit.message
-        name = commit.author[:name]
-        email = commit.author[:email]
-        authored_at = commit.author[:time]
+        name = commit.author_name
+        email = commit.author_email
+        authored_at = commit.author_time
         subject = commit.summary
+        diff = commit.diff
         truncated = false
 
-        if commit.parents.size == 1
-          diff = commit.parents[0].diff(commit).patch
+        if !diff.nil?
           if diff.length > MAX_DIFF_LENGTH
             diff_lines = diff[0..MAX_DIFF_LENGTH].split("\n")
             diff_lines.pop
@@ -156,7 +155,7 @@ module DiscourseCodeReview
           email: email,
           subject: subject,
           body: body,
-          date: authored_at.to_datetime,
+          date: authored_at,
           diff: diff,
           diff_truncated: truncated,
         }.merge(github_data)
