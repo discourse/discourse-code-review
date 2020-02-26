@@ -266,9 +266,13 @@ module DiscourseCodeReview
           }
         ")
 
-      Actor.new(
-        github_login: response[:repository][:pullRequest][:mergedBy][:login]
-      )
+      merged_by = response[:repository][:pullRequest][:mergedBy]
+
+      if !merged_by.nil?
+        Actor.new(
+          github_login: merged_by[:login]
+        )
+      end
     end
 
     def approvers(pr)
