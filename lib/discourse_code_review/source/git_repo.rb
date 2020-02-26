@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DiscourseCodeReview
+module DiscourseCodeReview::Source
   class GitRepo
     def initialize(url, location, credentials: nil)
       @credentials = credentials

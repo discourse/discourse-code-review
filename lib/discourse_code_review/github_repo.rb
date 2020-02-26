@@ -201,7 +201,7 @@ module DiscourseCodeReview
     end
 
     def git_repo
-      @git_repo ||= GitRepo.new(url, path, credentials: credentials)
+      @git_repo ||= Source::GitRepo.new(url, path, credentials: credentials)
     end
   end
 end

@@ -175,7 +175,6 @@ after_initialize do
   require File.expand_path("../lib/discourse_code_review/github_pr_syncer", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_user_syncer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/importer.rb", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/git_repo.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_repo.rb", __FILE__)
 
   add_admin_route 'code_review.title', 'code-review'
