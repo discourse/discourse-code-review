@@ -82,11 +82,9 @@ module DiscourseCodeReview
     end
 
     def commit(hash)
-      begin
-        commits_since(hash, single: true).first
-      rescue Rugged::ReferenceError
-        nil
-      end
+      commits_since(hash, single: true).first
+    rescue Rugged::ReferenceError
+      nil
     end
 
     def commits_since(ref = nil, merge_github_info: true, pull: true, single: false)
