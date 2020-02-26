@@ -14,7 +14,7 @@ module DiscourseCodeReview::State::GithubRepoCategories
                 .where(name: GITHUB_REPO_NAME, value: repo_name)
           ).first
 
-        if category.nil?
+        if !category
           short_name = find_category_name(repo_name.split("/", 2).last)
 
           category =

@@ -136,7 +136,7 @@ module DiscourseCodeReview
         diff = commit.diff
         truncated = false
 
-        if !diff.nil?
+        if diff
           if diff.length > MAX_DIFF_LENGTH
             diff_lines = diff[0..MAX_DIFF_LENGTH].split("\n")
             diff_lines.pop

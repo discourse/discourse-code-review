@@ -136,7 +136,7 @@ module DiscourseCodeReview
         ActiveRecord::Base.transaction(requires_new: true) do
           post = find_pr_post(github_id)
 
-          if post.nil?
+          if !post
             yield
           end
         end

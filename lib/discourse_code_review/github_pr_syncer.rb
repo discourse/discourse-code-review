@@ -94,7 +94,7 @@ module DiscourseCodeReview
       if topic
         pr_service.associated_pull_requests(repo_name, commit_hash).each do |pr|
           merge_info = pr_service.merge_info(pr)
-          if !merge_info[:merged_by].nil?
+          if merge_info[:merged_by]
             merged_by = ensure_actor(merge_info[:merged_by])
 
             approvers =

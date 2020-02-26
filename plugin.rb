@@ -68,7 +68,7 @@ after_initialize do
     def self.octokit_bot_client
       token = SiteSetting.code_review_github_token
 
-      if token.nil? || token.empty?
+      if !token || token.empty?
         raise APIUserError, "code_review_github_token not set"
       end
 

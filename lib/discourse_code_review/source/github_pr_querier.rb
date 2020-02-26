@@ -268,7 +268,7 @@ module DiscourseCodeReview
 
       merged_by = response[:repository][:pullRequest][:mergedBy]
 
-      if !merged_by.nil?
+      if merged_by
         Actor.new(
           github_login: merged_by[:login]
         )
