@@ -56,7 +56,7 @@ module DiscourseCodeReview
         line_content = nil
 
         if hash[:path].present? && hash[:position].present?
-          diff =
+          line_content =
             @git_repo.diff_excerpt(
               hash[:commit_id],
               hash[:path],
