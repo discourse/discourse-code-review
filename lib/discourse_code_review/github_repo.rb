@@ -140,7 +140,7 @@ module DiscourseCodeReview
           if diff.length > MAX_DIFF_LENGTH
             diff_lines = diff[0..MAX_DIFF_LENGTH].split("\n")
             diff_lines.pop
-            diff = diff_lines.join('\n')
+            diff = diff_lines.join("\n")
             truncated = true
           end
         else
