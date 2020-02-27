@@ -23,13 +23,11 @@ module DiscourseCodeReview::State::CommitTopics
       text.scan(/(?:[^a-zA-Z0-9]|^)([a-f0-9]{8,})(?:[^a-zA-Z0-9]|$)/).flatten
     end
 
-    def ensure_commit_comment(topic_id, comment)
+    def ensure_commit_comment(user:, topic_id:, comment:)
       DistributedMutex.synchronize('code-review:create-commit-comment-post') do
         ActiveRecord::Base.transaction(requires_new: true) do
           # skip if we already have the comment
           unless PostCustomField.exists?(name: DiscourseCodeReview::GITHUB_ID, value: comment[:id])
-            login = comment[:login] || "unknown"
-            user = DiscourseCodeReview.github_user_syncer.ensure_user(name: login, github_login: login)
 
             context = ""
             if comment[:line_content]

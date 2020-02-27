@@ -85,7 +85,17 @@ module DiscourseCodeReview
 
     def import_comments(topic_id, commit_sha)
       github_repo.commit_comments(commit_sha).each do |comment|
-        State::CommitTopics.ensure_commit_comment(topic_id, comment)
+        login = comment[:login] || "unknown"
+        user = DiscourseCodeReview.github_user_syncer.ensure_user(
+          name: login,
+          github_login: login,
+        )
+
+        State::CommitTopics.ensure_commit_comment(
+          user: user,
+          topic_id: topic_id,
+          comment: comment,
+        )
       end
     end
   end
