@@ -96,86 +96,51 @@ module DiscourseCodeReview
     attr_reader :github_id
     attr_reader :created_at
 
-    def get_last_post
-      Post
-        .where(topic_id: topic.id)
-        .order('post_number DESC')
-        .limit(1)
-        .first
-    end
-
     def update_closed(closed)
-      unless_pr_post do
-        topic.update_status('closed', closed, author)
-
-        last_post = get_last_post
-
-        last_post.created_at = created_at
-        last_post.skip_validation = true
-        last_post.save!
-
-        last_post.custom_fields[DiscourseCodeReview::GithubPRSyncer::GITHUB_NODE_ID] = github_id
-        last_post.save_custom_fields
-      end
-    end
-
-    def find_pr_post(github_id)
-      Post.where(
-        id:
-          PostCustomField
-            .select(:post_id)
-            .where(name: DiscourseCodeReview::GithubPRSyncer::GITHUB_NODE_ID, value: github_id)
-            .limit(1)
-      ).first
-    end
-
-    def unless_pr_post
-      # Without this mutex, concurrent transactions can create duplicate
-      # posts
-      DistributedMutex.synchronize('code-review:sync-pull-request-post') do
-        ActiveRecord::Base.transaction(requires_new: true) do
-          post = find_pr_post(github_id)
-
-          if !post
-            yield
-          end
-        end
-      end
+      State::Helpers.ensure_closed_state_with_nonce(
+        closed: closed,
+        created_at: created_at,
+        nonce_name: DiscourseCodeReview::GithubPRSyncer::GITHUB_NODE_ID,
+        nonce_value: github_id,
+        topic: topic,
+        user: author,
+      )
     end
 
     def ensure_pr_post(post_type:, body: nil, action_code: nil, reply_to_github_id: nil, author: @author, thread_id: nil)
-      unless_pr_post do
-        reply_to_post_number =
-          if reply_to_github_id.present?
-            Post.where(
-              id:
-                PostCustomField
-                  .select(:post_id)
-                  .where(name: DiscourseCodeReview::GithubPRSyncer::GITHUB_NODE_ID, value: reply_to_github_id)
-                  .limit(1)
-            ).pluck(:post_number).first
-          end
+      reply_to_post_number =
+        if reply_to_github_id
+          State::Helpers.posts_with_custom_field(
+            topic_id: topic.id,
+            name: DiscourseCodeReview::GithubPRSyncer::GITHUB_NODE_ID,
+            value: reply_to_github_id,
+          ).pluck_first(:post_number)
+        end
 
-        post =
-          DiscourseCodeReview.without_rate_limiting do
-            PostCreator.create!(
-              author,
-              topic_id: topic.id,
-              created_at: created_at,
-              raw: body,
-              reply_to_post_number: reply_to_post_number,
-              post_type: Post.types[post_type],
-              action_code: action_code,
-              skip_validations: true
-            )
-          end
+      custom_fields = {}
 
-        post.custom_fields[DiscourseCodeReview::GithubPRSyncer::GITHUB_NODE_ID] = github_id
-        post.custom_fields[DiscourseCodeReview::GithubPRSyncer::GITHUB_THREAD_ID] = thread_id if thread_id.present?
-        post.save_custom_fields
-
-        yield post if block_given?
+      if thread_id.present?
+        custom_fields[
+          DiscourseCodeReview::GithubPRSyncer::GITHUB_THREAD_ID
+        ] = thread_id
       end
+
+      post =
+        State::Helpers.ensure_post_with_nonce(
+          action_code: action_code,
+          created_at: created_at,
+          custom_fields: custom_fields,
+          nonce_name: DiscourseCodeReview::GithubPRSyncer::GITHUB_NODE_ID,
+          nonce_value: github_id,
+          post_type: Post.types[post_type],
+          raw: body,
+          reply_to_post_number: reply_to_post_number,
+          skip_validations: true,
+          topic_id: topic.id,
+          user: author,
+        )
+
+      yield post if block_given?
     end
   end
 end

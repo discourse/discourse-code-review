@@ -24,41 +24,35 @@ module DiscourseCodeReview::State::CommitTopics
     end
 
     def ensure_commit_comment(user:, topic_id:, comment:)
-      DistributedMutex.synchronize('code-review:create-commit-comment-post') do
-        ActiveRecord::Base.transaction(requires_new: true) do
-          # skip if we already have the comment
-          unless PostCustomField.exists?(name: DiscourseCodeReview::GITHUB_ID, value: comment[:id])
+      context = ""
+      if comment[:line_content]
+        context = <<~MD
+          [quote]
+          #{comment[:path]}
 
-            context = ""
-            if comment[:line_content]
-              context = <<~MD
-                [quote]
-                #{comment[:path]}
+          ```diff
+          #{comment[:line_content]}
+          ```
 
-                ```diff
-                #{comment[:line_content]}
-                ```
+          [/quote]
 
-                [/quote]
-
-              MD
-            end
-
-            custom_fields = { DiscourseCodeReview::GITHUB_ID => comment[:id] }
-            custom_fields[DiscourseCodeReview::COMMENT_PATH] = comment[:path] if comment[:path].present?
-            custom_fields[DiscourseCodeReview::COMMENT_POSITION] = comment[:position] if comment[:position].present?
-
-            PostCreator.create!(
-              user,
-              raw: context + comment[:body],
-              skip_validations: true,
-              created_at: comment[:created_at],
-              topic_id: topic_id,
-              custom_fields: custom_fields
-            )
-          end
-        end
+        MD
       end
+
+      custom_fields = {}
+      custom_fields[DiscourseCodeReview::COMMENT_PATH] = comment[:path] if comment[:path].present?
+      custom_fields[DiscourseCodeReview::COMMENT_POSITION] = comment[:position] if comment[:position].present?
+
+      DiscourseCodeReview::State::Helpers.ensure_post_with_nonce(
+        created_at: comment[:created_at],
+        custom_fields: custom_fields,
+        nonce_name: DiscourseCodeReview::GITHUB_ID,
+        nonce_value: comment[:id],
+        raw: context + comment[:body],
+        skip_validations: true,
+        topic_id: topic_id,
+        user: user,
+      )
     end
 
     def ensure_commit(commit:, merged:, repo_name:, user:, category_id:, followees:)
@@ -146,17 +140,10 @@ module DiscourseCodeReview::State::CommitTopics
     private
 
     def find_topic_by_commit_hash(hash)
-      Topic
-        .where(
-          id:
-            TopicCustomField
-              .where(
-                name: DiscourseCodeReview::COMMIT_HASH,
-                value: hash,
-              )
-              .limit(1)
-              .select(:topic_id)
-        ).first
+      DiscourseCodeReview::State::Helpers.find_topic_with_custom_field(
+        name: DiscourseCodeReview::COMMIT_HASH,
+        value: hash,
+      )
     end
 
     def set_merged(topic)

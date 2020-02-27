@@ -156,65 +156,52 @@ module DiscourseCodeReview::State::CommitApproval
     end
 
     def ensure_pr_merge_info_post(topic, pr, approvers, merged_by)
-      old_highest_post_number = topic.highest_post_number
       pr_string = "#{pr.owner}/#{pr.name}##{pr.issue_number}"
 
-      post =
-        Post
-          .where(
-            topic_id: topic.id,
-            id:
-              PostCustomField
-                .where(
-                    name: PR_MERGE_INFO_PR,
-                    value: pr_string
-                )
-                .select(:post_id)
-          )
-          .first
+      pr_url = "https://github.com/#{pr.owner}/#{pr.name}/pull/#{pr.issue_number}"
+      raw_parts = ["This commit appears in [##{pr.issue_number}](#{pr_url}) which was"]
 
-      unless post
-        custom_fields = {
-          PR_MERGE_INFO_PR => pr_string,
-          PR_MERGE_INFO_DATA => {
-            'merged_by': merged_by.id,
-            'approvers': approvers.map(&:id),
-          }.to_json
-        }
+      unless approvers.empty?
+        approvers_string =
+          approvers
+            .map(&:username)
+            .to_sentence
 
-        pr_url = "https://github.com/#{pr.owner}/#{pr.name}/pull/#{pr.issue_number}"
-        raw_parts = ["This commit appears in [##{pr.issue_number}](#{pr_url}) which was"]
-
-        unless approvers.empty?
-          approvers_string =
-            approvers
-              .map(&:username)
-              .to_sentence
-
-          raw_parts << "approved by #{approvers_string}. It was"
-        end
-
-        raw_parts << "merged by #{merged_by.username}."
-
-        post =
-          PostCreator.create!(
-            Discourse.system_user,
-            topic_id: topic.id,
-            bump: false,
-            post_type: Post.types[:small_action],
-            action_code: "pr_merge_info",
-            raw: raw_parts.join(" "),
-            custom_fields: custom_fields
-          )
-
-        PostTiming.pretend_read(
-          topic.id,
-          old_highest_post_number,
-          post.post_number
-        )
+        raw_parts << "approved by #{approvers_string}. It was"
       end
 
-      post
+      raw_parts << "merged by #{merged_by.username}."
+
+      custom_fields = {
+        PR_MERGE_INFO_DATA => {
+          'merged_by': merged_by.id,
+          'approvers': approvers.map(&:id),
+        }.to_json
+      }
+
+      # TODO:
+      #   There's a race condition here, since the highest_post_number could
+      #   change before we use it.
+      old_highest_post_number = topic.highest_post_number
+
+      DiscourseCodeReview::State::Helpers
+        .ensure_post_with_nonce(
+          action_code: "pr_merge_info",
+          bump: false,
+          custom_fields: custom_fields,
+          nonce_name: PR_MERGE_INFO_PR,
+          nonce_value: pr_string,
+          post_type: Post.types[:small_action],
+          raw: raw_parts.join(" "),
+          topic_id: topic.id,
+          user: Discourse.system_user,
+        ) do |post|
+          PostTiming.pretend_read(
+            topic.id,
+            old_highest_post_number,
+            post.post_number
+          )
+        end
     end
   end
 end
