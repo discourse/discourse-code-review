@@ -191,48 +191,23 @@ module DiscourseCodeReview
       )
     end
 
-    def find_pr_topic(github_id)
-      Topic.where(
-        id:
-          TopicCustomField
-            .select(:topic_id)
-            .where(name: GITHUB_NODE_ID, value: github_id)
-            .limit(1)
-      ).first
-    end
-
     def ensure_pr_topic(category:, author:, github_id:, created_at:, title:, body:, url:, issue_number:)
-      # Without this mutex, concurrent transactions can create duplicate
-      # topics
-      DistributedMutex.synchronize('code-review:sync-pull-request-topic') do
-        ActiveRecord::Base.transaction(requires_new: true) do
-          topic = find_pr_topic(github_id)
+      topic_title = "#{title} (PR ##{issue_number})"
+      raw = "#{body}\n\n[<small>GitHub</small>](#{url})"
+      custom_fields = { GITHUB_ISSUE_NUMBER => issue_number.to_s }
 
-          if topic.nil?
-            topic_title = "#{title} (PR ##{issue_number})"
-            raw = "#{body}\n\n[<small>GitHub</small>](#{url})"
-
-            topic =
-              DiscourseCodeReview.without_rate_limiting do
-                PostCreator.create!(
-                  author,
-                  category: category.id,
-                  created_at: created_at,
-                  title: topic_title,
-                  raw: raw,
-                  tags: [SiteSetting.code_review_pull_request_tag],
-                  skip_validations: true
-                ).topic
-              end
-
-            topic.custom_fields[GITHUB_NODE_ID] = github_id
-            topic.custom_fields[GITHUB_ISSUE_NUMBER] = issue_number.to_s
-            topic.save_custom_fields
-          end
-
-          topic
-        end
-      end
+      State::Helpers.ensure_topic_with_nonce(
+        category: category.id,
+        created_at: created_at,
+        custom_fields: custom_fields,
+        nonce_name: GITHUB_NODE_ID,
+        nonce_value: github_id,
+        raw: raw,
+        skip_validations: true,
+        tags: [SiteSetting.code_review_pull_request_tag],
+        title: topic_title,
+        user: author,
+      )
     end
   end
 end
