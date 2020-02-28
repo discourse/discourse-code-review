@@ -34,25 +34,19 @@ module DiscourseCodeReview
       repo = params["repository"]
       repo_name = repo["full_name"] if repo
 
-      if ["commit_comment", "push"].include? type
+      if type == "commit_comment"
         client = DiscourseCodeReview.octokit_client
         github_commit_querier = DiscourseCodeReview.github_commit_querier
         repo = GithubRepo.new(repo_name, client, github_commit_querier)
         importer = Importer.new(repo)
 
-        if type == "commit_comment"
-          commit_sha = params["comment"]["commit_id"]
+        commit_sha = params["comment"]["commit_id"]
 
-          importer.sync_commit_sha(commit_sha)
-        elsif type == "push"
-          importer.sync_merged_commits do |commit_hash|
-            if SiteSetting.code_review_approve_approved_prs
-              DiscourseCodeReview
-                .github_pr_syncer
-                .apply_github_approves(repo_name, commit_hash)
-            end
-          end
-        end
+        importer.sync_commit_sha(commit_sha)
+      end
+
+      if type == "push"
+        ::Jobs.enqueue(:code_review_sync_commits, repo_name: repo_name)
       end
 
       if type == "commit_comment"
