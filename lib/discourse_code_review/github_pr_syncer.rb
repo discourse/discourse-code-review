@@ -121,6 +121,7 @@ module DiscourseCodeReview
       user = post.user
 
       conditions = [
+        topic.regular?,
         post.post_number > 1,
         post.post_type == Post.types[:regular],
         post.custom_fields[GITHUB_NODE_ID].nil?
