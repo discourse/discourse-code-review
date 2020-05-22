@@ -17,11 +17,21 @@ module DiscourseCodeReview::State::GithubRepoCategories
         if !category
           short_name = find_category_name(repo_name.split("/", 2).last)
 
-          category =
-            Category.create!(
-              name: short_name,
-              user: Discourse.system_user
-            )
+          category = Category.new(
+            name: short_name,
+            user: Discourse.system_user,
+            description: I18n.t('discourse_code_review.category_description', repo_name: repo_name)
+          )
+
+          if SiteSetting.code_review_default_parent_category.present?
+            category.parent_category_id = SiteSetting.code_review_default_parent_category.to_i
+          end
+
+          category.save!
+
+          if SiteSetting.code_review_default_mute_new_categories
+            SiteSetting.default_categories_muted = (SiteSetting.default_categories_muted.split("|") << category.id).join("|")
+          end
 
           category.custom_fields[GITHUB_REPO_NAME] = repo_name
           category.save_custom_fields

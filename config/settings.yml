@@ -24,3 +24,7 @@ plugins:
   code_review_auto_unassign_on_approve: true
   code_review_github_organizations: ""
   code_review_approve_approved_prs: false
+  code_review_default_mute_new_categories: false
+  code_review_default_parent_category:
+    type: category
+    default: ""
