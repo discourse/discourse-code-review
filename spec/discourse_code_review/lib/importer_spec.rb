@@ -8,8 +8,36 @@ module DiscourseCodeReview
       Topic.find(topic_id).posts.order(:id).first
     end
 
-    it "can look up a category id consistently" do
+    let(:parent_category) { Fabricate(:category) }
+    let(:repo) { GithubRepo.new("discourse/discourse", Octokit::Client.new, nil) }
 
+    it "creates categories with a description" do
+      category = Category.find_by(id: Importer.new(repo).category_id)
+
+      description = I18n.t("discourse_code_review.category_description", repo_name: "discourse/discourse").strip
+      expect(category.description).to include(description)
+      expect(category.topic.first_post.raw).to include(description)
+    end
+
+    it "mutes categories when code_review_default_mute_new_categories is true" do
+      SiteSetting.code_review_default_mute_new_categories = true
+
+      category = Category.find_by(id: Importer.new(repo).category_id)
+
+      expect(SiteSetting.default_categories_muted.split("|").map(&:to_i)).to include(category.id)
+      expect(category.parent_category_id).to eq(nil)
+    end
+
+    it "sets parent category when code_review_default_parent_category is persent" do
+      SiteSetting.code_review_default_parent_category = parent_category.id
+
+      category = Category.find_by(id: Importer.new(repo).category_id)
+
+      expect(SiteSetting.default_categories_muted.split("|").map(&:to_i)).not_to include(category.id)
+      expect(category.parent_category_id).to eq(parent_category.id)
+    end
+
+    it "can look up a category id consistently" do
       # lets muck stuff up first ... and create a dupe category
       Category.create!(name: 'discourse', user: Discourse.system_user)
 
