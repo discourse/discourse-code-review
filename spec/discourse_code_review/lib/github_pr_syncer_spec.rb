@@ -91,11 +91,11 @@ describe DiscourseCodeReview::GithubPRSyncer do
   end
 
   define_method(:first_post_of_last_topic) do
-    last_topic.posts.order('id ASC').first
+    last_topic.posts.first
   end
 
   define_method(:last_post_of_last_topic) do
-    last_topic.posts.order('id DESC').first
+    last_topic.posts.last
   end
 
   fab!(:category) do
