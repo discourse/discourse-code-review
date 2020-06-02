@@ -10,8 +10,8 @@ en:
     notifications:
       code_review:
         commit_approved:
-          single: "\"{{topicTitle}}\" approved"
-          multiple: "{{numApprovedCommits}} commits were approved"
+          single: "\"%{topicTitle}\" approved"
+          multiple: "%{numApprovedCommits} commits were approved"
           title: "commit approved"
     code_review:
       title: 'Code Review'
