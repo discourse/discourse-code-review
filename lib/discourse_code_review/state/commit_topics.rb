@@ -5,7 +5,7 @@ module DiscourseCodeReview::State::CommitTopics
     def auto_link_commits(text, doc = nil)
       linked_commits = find_linked_commits(text)
       if (linked_commits.length > 0)
-        doc ||= Nokogiri::HTML::fragment(PrettyText.cook(text))
+        doc ||= Nokogiri::HTML5::fragment(PrettyText.cook(text))
         skip_tags = ["a", "code"]
         linked_commits.each do |hash, topic|
           doc.traverse do |node|
