@@ -109,5 +109,31 @@ module DiscourseCodeReview
       expect(post.cooked.scan("code").length).to eq(2)
       expect(post.excerpt).to eq("this is <a href=\"http://amaz.ing\">amazing</a>")
     end
+
+    it "approves followed-up topics" do
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
+
+      SiteSetting.code_review_enabled = true
+
+      commit = {
+        subject: "hello world",
+        body: "this is the body",
+        email: "sam@sam.com",
+        github_login: "sam",
+        github_id: "111",
+        date: 1.day.ago,
+        diff: "```\nwith a diff",
+        hash: "a91843f0dc7b97e700dc85505404eafd62b7f8c5"
+      }
+
+      followee = Topic.find(Importer.new(repo).import_commit(commit))
+
+      expect(followee.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
+
+      commit[:hash] = "ca1208a63669d4d4ad7452367008d40fa090f645"
+      follower = Topic.find(Importer.new(repo).import_commit(commit))
+
+      expect(followee.tags.pluck(:name)).to include(SiteSetting.code_review_approved_tag)
+    end
   end
 end
