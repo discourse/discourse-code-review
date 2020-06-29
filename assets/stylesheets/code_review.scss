@@ -3,3 +3,37 @@
 .code-review-webhook-not-configured {
   margin-left: 2em;
 }
+
+thead, tbody {
+  &.code-review {
+    .topic-list-item {
+      .link-bottom-line {
+        align-items: baseline;
+
+        .committer {
+          color: $primary-high;
+          font-size: $font-down-1;
+          font-weight: bold;
+          margin-right: 12px;
+        }
+
+        .commit-state {
+          font-size: $font-down-1;
+          margin-left: 12px;
+        }
+
+        .approved {
+          color: $success;
+        }
+
+        .followup {
+          color: $danger;
+        }
+
+        .pending {
+          color: #dbab09;
+        }
+      }
+    }
+  }
+}
