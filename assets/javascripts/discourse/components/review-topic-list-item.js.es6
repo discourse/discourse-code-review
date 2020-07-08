@@ -9,5 +9,5 @@ export default TopicListItem.extend({
     if (template) {
       this.set("topicListItemContents", template(this).htmlSafe());
     }
-  },
+  }
 });
