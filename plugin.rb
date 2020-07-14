@@ -179,6 +179,8 @@ after_initialize do
   require File.expand_path("../lib/discourse_code_review/importer.rb", __FILE__)
   require File.expand_path("../lib/discourse_code_review/github_repo.rb", __FILE__)
 
+  Site.preloaded_category_custom_fields << DiscourseCodeReview::State::GithubRepoCategories::GITHUB_REPO_NAME
+
   add_admin_route 'code_review.title', 'code-review'
 
   DiscourseCodeReview::Engine.routes.draw do
