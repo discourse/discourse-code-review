@@ -19,6 +19,7 @@ en:
     code_review_approve_approved_prs: 'Auto approve commits that exist in approved pull requests'
     code_review_default_mute_new_categories: 'Mute for all users categories created by the plugin'
     code_review_default_parent_category: 'Default parent category for categories created by the plugin'
+    code_review_theme: 'Enable custom code review theme'
   discourse_code_review:
     category_description: |
       This category was created to contain code reviews for %{repo_name}. Topics are created for each commit or pull request.
