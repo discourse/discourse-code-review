@@ -23,7 +23,7 @@ export default {
           }
 
           const topicsByDate = {};
-          filteredTopics.forEach(topic => {
+          filteredTopics.forEach((topic) => {
             topic.setProperties({
               approved: topic.tags.includes(
                 this.siteSettings.code_review_approved_tag
@@ -33,7 +33,7 @@ export default {
               ),
               pending: topic.tags.includes(
                 this.siteSettings.code_review_pending_tag
-              )
+              ),
             });
 
             const date = moment(topic.created_at).format("YYYY-MM-DD");
@@ -47,15 +47,15 @@ export default {
           Object.keys(topicsByDate)
             .sort()
             .reverse()
-            .forEach(date => {
+            .forEach((date) => {
               filteredTopicsByDate.push({
                 date: moment(date).format("MMMM D, YYYY"),
-                topics: topicsByDate[date]
+                topics: topicsByDate[date],
               });
             });
           return filteredTopicsByDate;
-        }
+        },
       });
     });
-  }
+  },
 };

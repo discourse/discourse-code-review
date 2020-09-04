@@ -9,27 +9,27 @@ export default Ember.Controller.extend({
     const organizations = Ember.A([]);
     this.set("organizations", organizations);
 
-    ajax(`${prefix}/organizations.json`).then(orgNames => {
+    ajax(`${prefix}/organizations.json`).then((orgNames) => {
       for (const orgName of orgNames) {
         let organization = Ember.Object.create({
           name: orgName,
-          repos: Ember.A([])
+          repos: Ember.A([]),
         });
         organizations.pushObject(organization);
 
         ajax(`${prefix}/organizations/${orgName}/repos.json`).then(
-          repoNames => {
+          (repoNames) => {
             for (const repoName of repoNames) {
               let repo = Ember.Object.create({
                 name: repoName,
                 hasConfiguredWebhook: null,
-                receivedWebhookState: false
+                receivedWebhookState: false,
               });
               organization.repos.pushObject(repo);
 
               ajax(
                 `${prefix}/organizations/${orgName}/repos/${repoName}/has-configured-webhook.json`
-              ).then(response => {
+              ).then((response) => {
                 repo.set("receivedWebhookState", true);
                 repo.set(
                   "hasConfiguredWebhook",
@@ -49,9 +49,9 @@ export default Ember.Controller.extend({
         ajax(
           `${prefix}/organizations/${organization.name}/repos/${repo.name}/configure-webhook.json`,
           {
-            type: "POST"
+            type: "POST",
           }
-        ).then(response => {
+        ).then((response) => {
           repo.set("hasConfiguredWebhook", response["has_configured_webhook"]);
         });
       }
@@ -64,9 +64,9 @@ export default Ember.Controller.extend({
             ajax(
               `${prefix}/organizations/${organization.name}/repos/${repo.name}/configure-webhook.json`,
               {
-                type: "POST"
+                type: "POST",
               }
-            ).then(response => {
+            ).then((response) => {
               repo.set(
                 "hasConfiguredWebhook",
                 response["has_configured_webhook"]
@@ -75,6 +75,6 @@ export default Ember.Controller.extend({
           }
         }
       }
-    }
-  }
+    },
+  },
 });

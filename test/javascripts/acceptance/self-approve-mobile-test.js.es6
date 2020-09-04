@@ -8,11 +8,11 @@ acceptance("review mobile", {
   settings: {
     code_review_approved_tag: "approved",
     code_review_pending_tag: "pending",
-    code_review_followup_tag: "followup"
-  }
+    code_review_followup_tag: "followup",
+  },
 });
 
-QUnit.test("shows approve button by default", async assert => {
+QUnit.test("shows approve button by default", async (assert) => {
   const json = Object.assign({}, Fixtures["/t/280/1.json"]);
 
   json.tags = ["pending"];
@@ -30,7 +30,7 @@ QUnit.test("shows approve button by default", async assert => {
   assert.ok(menu.rowByValue("approve").exists());
 });
 
-QUnit.test("hides approve button if user is self", async assert => {
+QUnit.test("hides approve button if user is self", async (assert) => {
   updateCurrentUser({ id: 1 });
 
   await visit("/t/this-is-a-test-topic/9/1");
