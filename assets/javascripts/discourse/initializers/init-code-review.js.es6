@@ -7,9 +7,9 @@ import { findAll } from "discourse/models/login-method";
 function actOnCommit(topic, action) {
   return ajax(`/code-review/${action}.json`, {
     type: "POST",
-    data: { topic_id: topic.id }
+    data: { topic_id: topic.id },
   })
-    .then(result => {
+    .then((result) => {
       if (result.next_topic_url) {
         DiscourseURL.routeTo(result.next_topic_url);
       } else {
@@ -31,12 +31,12 @@ function initialize(api) {
   // note there are slightly cleaner ways of doing this but we would need
   // to amend core for the plugin which is not feeling right
   api.modifyClass("controller:preferences/account", {
-    canUpdateAssociatedAccounts: Ember.computed("authProviders", function() {
+    canUpdateAssociatedAccounts: Ember.computed("authProviders", function () {
       return (
         findAll(this.siteSettings, this.capabilities, this.site.isMobileDevice)
           .length > 0
       );
-    })
+    }),
   });
 
   function allowApprove(currentUser, topic, siteSettings) {
@@ -89,7 +89,7 @@ function initialize(api) {
         this.get("currentUser.staff") &&
         allowApprove(this.currentUser, this.topic, this.siteSettings)
       );
-    }
+    },
   });
 
   api.registerTopicFooterButton({
@@ -111,7 +111,7 @@ function initialize(api) {
         this.get("currentUser.staff") &&
         allowFollowup(this.topic, this.siteSettings)
       );
-    }
+    },
   });
 }
 
@@ -120,5 +120,5 @@ export default {
 
   initialize() {
     withPluginApi("0.8.28", initialize);
-  }
+  },
 };

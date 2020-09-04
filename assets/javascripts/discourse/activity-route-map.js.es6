@@ -4,5 +4,5 @@ export default {
   map() {
     this.route("approval-given");
     this.route("approval-pending");
-  }
+  },
 };

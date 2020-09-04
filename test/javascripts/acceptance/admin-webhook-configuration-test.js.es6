@@ -22,7 +22,7 @@ acceptance("Github Webhook Configuration", {
       `${restPrefix}/organizations/org1/repos/repo1/has-configured-webhook.json`,
       () => {
         return helper.response({
-          has_configured_webhook: false
+          has_configured_webhook: false,
         });
       }
     );
@@ -31,7 +31,7 @@ acceptance("Github Webhook Configuration", {
       `${restPrefix}/organizations/org2/repos/repo2/has-configured-webhook.json`,
       () => {
         return helper.response({
-          has_configured_webhook: true
+          has_configured_webhook: true,
         });
       }
     );
@@ -40,7 +40,7 @@ acceptance("Github Webhook Configuration", {
       `${restPrefix}/organizations/org2/repos/repo3/has-configured-webhook.json`,
       () => {
         return helper.response({
-          has_configured_webhook: false
+          has_configured_webhook: false,
         });
       }
     );
@@ -49,7 +49,7 @@ acceptance("Github Webhook Configuration", {
       `${restPrefix}/organizations/org1/repos/repo1/configure-webhook.json`,
       () => {
         return helper.response({
-          has_configured_webhook: true
+          has_configured_webhook: true,
         });
       }
     );
@@ -58,14 +58,14 @@ acceptance("Github Webhook Configuration", {
       `${restPrefix}/organizations/org2/repos/repo3/configure-webhook.json`,
       () => {
         return helper.response({
-          has_configured_webhook: true
+          has_configured_webhook: true,
         });
       }
     );
-  }
+  },
 });
 
-QUnit.test("Should display correctly", async assert => {
+QUnit.test("Should display correctly", async (assert) => {
   await visit("/admin/plugins/code-review");
 
   const tree = find(".code-review-webhook-tree");
@@ -74,18 +74,8 @@ QUnit.test("Should display correctly", async assert => {
   assert.equal(organizations.length, 2);
   const [org1, org2] = organizations;
 
-  assert.equal(
-    $(org1)
-      .find("h2")
-      .text(),
-    "org1"
-  );
-  assert.equal(
-    $(org2)
-      .find("h2")
-      .text(),
-    "org2"
-  );
+  assert.equal($(org1).find("h2").text(), "org1");
+  assert.equal($(org2).find("h2").text(), "org2");
 
   const org1Repos = $(org1).find(".code-review-webhook-repo");
   const org2Repos = $(org2).find(".code-review-webhook-repo");
@@ -96,24 +86,9 @@ QUnit.test("Should display correctly", async assert => {
   const repo1 = org1Repos[0];
   const [repo2, repo3] = org2Repos;
 
-  assert.equal(
-    $(repo1)
-      .find("h3")
-      .text(),
-    "repo1"
-  );
-  assert.equal(
-    $(repo2)
-      .find("h3")
-      .text(),
-    "repo2"
-  );
-  assert.equal(
-    $(repo3)
-      .find("h3")
-      .text(),
-    "repo3"
-  );
+  assert.equal($(repo1).find("h3").text(), "repo1");
+  assert.equal($(repo2).find("h3").text(), "repo2");
+  assert.equal($(repo3).find("h3").text(), "repo3");
 
   assert.equal($(repo1).find(".code-review-webhook-not-configured").length, 1);
   assert.equal($(repo2).find(".code-review-webhook-configured").length, 1);
@@ -122,7 +97,7 @@ QUnit.test("Should display correctly", async assert => {
 
 QUnit.test(
   "Should send requests to change each unconfigured webhook",
-  async assert => {
+  async (assert) => {
     await visit("/admin/plugins/code-review");
     await click(".code-review-configure-webhooks-button");
 
