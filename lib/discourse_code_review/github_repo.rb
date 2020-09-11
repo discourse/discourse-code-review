@@ -131,7 +131,7 @@ module DiscourseCodeReview
         email = commit.author_email
         authored_at = commit.author_time
         subject = commit.summary
-        diff = commit.diff
+        diff = commit.diff.scrub
         truncated = false
 
         if diff
