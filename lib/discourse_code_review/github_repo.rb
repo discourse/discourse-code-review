@@ -131,10 +131,11 @@ module DiscourseCodeReview
         email = commit.author_email
         authored_at = commit.author_time
         subject = commit.summary
-        diff = commit.diff.scrub
         truncated = false
+        diff = commit.diff
 
         if diff
+          diff = diff.scrub
           if diff.length > MAX_DIFF_LENGTH
             diff_lines = diff[0..MAX_DIFF_LENGTH].split("\n")
             diff_lines.pop
