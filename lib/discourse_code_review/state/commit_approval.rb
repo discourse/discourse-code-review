@@ -5,6 +5,20 @@ module DiscourseCodeReview::State::CommitApproval
   PR_MERGE_INFO_DATA = "pr merge info data"
 
   class << self
+    def skip(topic, user)
+      if SiteSetting.code_review_skip_duration_minutes > 0
+        DiscourseCodeReview::SkippedCodeReview.upsert({
+            topic_id: topic.id,
+            user_id: user.id,
+            expires_at: SiteSetting.code_review_skip_duration_minutes.minutes.from_now,
+            created_at: Time.zone.now,
+            updated_at: Time.zone.now,
+          },
+          unique_by: [:topic_id, :user_id]
+        )
+      end
+    end
+
     def approve(topic, approvers, pr: nil, merged_by: nil)
       last_post = nil
       approvers.each do |approver|

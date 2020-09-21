@@ -39,6 +39,10 @@ function initialize(api) {
     }),
   });
 
+  function allowSkip(currentUser, topic, siteSettings) {
+    return allowApprove(currentUser, topic, siteSettings);
+  }
+
   function allowApprove(currentUser, topic, siteSettings) {
     if (!currentUser) {
       return false;
@@ -73,7 +77,7 @@ function initialize(api) {
   api.registerTopicFooterButton({
     id: "approve",
     icon: "thumbs-up",
-    priority: 250,
+    priority: 260,
     label: "code_review.approve.label",
     title: "code_review.approve.title",
     action() {
@@ -93,9 +97,31 @@ function initialize(api) {
   });
 
   api.registerTopicFooterButton({
+    id: "skip",
+    icon: "angle-double-right",
+    priority: 250,
+    label: "code_review.skip.label",
+    title: "code_review.skip.title",
+    action() {
+      actOnCommit(this.topic, "skip");
+    },
+    dropdown() {
+      return this.site.mobileView;
+    },
+    classNames: ["skip"],
+    dependentKeys: ["topic.tags"],
+    displayed() {
+      return (
+        this.get("currentUser.staff") &&
+        allowSkip(this.currentUser, this.topic, this.siteSettings)
+      );
+    },
+  });
+
+  api.registerTopicFooterButton({
     id: "followup",
     icon: "far-clock",
-    priority: 250,
+    priority: 240,
     label: "code_review.followup.label",
     title: "code_review.followup.title",
     action() {

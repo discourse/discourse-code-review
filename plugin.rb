@@ -166,6 +166,7 @@ after_initialize do
   require File.expand_path("../app/controllers/discourse_code_review/organizations_controller.rb", __FILE__)
   require File.expand_path("../app/controllers/discourse_code_review/repos_controller.rb", __FILE__)
   require File.expand_path("../app/controllers/discourse_code_review/admin_code_review_controller.rb", __FILE__)
+  require File.expand_path("../app/models/skipped_code_review.rb", __FILE__)
   require File.expand_path("../app/jobs/regular/code_review_sync_commits", __FILE__)
   require File.expand_path("../app/jobs/regular/code_review_sync_commit_comments", __FILE__)
   require File.expand_path("../lib/enumerators", __FILE__)
@@ -187,6 +188,7 @@ after_initialize do
     scope '/code-review' do
       post '/approve' => 'code_review#approve'
       post '/followup' => 'code_review#followup'
+      post '/skip' => 'code_review#skip'
       post '/webhook' => 'code_review#webhook'
     end
 

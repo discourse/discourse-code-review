@@ -4,12 +4,44 @@ require 'rails_helper'
 
 describe DiscourseCodeReview::CodeReviewController do
   fab!(:signed_in_user) { Fabricate(:admin) }
+  fab!(:another_admin) { Fabricate(:admin) }
 
   before do
     SiteSetting.code_review_enabled = true
     SiteSetting.tagging_enabled = true
 
     sign_in signed_in_user
+  end
+
+  context '.skip' do
+    it "allows users to skip commits" do
+      commit1 = create_post(
+        raw: "this is a fake commit",
+        tags: ["hi", SiteSetting.code_review_pending_tag],
+        user: another_admin
+      )
+
+      commit2 = create_post(
+        raw: "this is a fake commit",
+        tags: ["hi", SiteSetting.code_review_pending_tag],
+        user: another_admin
+      )
+
+      commit3 = create_post(
+        raw: "this is a fake commit",
+        tags: ["hi", SiteSetting.code_review_pending_tag],
+        user: another_admin
+      )
+
+      post '/code-review/skip.json', params: { topic_id: commit3.topic_id }
+      expect(response.status).to eq(200)
+
+      post '/code-review/skip.json', params: { topic_id: commit2.topic_id }
+      expect(response.status).to eq(200)
+
+      json = JSON.parse(response.body)
+      expect(json["next_topic_url"]).to eq(commit1.topic.relative_url)
+    end
   end
 
   context '.approve' do

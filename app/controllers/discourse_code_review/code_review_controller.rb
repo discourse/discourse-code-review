@@ -69,6 +69,17 @@ module DiscourseCodeReview
       render plain: '"ok"'
     end
 
+    def skip
+      topic = Topic.find_by(id: params[:topic_id])
+
+      State::CommitApproval.skip(
+        topic,
+        current_user
+      )
+
+      render_next_topic(topic.category_id)
+    end
+
     def followup
       topic = Topic.find_by(id: params[:topic_id])
 
@@ -108,9 +119,20 @@ module DiscourseCodeReview
         )
       SQL
 
+      sanitized_join =
+        ActiveRecord::Base.send(
+          :sanitize_sql_array,
+          [
+            "LEFT OUTER JOIN skipped_code_reviews cr ON cr.topic_id = topics.id AND cr.user_id = ? and cr.expires_at > ?",
+            current_user.id,
+            Time.zone.now
+          ]
+        )
+
       next_topic = Topic
         .joins(:tags)
         .joins("LEFT OUTER JOIN topic_users ON (topics.id = topic_users.topic_id AND topic_users.user_id = #{current_user.id})")
+        .joins(sanitized_join)
         .where('tags.name = ?', SiteSetting.code_review_pending_tag)
         .where('topics.user_id <> ?', current_user.id)
         .where(
@@ -118,7 +140,12 @@ module DiscourseCodeReview
           user_id: current_user.id,
           notification_level: CategoryUser.notification_levels[:muted]
         )
-        .order('case when last_read_post_number IS NULL then 0 else 1 end asc', "case when category_id = #{category_id.to_i} then 0 else 1 end asc", 'bumped_at desc')
+        .order(
+          'case when cr.expires_at IS NULL then 0 else 1 end asc',
+          'case when last_read_post_number IS NULL then 0 else 1 end asc',
+          "case when category_id = #{category_id.to_i} then 0 else 1 end asc",
+          'bumped_at desc'
+        )
         .first
 
       url = next_topic&.relative_url
