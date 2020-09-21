@@ -30,7 +30,8 @@ module DiscourseCodeReview::State::GithubRepoCategories
           category.save!
 
           if SiteSetting.code_review_default_mute_new_categories
-            SiteSetting.default_categories_muted = (SiteSetting.default_categories_muted.split("|") << category.id).join("|")
+            existing_category_ids = Category.where(id: SiteSetting.default_categories_muted.split("|")).pluck(:id)
+            SiteSetting.default_categories_muted = (existing_category_ids << category.id).join("|")
           end
 
           category.custom_fields[GITHUB_REPO_NAME] = repo_name
