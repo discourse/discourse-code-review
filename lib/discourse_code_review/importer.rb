@@ -53,6 +53,7 @@ module DiscourseCodeReview
 
     def sync_commit_sha(commit_sha)
       commit = github_repo.commit(commit_sha)
+      return if commit.nil?
       sync_commit(commit)
     end
 
