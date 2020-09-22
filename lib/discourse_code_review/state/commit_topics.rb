@@ -59,7 +59,7 @@ module DiscourseCodeReview::State::CommitTopics
       DistributedMutex.synchronize('code-review:create-commit-topic') do
         ActiveRecord::Base.transaction(requires_new: true) do
           link = <<~LINK
-            [<small>GitHub</small>](https://github.com/#{repo_name}/commit/#{commit[:hash]})
+            [GitHub](https://github.com/#{repo_name}/commit/#{commit[:hash]})
           LINK
 
           title = commit[:subject]

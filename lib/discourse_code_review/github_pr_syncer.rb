@@ -194,7 +194,7 @@ module DiscourseCodeReview
 
     def ensure_pr_topic(category:, author:, github_id:, created_at:, title:, body:, url:, issue_number:)
       topic_title = "#{title} (PR ##{issue_number})"
-      raw = "#{body}\n\n[<small>GitHub</small>](#{url})"
+      raw = "#{body}\n\n[GitHub](#{url})"
       custom_fields = { GITHUB_ISSUE_NUMBER => issue_number.to_s }
 
       State::Helpers.ensure_topic_with_nonce(
