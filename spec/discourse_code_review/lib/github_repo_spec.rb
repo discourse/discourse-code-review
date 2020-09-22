@@ -59,7 +59,7 @@ module DiscourseCodeReview
 
         commits = repo.commits_since("origin/master~2", merge_github_info: false)
 
-        expect(commits.last[:diff]).to eq("")
+        expect(commits.last[:diff]).to eq("MERGE COMMIT")
       end
     end
 
