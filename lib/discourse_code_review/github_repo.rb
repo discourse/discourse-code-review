@@ -143,7 +143,7 @@ module DiscourseCodeReview
             truncated = true
           end
         else
-          diff = ""
+          diff = "MERGE COMMIT"
         end
 
         github_data = lookup[hash] || {}
