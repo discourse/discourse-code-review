@@ -29,3 +29,4 @@ en:
       github_webhooks: "Github Webhooks"
       configure_webhooks: "Configure Webhooks"
       configure_webhook: "Configure Webhook"
+      notify_on_approval: "Notify on code review approvals"

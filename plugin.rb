@@ -50,6 +50,7 @@ after_initialize do
 
   module ::DiscourseCodeReview
     PluginName = 'discourse-code-review'
+    NOTIFY_REVIEW_CUSTOM_FIELD = 'notify_on_code_reviews'
 
     class APIUserError < StandardError
     end
@@ -161,6 +162,16 @@ after_initialize do
         .map(&:strip)
     end
   end
+
+  # TODO Drop after Discourse 2.6.0 release
+  register_editable_user_custom_field(DiscourseCodeReview::NOTIFY_REVIEW_CUSTOM_FIELD)
+  if respond_to?(:allow_staff_user_custom_field)
+    allow_staff_user_custom_field(DiscourseCodeReview::NOTIFY_REVIEW_CUSTOM_FIELD)
+  else
+    whitelist_staff_user_custom_field(DiscourseCodeReview::NOTIFY_REVIEW_CUSTOM_FIELD)
+  end
+
+  User.register_custom_field_type(DiscourseCodeReview::NOTIFY_REVIEW_CUSTOM_FIELD, :boolean)
 
   require File.expand_path("../app/controllers/discourse_code_review/code_review_controller.rb", __FILE__)
   require File.expand_path("../app/controllers/discourse_code_review/organizations_controller.rb", __FILE__)

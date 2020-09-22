@@ -139,6 +139,17 @@ module DiscourseCodeReview::State::CommitApproval
     end
 
     def send_approved_notification(topic, post)
+      if !topic.user
+        return
+      end
+
+      notify = topic.user.custom_fields[DiscourseCodeReview::NOTIFY_REVIEW_CUSTOM_FIELD]
+
+      # can be nil as well
+      if notify == false
+        return
+      end
+
       Notification.transaction do
         destroyed_notifications =
           topic.user.notifications

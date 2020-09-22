@@ -39,6 +39,13 @@ function initialize(api) {
     }),
   });
 
+  api.modifyClass("controller:preferences/notifications", {
+    init() {
+      this._super(...arguments);
+      this.saveAttrNames.push("custom_fields");
+    },
+  });
+
   function allowSkip(currentUser, topic, siteSettings) {
     return allowApprove(currentUser, topic, siteSettings);
   }
