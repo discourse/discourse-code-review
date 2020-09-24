@@ -115,7 +115,8 @@ module DiscourseCodeReview
           SELECT category_id
           FROM category_users
           WHERE user_id = :user_id AND
-            notification_level = :notification_level
+            notification_level = :notification_level AND
+            category_id <> :requested_category_id
         )
       SQL
 
@@ -138,7 +139,8 @@ module DiscourseCodeReview
         .where(
           category_filter_sql,
           user_id: current_user.id,
-          notification_level: CategoryUser.notification_levels[:muted]
+          notification_level: CategoryUser.notification_levels[:muted],
+          requested_category_id: category_id
         )
         .order(
           'case when cr.expires_at IS NULL then 0 else 1 end asc',

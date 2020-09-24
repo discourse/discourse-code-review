@@ -249,6 +249,20 @@ describe DiscourseCodeReview::CodeReviewController do
       json = JSON.parse(response.body)
       expect(json["next_topic_url"]).to eq(unread_commit.topic.relative_url)
     end
+
+    it 'will continue in the same category, even if muted' do
+      category = Fabricate(:category)
+      commit = create_post(raw: "this is a fake commit", user: other_user, tags: ["hi", SiteSetting.code_review_pending_tag], category: category)
+      unread_commit = create_post(raw: "this is an unread commit", user: other_user, tags: ["hi", SiteSetting.code_review_pending_tag], created_at: Time.zone.now + 2.hours,  category: category)
+
+      CategoryUser.create!(user_id: signed_in_user.id,
+                           category_id: category.id,
+                           notification_level: CategoryUser.notification_levels[:muted])
+
+      post '/code-review/approve.json', params: { topic_id: commit.topic_id }
+      json = JSON.parse(response.body)
+      expect(json["next_topic_url"]).to eq(unread_commit.topic.relative_url)
+    end
   end
 
   it 'assigns and unassigns topic on followup and approve' do
