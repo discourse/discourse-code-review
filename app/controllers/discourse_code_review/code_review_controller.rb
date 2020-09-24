@@ -9,7 +9,7 @@ module DiscourseCodeReview
     skip_before_action :ensure_logged_in, only: :webhook
     skip_before_action :ensure_staff, only: :webhook
     skip_before_action :redirect_to_login_if_required, only: :webhook
-    skip_before_action :check_xhr, only: :webhook
+    skip_before_action :check_xhr, only: [:webhook, :redirect]
 
     def webhook
 
@@ -104,6 +104,24 @@ module DiscourseCodeReview
       )
 
       render_next_topic(topic.category_id)
+    end
+
+    def redirect
+      sha1 = params[:sha1]
+
+      if sha1.present? && sha1.size >= 7
+        tcf = TopicCustomField
+          .where(name: DiscourseCodeReview::COMMIT_HASH)
+          .where("LEFT(LOWER(value), :len) = LOWER(:sha1)", len: sha1.size, sha1: sha1)
+          .order("created_at DESC")
+          .includes(:topic)
+          .first
+      end
+
+      raise Discourse::NotFound.new if tcf.blank?
+      guardian.ensure_can_see!(tcf.topic)
+
+      redirect_to tcf.topic.url
     end
 
     protected

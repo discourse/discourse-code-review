@@ -201,6 +201,7 @@ after_initialize do
       post '/followup' => 'code_review#followup'
       post '/skip' => 'code_review#skip'
       post '/webhook' => 'code_review#webhook'
+      get "/redirect/:sha1" => 'code_review#redirect', constraints: { sha1: /[0-9a-fA-F]+/ }
     end
 
     scope '/admin/plugins/code-review', as: 'admin_code_review', constraints: StaffConstraint.new do
