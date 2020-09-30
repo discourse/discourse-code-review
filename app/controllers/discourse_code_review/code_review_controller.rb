@@ -81,6 +81,10 @@ module DiscourseCodeReview
     end
 
     def followup
+      if !SiteSetting.code_review_allow_manual_followup
+        raise Discourse::InvalidAccess
+      end
+
       topic = Topic.find_by(id: params[:topic_id])
 
       State::CommitApproval.followup(

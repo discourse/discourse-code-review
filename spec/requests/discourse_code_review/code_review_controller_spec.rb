@@ -275,6 +275,13 @@ describe DiscourseCodeReview::CodeReviewController do
         expect(commit.topic.tags.pluck(:name)).to include("hi", SiteSetting.code_review_followup_tag)
       end
 
+      it 'gives invalid access when manual follow up is disabled' do
+        SiteSetting.code_review_allow_manual_followup = false
+        commit = create_post(raw: "this is a fake commit", tags: ["hi", SiteSetting.code_review_pending_tag])
+        post '/code-review/followup.json', params: { topic_id: commit.topic_id }
+        expect(response.status).to eq(403)
+      end
+
       it 'does nothing when following-up already followed-up posts' do
         commit = create_post(raw: "this is a fake commit", tags: ["hi", SiteSetting.code_review_pending_tag])
 
