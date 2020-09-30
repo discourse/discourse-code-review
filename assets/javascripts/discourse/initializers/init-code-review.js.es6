@@ -68,7 +68,11 @@ function initialize(api) {
     );
   }
 
-  function allowFollowup(topic, siteSettings) {
+  function allowFollowupButton(topic, siteSettings) {
+    if (!siteSettings.code_review_allow_manual_followup) {
+      return false;
+    }
+
     const approvedTag = siteSettings.code_review_approved_tag;
     const pendingTag = siteSettings.code_review_pending_tag;
     const followupTag = siteSettings.code_review_followup_tag;
@@ -142,7 +146,7 @@ function initialize(api) {
     displayed() {
       return (
         this.get("currentUser.staff") &&
-        allowFollowup(this.topic, this.siteSettings)
+        allowFollowupButton(this.topic, this.siteSettings)
       );
     },
   });

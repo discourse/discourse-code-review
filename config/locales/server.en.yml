@@ -5,6 +5,7 @@ en:
     code_review_sync_to_github: "REQUIRES: code_review_github_token, should comments here be sent to github?"
     code_review_catch_up_commits: "When a new repo is added create this number of topics for old commits"
     code_review_allow_private_clone: "REQUIRES: code_review_github_token, will clone the repos as the associated user, this safeguard is in place to disable cloning of private repos on public sites."
+    code_review_allow_manual_followup: "Allow follow up button on commits"
     code_review_pending_tag: "Tag to apply to pending commits"
     code_review_followup_tag: "Tag to apply to follow up commits"
     code_review_approved_tag: "Tag to apply to approved commits"

@@ -4,6 +4,9 @@ plugins:
   code_review_sync_to_github: false
   code_review_catch_up_commits: 10
   code_review_allow_private_clone: false
+  code_review_allow_manual_followup:
+    client: true
+    default: true
   code_review_pending_tag:
     client: true
     default: "pending"
