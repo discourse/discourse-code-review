@@ -110,23 +110,23 @@ module DiscourseCodeReview::State::CommitTopics
               value: commit[:hash]
             )
 
-            followee_topics =
-              Topic
-                .where(
-                  id:
-                    TopicCustomField
-                      .where(
-                        name: DiscourseCodeReview::COMMIT_HASH,
-                        value: followees,
-                      )
-                      .select(:topic_id)
-                )
+            if followees.present?
+              followee_topics =
+                Topic
+                  .where(
+                    id:
+                      TopicCustomField
+                        .where(name: DiscourseCodeReview::COMMIT_HASH)
+                        .where('value SIMILAR TO ?', "(#{followees.join('|')})%")
+                        .select(:topic_id)
+                  )
 
-            followee_topics.each do |followee_topic|
-              DiscourseCodeReview::State::CommitApproval.followed_up(
-                followee_topic,
-                post.topic,
-              )
+              followee_topics.each do |followee_topic|
+                DiscourseCodeReview::State::CommitApproval.followed_up(
+                  followee_topic,
+                  post.topic,
+                )
+              end
             end
 
             topic = post.topic

@@ -162,10 +162,16 @@ module DiscourseCodeReview
     end
 
     def followees(ref)
-      git_repo
-        .trailers(ref)
-        .select { |x| x.first == 'Follow-up-to' }
-        .map(&:second)
+      result = []
+
+      git_repo.commit(ref).message.lines.each do |line|
+        data = line.match(/follow.*?([a-z0-9]{7,})/i)
+        if data.present?
+          result << data[1]
+        end
+      end
+
+      result
     end
 
     def path
