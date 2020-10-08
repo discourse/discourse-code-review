@@ -165,10 +165,8 @@ module DiscourseCodeReview
       result = []
 
       git_repo.commit(ref).message.lines.each do |line|
-        data = line.match(/follow.*?([a-z0-9]{7,})/i)
-        if data.present?
-          result << data[1]
-        end
+        data = line[/follow.*?(\h{7,})/i, 1]
+        result << data if data
       end
 
       result
