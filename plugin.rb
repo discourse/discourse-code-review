@@ -199,6 +199,7 @@ after_initialize do
     scope '/code-review' do
       post '/approve' => 'code_review#approve'
       post '/followup' => 'code_review#followup'
+      post '/followedup' => 'code_review#followedup'
       post '/skip' => 'code_review#skip'
       post '/webhook' => 'code_review#webhook'
       get "/redirect/:sha1" => 'code_review#redirect', constraints: { sha1: /[0-9a-fA-F]+/ }

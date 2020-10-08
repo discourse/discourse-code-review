@@ -21,6 +21,9 @@ en:
       followup:
         title: "Follow up commit"
         label: "Follow Up"
+      followedup:
+        title: "Followed up commit"
+        label: "Followed Up"
       skip:
         title: "Skip commit"
         label: "Skip"
