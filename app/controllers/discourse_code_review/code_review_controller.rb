@@ -95,7 +95,7 @@ module DiscourseCodeReview
       render_next_topic(topic.category_id)
     end
 
-    def followedup
+    def followed_up
       if !SiteSetting.code_review_allow_manual_followup
         raise Discourse::InvalidAccess
       end

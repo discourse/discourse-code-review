@@ -290,14 +290,14 @@ describe DiscourseCodeReview::CodeReviewController do
       end
     end
 
-    context '.followedup' do
+    context '.followed_up' do
       it 'puts the topic back into pending' do
         # If discourse-assign is present, we need to enable methods defined by the plugin.
         SiteSetting.assign_enabled = true if defined?(TopicAssigner)
 
         commit = create_post(raw: "this is a fake commit", user: signed_in_user, tags: ["hi", SiteSetting.code_review_followup_tag])
 
-        post '/code-review/followedup.json', params: { topic_id: commit.topic_id }
+        post '/code-review/followed_up.json', params: { topic_id: commit.topic_id }
         expect(response.status).to eq(200)
 
         commit.topic.reload

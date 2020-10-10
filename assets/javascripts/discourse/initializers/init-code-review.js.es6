@@ -85,7 +85,7 @@ function initialize(api) {
     );
   }
 
-  function allowFollowedupButton(currentUser, topic, siteSettings) {
+  function allowFollowedUpButton(currentUser, topic, siteSettings) {
     const followupTag = siteSettings.code_review_followup_tag;
 
     const tags = topic.tags || [];
@@ -160,13 +160,13 @@ function initialize(api) {
   });
 
   api.registerTopicFooterButton({
-    id: "followedup",
-    icon: "far-clock",
+    id: "followed_up",
+    icon: "history",
     priority: 240,
-    label: "code_review.followedup.label",
-    title: "code_review.followedup.title",
+    label: "code_review.followed_up.label",
+    title: "code_review.followed_up.title",
     action() {
-      actOnCommit(this.topic, "followedup");
+      actOnCommit(this.topic, "followed_up");
     },
     dropdown() {
       return this.site.mobileView;
@@ -176,7 +176,7 @@ function initialize(api) {
     displayed() {
       return (
         this.get("currentUser.staff") &&
-        allowFollowedupButton(this.currentUser, this.topic, this.siteSettings)
+        allowFollowedUpButton(this.currentUser, this.topic, this.siteSettings)
       );
     },
   });
