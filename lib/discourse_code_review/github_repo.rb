@@ -165,6 +165,7 @@ module DiscourseCodeReview
       result = []
 
       git_repo.commit(ref).message.lines.each do |line|
+        next if line =~ /^revert\b/i
         data = line[/follow.*?(\h{7,})/i, 1]
         result << data if data
       end
