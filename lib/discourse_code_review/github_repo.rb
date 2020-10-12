@@ -162,10 +162,15 @@ module DiscourseCodeReview
     end
 
     def followees(ref)
-      git_repo
-        .trailers(ref)
-        .select { |x| x.first == 'Follow-up-to' }
-        .map(&:second)
+      result = []
+
+      git_repo.commit(ref).message.lines.each_with_index do |line, index|
+        next if index == 0 && line =~ /^revert\b/i
+        data = line[/follow.*?(\h{7,})/i, 1]
+        result << data if data
+      end
+
+      result
     end
 
     def path

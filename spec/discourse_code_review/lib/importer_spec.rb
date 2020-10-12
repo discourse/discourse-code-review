@@ -135,5 +135,57 @@ module DiscourseCodeReview
 
       expect(followee.tags.pluck(:name)).to include(SiteSetting.code_review_approved_tag)
     end
+
+    it "approves followed-up topics with partial hashes" do
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
+
+      SiteSetting.code_review_enabled = true
+
+      commit = {
+        subject: "hello world",
+        body: "this is the body",
+        email: "sam@sam.com",
+        github_login: "sam",
+        github_id: "111",
+        date: 1.day.ago,
+        diff: "```\nwith a diff",
+        hash: "5ff6c10320cab7ef82ecda40c57cfb9e539b7e72"
+      }
+
+      followee = Topic.find(Importer.new(repo).import_commit(commit))
+
+      expect(followee.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
+
+      commit[:hash] = "dbfb2a1e11b6a4f33d35b26885193774e7ab9362"
+      follower = Topic.find(Importer.new(repo).import_commit(commit))
+
+      expect(followee.tags.pluck(:name)).to include(SiteSetting.code_review_approved_tag)
+    end
+
+    it "does not extract followees from revert commits" do
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
+
+      SiteSetting.code_review_enabled = true
+
+      commit = {
+        subject: "hello world",
+        body: "this is the body",
+        email: "sam@sam.com",
+        github_login: "sam",
+        github_id: "111",
+        date: 1.day.ago,
+        diff: "```\nwith a diff",
+        hash: "154f503d2e99f904356b52f2fae9edcc495708fa"
+      }
+
+      followee = Topic.find(Importer.new(repo).import_commit(commit))
+
+      expect(followee.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
+
+      commit[:hash] = "d2a7f29595786376a3010cb7e320d66f5b8d60ef"
+      follower = Topic.find(Importer.new(repo).import_commit(commit))
+
+      expect(followee.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
+    end
   end
 end
