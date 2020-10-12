@@ -16,6 +16,7 @@ gem 'rugged', '0.28.4.1'
 enabled_site_setting :code_review_enabled
 
 register_asset 'stylesheets/code_review.scss'
+register_svg_icon 'history'
 
 require_dependency 'auth/github_authenticator'
 require_dependency 'lib/staff_constraint'
@@ -199,6 +200,7 @@ after_initialize do
     scope '/code-review' do
       post '/approve' => 'code_review#approve'
       post '/followup' => 'code_review#followup'
+      post '/followed_up' => 'code_review#followed_up'
       post '/skip' => 'code_review#skip'
       post '/webhook' => 'code_review#webhook'
       get "/redirect/:sha1" => 'code_review#redirect', constraints: { sha1: /[0-9a-fA-F]+/ }

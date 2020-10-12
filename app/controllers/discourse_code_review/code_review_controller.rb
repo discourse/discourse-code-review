@@ -95,6 +95,39 @@ module DiscourseCodeReview
       render_next_topic(topic.category_id)
     end
 
+    def followed_up
+      if !SiteSetting.code_review_allow_manual_followup
+        raise Discourse::InvalidAccess
+      end
+
+      topic = Topic.find_by(id: params[:topic_id])
+
+      tags = topic.tags.pluck(:name)
+
+      if tags.include?(SiteSetting.code_review_followup_tag)
+        tags -= [
+          SiteSetting.code_review_approved_tag,
+          SiteSetting.code_review_followup_tag
+        ]
+
+        tags << SiteSetting.code_review_pending_tag
+
+        DiscourseTagging.tag_topic_by_names(topic, Guardian.new(current_user), tags)
+
+        topic.add_moderator_post(
+          current_user,
+          nil,
+          bump: false,
+          post_type: Post.types[:small_action],
+          action_code: "followed_up"
+        )
+
+        DiscourseEvent.trigger(:unassign_topic, topic, current_user)
+      end
+
+      render json: success_json
+    end
+
     def approve
       topic = Topic.find_by(id: params[:topic_id])
 

@@ -85,6 +85,14 @@ function initialize(api) {
     );
   }
 
+  function allowFollowedUpButton(currentUser, topic, siteSettings) {
+    const followupTag = siteSettings.code_review_followup_tag;
+
+    const tags = topic.tags || [];
+
+    return currentUser.id === topic.user_id && tags.includes(followupTag);
+  }
+
   api.registerTopicFooterButton({
     id: "approve",
     icon: "thumbs-up",
@@ -147,6 +155,28 @@ function initialize(api) {
       return (
         this.get("currentUser.staff") &&
         allowFollowupButton(this.topic, this.siteSettings)
+      );
+    },
+  });
+
+  api.registerTopicFooterButton({
+    id: "followed_up",
+    icon: "history",
+    priority: 240,
+    label: "code_review.followed_up.label",
+    title: "code_review.followed_up.title",
+    action() {
+      actOnCommit(this.topic, "followed_up");
+    },
+    dropdown() {
+      return this.site.mobileView;
+    },
+    classNames: ["followup"],
+    dependentKeys: ["topic.tags"],
+    displayed() {
+      return (
+        this.get("currentUser.staff") &&
+        allowFollowedUpButton(this.currentUser, this.topic, this.siteSettings)
       );
     },
   });
