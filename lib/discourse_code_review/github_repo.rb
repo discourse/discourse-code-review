@@ -164,8 +164,8 @@ module DiscourseCodeReview
     def followees(ref)
       result = []
 
-      git_repo.commit(ref).message.lines.each do |line|
-        next if line =~ /^revert\b/i
+      git_repo.commit(ref).message.lines.each_with_index do |line, index|
+        next if index == 0 && line =~ /^revert\b/i
         data = line[/follow.*?(\h{7,})/i, 1]
         result << data if data
       end
