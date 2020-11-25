@@ -190,6 +190,7 @@ module DiscourseCodeReview::State::CommitApproval
         approvers_string =
           approvers
             .map(&:username)
+            .uniq
             .to_sentence
 
         raw_parts << "approved by #{approvers_string}. It was"
