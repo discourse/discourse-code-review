@@ -27,7 +27,7 @@ module DiscourseCodeReview
 
       if !commit_hash
         commits = [SiteSetting.code_review_catch_up_commits, 1].max - 1
-        commit_hash = git_repo.n_before('origin/master', commits)
+        commit_hash = git_repo.n_before("origin/#{git_repo.default_branch}", commits)
         self.last_commit = commit_hash
       end
 
@@ -99,7 +99,7 @@ module DiscourseCodeReview
           [[git_repo.rev_parse(ref)]]
         else
           git_repo
-            .commit_oids_since(ref, 'origin/master')
+            .commit_oids_since(ref, "origin/#{git_repo.default_branch}")
             .each_slice(30)
         end
 
@@ -121,7 +121,7 @@ module DiscourseCodeReview
         if single
           [git_repo.commit(ref)]
         else
-          git_repo.commits_since(ref, 'origin/master')
+          git_repo.commits_since(ref, "origin/#{git_repo.default_branch}")
         end
 
       commits.map do |commit|
