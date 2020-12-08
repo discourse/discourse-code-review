@@ -26,6 +26,7 @@ plugins:
   code_review_skip_duration_minutes: 2880
   code_review_auto_assign_on_followup: true
   code_review_auto_unassign_on_approve: true
+  code_review_auto_approve_followed_up_commits: true
   code_review_github_organizations: ""
   code_review_approve_approved_prs: false
   code_review_default_mute_new_categories: false

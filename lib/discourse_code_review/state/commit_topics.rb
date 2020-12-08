@@ -110,7 +110,7 @@ module DiscourseCodeReview::State::CommitTopics
               value: commit[:hash]
             )
 
-            if followees.present?
+            if followees.present? && SiteSetting.code_review_auto_approve_followed_up_commits
               followee_topics =
                 Topic
                   .where(
