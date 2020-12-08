@@ -2,6 +2,8 @@
 
 module DiscourseCodeReview::Source
   class GitRepo
+    attr_reader :default_branch
+
     Commit =
       TypedData::TypedStruct.new(
         oid: String,
@@ -26,6 +28,18 @@ module DiscourseCodeReview::Source
             bare: true,
             credentials: @credentials,
         )
+      end
+
+      @default_branch = begin
+        ref = Discourse::Utils.execute_command('git symbolic-ref refs/remotes/origin/HEAD', chdir: location)
+        ref.strip.gsub(/^refs\/remotes\/origin\//, '')
+      rescue
+        begin
+          ref = Discourse::Utils.execute_command('git symbolic-ref HEAD', chdir: location)
+          ref.strip.gsub(/^refs\/heads\//, '')
+        rescue
+          'master'
+        end
       end
     end
 
@@ -81,7 +95,7 @@ module DiscourseCodeReview::Source
 
     def master_contains?(ref)
       oid = @repo.rev_parse(ref).oid
-      @repo.merge_base('origin/master', oid) == oid
+      @repo.merge_base("origin/#{@default_branch}", oid) == oid
     end
 
     def fetch
