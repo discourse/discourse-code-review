@@ -22,6 +22,17 @@ describe DiscourseCodeReview::CodeReviewController do
     end
   end
 
+  context "#webhook" do
+    it "does nothing when the site setting is disabled" do
+      SiteSetting.code_review_enabled = false
+
+      post '/code-review/webhook'
+
+      expect(response.status).to eq(200)
+      expect(response.parsed_body).to eq("disabled" => true)
+    end
+  end
+
   context "signed in as an admin" do
     fab!(:signed_in_user) { Fabricate(:admin) }
     fab!(:another_admin) { Fabricate(:admin) }
