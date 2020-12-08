@@ -12,6 +12,7 @@ module DiscourseCodeReview
     skip_before_action :check_xhr, only: [:webhook, :redirect]
 
     def webhook
+      return render json: { disabled: true } unless SiteSetting.code_review_enabled
 
       if SiteSetting.code_review_github_webhook_secret.blank?
         Rails.logger.warn("Make sure you set a secret up in code_review_github_webhook_secret")
