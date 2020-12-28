@@ -64,7 +64,7 @@ module DiscourseCodeReview
         hash: "a1db15feadc7951d8a2b4ae63384babd6c568ae0"
       }
 
-      repo.expects(:master_contains?).with(commit[:hash]).returns(true)
+      repo.expects(:default_branch_contains?).with(commit[:hash]).returns(true)
       repo.expects(:followees).with(commit[:hash]).returns([])
 
       post = first_post_of(Importer.new(repo).import_commit(commit))
@@ -72,7 +72,7 @@ module DiscourseCodeReview
       commit[:hash] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
       commit[:body] = "ab2787347ff (this is\nfollowing up on a1db15fe)"
 
-      repo.expects(:master_contains?).with(commit[:hash]).returns(true)
+      repo.expects(:default_branch_contains?).with(commit[:hash]).returns(true)
       repo.expects(:followees).with(commit[:hash]).returns([])
 
       post2 = first_post_of(Importer.new(repo).import_commit(commit))
@@ -103,7 +103,7 @@ module DiscourseCodeReview
         hash: SecureRandom.hex
       }
 
-      repo.expects(:master_contains?).with(commit[:hash]).returns(true)
+      repo.expects(:default_branch_contains?).with(commit[:hash]).returns(true)
       repo.expects(:followees).with(commit[:hash]).returns([])
 
       post = first_post_of(Importer.new(repo).import_commit(commit))
@@ -114,9 +114,9 @@ module DiscourseCodeReview
 
     it "approves followed-up topics" do
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
-      repo.expects(:master_contains?).with('a91843f0dc7b97e700dc85505404eafd62b7f8c5').returns(true)
+      repo.expects(:default_branch_contains?).with('a91843f0dc7b97e700dc85505404eafd62b7f8c5').returns(true)
       repo.expects(:followees).with('a91843f0dc7b97e700dc85505404eafd62b7f8c5').returns([])
-      repo.expects(:master_contains?).with('ca1208a63669d4d4ad7452367008d40fa090f645').returns(true)
+      repo.expects(:default_branch_contains?).with('ca1208a63669d4d4ad7452367008d40fa090f645').returns(true)
       repo.expects(:followees).with('ca1208a63669d4d4ad7452367008d40fa090f645').returns(['a91843f0dc7b97e700dc85505404eafd62b7f8c5'])
 
       SiteSetting.code_review_enabled = true
@@ -144,9 +144,9 @@ module DiscourseCodeReview
 
     it "approves followed-up topics with partial hashes" do
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
-      repo.expects(:master_contains?).with('5ff6c10320cab7ef82ecda40c57cfb9e539b7e72').returns(true)
+      repo.expects(:default_branch_contains?).with('5ff6c10320cab7ef82ecda40c57cfb9e539b7e72').returns(true)
       repo.expects(:followees).with('5ff6c10320cab7ef82ecda40c57cfb9e539b7e72').returns([])
-      repo.expects(:master_contains?).with('dbfb2a1e11b6a4f33d35b26885193774e7ab9362').returns(true)
+      repo.expects(:default_branch_contains?).with('dbfb2a1e11b6a4f33d35b26885193774e7ab9362').returns(true)
       repo.expects(:followees).with('dbfb2a1e11b6a4f33d35b26885193774e7ab9362').returns(['5ff6c10'])
 
       SiteSetting.code_review_enabled = true
@@ -174,9 +174,9 @@ module DiscourseCodeReview
 
     it "does not extract followees from revert commits" do
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
-      repo.expects(:master_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
+      repo.expects(:default_branch_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
       repo.expects(:followees).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns([])
-      repo.expects(:master_contains?).with('d2a7f29595786376a3010cb7e320d66f5b8d60ef').returns(true)
+      repo.expects(:default_branch_contains?).with('d2a7f29595786376a3010cb7e320d66f5b8d60ef').returns(true)
       repo.expects(:followees).with('d2a7f29595786376a3010cb7e320d66f5b8d60ef').returns([])
 
       SiteSetting.code_review_enabled = true

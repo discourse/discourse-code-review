@@ -18,6 +18,10 @@ module DiscourseCodeReview
       @name.gsub(/[^a-z0-9]/i, "_")
     end
 
+    def default_branch
+      @default_branch ||= "origin/#{octokit_client.repository(@name)["default_branch"]}"
+    end
+
     def last_commit
       commit_hash = PluginStore.get(DiscourseCodeReview::PluginName, LAST_COMMIT + @name)
       if commit_hash.present? && !commit_hash_valid?(commit_hash)
@@ -27,7 +31,7 @@ module DiscourseCodeReview
 
       if !commit_hash
         commits = [SiteSetting.code_review_catch_up_commits, 1].max - 1
-        commit_hash = git_repo.n_before("origin/#{git_repo.default_branch}", commits)
+        commit_hash = git_repo.n_before(default_branch, commits)
         self.last_commit = commit_hash
       end
 
@@ -44,9 +48,9 @@ module DiscourseCodeReview
       git_repo.commit_hash_valid?(hash)
     end
 
-    def master_contains?(ref)
+    def default_branch_contains?(ref)
       git_repo.fetch
-      git_repo.master_contains?(ref)
+      git_repo.contains?(default_branch, ref)
     end
 
     def commit_comments(commit_sha)
@@ -99,7 +103,7 @@ module DiscourseCodeReview
           [[git_repo.rev_parse(ref)]]
         else
           git_repo
-            .commit_oids_since(ref, "origin/#{git_repo.default_branch}")
+            .commit_oids_since(ref, default_branch)
             .each_slice(30)
         end
 
@@ -121,7 +125,7 @@ module DiscourseCodeReview
         if single
           [git_repo.commit(ref)]
         else
-          git_repo.commits_since(ref, "origin/#{git_repo.default_branch}")
+          git_repo.commits_since(ref, default_branch)
         end
 
       commits.map do |commit|

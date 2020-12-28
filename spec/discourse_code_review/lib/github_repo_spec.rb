@@ -54,6 +54,7 @@ module DiscourseCodeReview
 
       it "does not explode" do
         repo = GithubRepo.new('fake_repo/fake_repo', nil, nil)
+        repo.stubs(:default_branch).returns("origin/master")
         repo.path = checkout_path
         repo.last_commit = nil
 
@@ -76,6 +77,7 @@ module DiscourseCodeReview
 
       it "truncates the diff" do
         repo = GithubRepo.new('fake_repo/fake_repo', nil, nil)
+        repo.stubs(:default_branch).returns("origin/master")
         repo.path = checkout_path
         repo.last_commit = nil
 
@@ -107,6 +109,7 @@ module DiscourseCodeReview
       end
 
       repo = GithubRepo.new('fake_repo/fake_repo', nil, nil)
+      repo.stubs(:default_branch).returns("origin/master")
       repo.path = checkout_path
 
       SiteSetting.code_review_catch_up_commits = 1
@@ -128,6 +131,7 @@ module DiscourseCodeReview
       end
 
       repo = GithubRepo.new('fake_repo/fake_repo', nil, nil)
+      repo.stubs(:default_branch).returns("origin/master")
       repo.path = checkout_path
 
       # mimic force push event
