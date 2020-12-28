@@ -64,7 +64,7 @@ module DiscourseCodeReview
     end
 
     def import_commit(commit)
-      merged = github_repo.master_contains?(commit[:hash])
+      merged = github_repo.default_branch_contains?(commit[:hash])
       followees = github_repo.followees(commit[:hash])
 
       user = DiscourseCodeReview.github_user_syncer.ensure_user(
