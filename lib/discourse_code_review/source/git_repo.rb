@@ -25,7 +25,7 @@ module DiscourseCodeReview::Source
             location,
             bare: true,
             credentials: @credentials,
-        )
+          )
       end
     end
 
@@ -34,7 +34,7 @@ module DiscourseCodeReview::Source
       commit = @repo.rev_parse(ref)
 
       n.times do
-        break if commit.parents.empty?
+        return nil if commit.parents.empty?
         commit = commit.parents[0]
       end
 
@@ -113,12 +113,12 @@ module DiscourseCodeReview::Source
     private
 
     def rugged_commits_since(from, to)
-      from = @repo.rev_parse(from)
+      from = @repo.rev_parse(from) if from
       to = @repo.rev_parse(to)
 
       walker = Rugged::Walker.new(@repo)
       walker.push(to)
-      walker.hide(from)
+      walker.hide(from) if from
       walker
     end
 

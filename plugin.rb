@@ -13,6 +13,10 @@ gem 'octokit', '4.16.0'
 gem 'pqueue', '2.1.0'
 gem 'rugged', '0.28.4.1'
 
+if Rails.env.test?
+  gem 'graphql', '1.11.6'
+end
+
 enabled_site_setting :code_review_enabled
 
 register_asset 'stylesheets/code_review.scss'
@@ -81,6 +85,16 @@ after_initialize do
       self.octokit_bot_client
     rescue APIUserError
       Octokit::Client.new
+    end
+
+    def self.reset_state!
+      @graphql_client = nil
+      @github_commit_querier = nil
+      @github_pr_querier = nil
+      @github_pr_service = nil
+      @github_user_querier = nil
+      @github_user_syncer = nil
+      @github_pr_syncer = nil
     end
 
     def self.graphql_client

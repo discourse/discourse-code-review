@@ -25,7 +25,7 @@ module DiscourseCodeReview::State::Helpers
               topic = post.topic
               topic.custom_fields = custom_fields
               topic.save_custom_fields
-              topic.update(bumped_at: Time.zone.now)
+              topic.update!(bumped_at: Time.zone.now)
 
               yield post if block_given?
             end
