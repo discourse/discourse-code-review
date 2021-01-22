@@ -281,6 +281,11 @@ after_initialize do
     end
   end
 
+  require_dependency 'list_controller'
+  class ::ListController
+    skip_before_action :ensure_logged_in, only: %i[approval_given approval_pending]
+  end
+
   add_to_class(:list_controller, :approval_given) do
     respond_with_list(
       TopicQuery.new(
