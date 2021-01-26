@@ -34,6 +34,7 @@ module DiscourseCodeReview
 
       repo = params["repository"]
       repo_name = repo["full_name"] if repo
+      Rails.logger.warn("repo_name is blank. #{params.to_json}") if repo_name.blank?
 
       if type == "commit_comment"
         commit_sha = params["comment"]["commit_id"]
