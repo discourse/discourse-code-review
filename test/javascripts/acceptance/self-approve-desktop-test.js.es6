@@ -1,6 +1,6 @@
 import {
-  updateCurrentUser,
   acceptance,
+  updateCurrentUser,
 } from "discourse/tests/helpers/qunit-helpers";
 import Fixtures from "discourse/tests/fixtures/topic";
 
