@@ -1,7 +1,7 @@
 import selectKit from "discourse/tests/helpers/select-kit-helper";
 import {
-  updateCurrentUser,
   acceptance,
+  updateCurrentUser,
 } from "discourse/tests/helpers/qunit-helpers";
 import Fixtures from "discourse/tests/fixtures/topic";
 
