@@ -13,9 +13,9 @@
   This causes the topic-post-badge to be considered the same word as "text"
   at the end of the link, preventing it from line wrapping onto its own line.
 --}}
-<td class='main-link clearfix' colspan="1">
+<td class="main-link clearfix" colspan="1">
   {{~raw-plugin-outlet name="topic-list-before-link"}}
-  <span class='link-top-line'>
+  <span class="link-top-line">
     {{~raw-plugin-outlet name="topic-list-before-status"}}
     {{~raw "topic-status" topic=topic}}
     {{~topic-link topic class="raw-link raw-topic-link"}}
@@ -23,9 +23,11 @@
     {{~topic-featured-link topic}}
     {{~/if}}
     {{~raw-plugin-outlet name="topic-list-after-title"}}
-    {{~raw "list/unread-indicator" includeUnreadIndicator=includeUnreadIndicator
-                                   topicId=topic.id
-                                   unreadClass=unreadClass~}}
+    {{~raw "list/unread-indicator"
+      includeUnreadIndicator=includeUnreadIndicator
+      topicId=topic.id
+      unreadClass=unreadClass
+    ~}}
     {{~#if showTopicPostBadges}}
     {{~raw "topic-post-badges" unread=topic.unread newPosts=topic.displayNewPosts unseen=topic.unseen url=topic.lastUnreadUrl newDotText=newDotText}}
     {{~/if}}
@@ -61,7 +63,7 @@
 {{#if showLikes}}
   <td class="num likes">
     {{#if hasLikes}}
-      <a href='{{topic.summaryUrl}}'>
+      <a href="{{topic.summaryUrl}}">
         {{number topic.like_count}} {{d-icon "heart"}}
       </a>
     {{/if}}
@@ -71,7 +73,7 @@
 {{#if showOpLikes}}
   <td class="num likes">
     {{#if hasOpLikes}}
-      <a href='{{topic.summaryUrl}}'>
+      <a href="{{topic.summaryUrl}}">
         {{number topic.op_like_count}} {{d-icon "heart"}}
       </a>
     {{/if}}
