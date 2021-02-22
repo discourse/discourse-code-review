@@ -234,7 +234,7 @@ module DiscourseCodeReview
       end
     end
 
-    def is_merged_into_master?(pr)
+    def is_merged_into_default?(pr)
       response =
         graphql_client.execute("
           query {
@@ -242,14 +242,18 @@ module DiscourseCodeReview
               pullRequest(number: #{pr.issue_number.to_json}) {
                 baseRefName,
                 merged,
-              }
+              },
+              defaultBranchRef {
+                name,
+              },
             }
           }
         ")
 
+      default_branch = response[:repository][:defaultBranchRef][:name]
       pr_response = response[:repository][:pullRequest]
 
-      pr_response[:baseRefName] == 'master' && pr_response[:merged]
+      pr_response[:baseRefName] == default_branch && pr_response[:merged]
     end
 
     def merged_by(pr)

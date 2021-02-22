@@ -183,7 +183,7 @@ module DiscourseCodeReview
 
     def merge_info(pr)
       approvers =
-        if pr_querier.is_merged_into_master?(pr)
+        if pr_querier.is_merged_into_default?(pr)
           pr_querier.approvers(pr)
         else
           []
