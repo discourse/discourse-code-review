@@ -11,7 +11,7 @@ module DiscourseCodeReview
       @user_syncer = user_syncer
     end
 
-    def sync_pull_request(repo_name, issue_number)
+    def sync_pull_request(repo_name, issue_number, repo_id: nil)
       owner, name = repo_name.split('/', 2)
 
       pr =
@@ -26,7 +26,8 @@ module DiscourseCodeReview
       category =
         State::GithubRepoCategories
           .ensure_category(
-            repo_name: repo_name
+            repo_name: repo_name,
+            repo_id: repo_id
           )
 
       url =
@@ -70,9 +71,9 @@ module DiscourseCodeReview
         end
     end
 
-    def sync_associated_pull_requests(repo_name, git_commit)
+    def sync_associated_pull_requests(repo_name, git_commit, repo_id: nil)
       pr_service.associated_pull_requests(repo_name, git_commit).each do |pr|
-        sync_pull_request(repo_name, pr.issue_number)
+        sync_pull_request(repo_name, pr.issue_number, repo_id: repo_id)
       end
     end
 

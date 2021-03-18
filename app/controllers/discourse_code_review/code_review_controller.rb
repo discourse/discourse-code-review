@@ -33,7 +33,10 @@ module DiscourseCodeReview
       # delivery = request.env['HTTP_X_GITHUB_DELIVERY']
 
       repo = params["repository"]
-      repo_name = repo["full_name"] if repo
+      if repo.present?
+        repo_id = repo["id"]
+        repo_name = repo["full_name"]
+      end
       Rails.logger.warn("repo_name is blank. #{params.to_json}") if repo_name.blank?
 
       if type == "commit_comment"
@@ -43,18 +46,19 @@ module DiscourseCodeReview
           :code_review_sync_commit_comments,
           repo_name: repo_name,
           commit_sha: commit_sha,
+          repo_id: repo_id
         )
       end
 
       if type == "push"
-        ::Jobs.enqueue(:code_review_sync_commits, repo_name: repo_name)
+        ::Jobs.enqueue(:code_review_sync_commits, repo_name: repo_name, repo_id: repo_id)
       end
 
       if type == "commit_comment"
         syncer = DiscourseCodeReview.github_pr_syncer
         git_commit = params["comment"]["commit_id"]
 
-        syncer.sync_associated_pull_requests(repo_name, git_commit)
+        syncer.sync_associated_pull_requests(repo_name, git_commit, repo_id: repo_id)
       end
 
       if ["pull_request", "issue_comment", "pull_request_review", "pull_request_review_comment"].include? type
@@ -65,7 +69,7 @@ module DiscourseCodeReview
           (params['issue'] && params['issue']['number']) ||
           (params['pull_request'] && params['pull_request']['number'])
 
-        syncer.sync_pull_request(repo_name, issue_number)
+        syncer.sync_pull_request(repo_name, issue_number, repo_id: repo_id)
       end
 
       render plain: '"ok"'

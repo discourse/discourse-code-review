@@ -2,16 +2,17 @@
 
 module DiscourseCodeReview
   class GithubRepo
-    attr_reader :name, :octokit_client
+    attr_reader :name, :octokit_client, :repo_id
 
     LAST_COMMIT = 'last commit'
     MAX_DIFF_LENGTH = 8000
 
-    def initialize(name, octokit_client, commit_querier)
+    def initialize(name, octokit_client, commit_querier, repo_id: nil)
       @owner, @repo = name.split('/')
       @name = name
       @octokit_client = octokit_client
       @commit_querier = commit_querier
+      @repo_id = repo_id
     end
 
     def clean_name

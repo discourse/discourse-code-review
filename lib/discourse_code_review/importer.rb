@@ -36,7 +36,8 @@ module DiscourseCodeReview
     def category_id
       @category_id ||=
         State::GithubRepoCategories.ensure_category(
-          repo_name: github_repo.name
+          repo_name: github_repo.name,
+          repo_id: github_repo.repo_id
         ).id
     end
 

@@ -24,8 +24,8 @@ register_svg_icon 'history'
 
 require_dependency 'auth/github_authenticator'
 require_dependency 'lib/staff_constraint'
-module HackGithubAuthenticator
 
+module HackGithubAuthenticator
   def after_authenticate(auth_token, existing_account: nil)
     result = super(auth_token, existing_account: existing_account)
 
