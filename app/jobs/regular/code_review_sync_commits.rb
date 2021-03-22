@@ -7,12 +7,12 @@ module Jobs
         raise Discourse::InvalidParameters.new(:repo_name)
       end
 
-      repo_name = args[:repo_name]
+      repo_name, repo_id = args.values_at(:repo_name, :repo_id)
 
       client = DiscourseCodeReview.octokit_client
       github_commit_querier = DiscourseCodeReview.github_commit_querier
 
-      repo = DiscourseCodeReview::GithubRepo.new(repo_name, client, github_commit_querier)
+      repo = DiscourseCodeReview::GithubRepo.new(repo_name, client, github_commit_querier, repo_id: repo_id)
       importer = DiscourseCodeReview::Importer.new(repo)
 
       importer.sync_merged_commits do |commit_hash|

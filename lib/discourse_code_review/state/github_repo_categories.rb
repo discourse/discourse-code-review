@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 module DiscourseCodeReview::State::GithubRepoCategories
+  GITHUB_REPO_ID = "GitHub Repo ID"
   GITHUB_REPO_NAME = "GitHub Repo Name"
 
   class << self
-    def ensure_category(repo_name:)
+    def ensure_category(repo_name:, repo_id: nil)
       Category.transaction(requires_new: true) do
         category =
           Category.where(
@@ -13,6 +14,27 @@ module DiscourseCodeReview::State::GithubRepoCategories
                 .select(:category_id)
                 .where(name: GITHUB_REPO_NAME, value: repo_name)
           ).first
+
+        if category.present? && category.custom_fields[GITHUB_REPO_ID].blank? && repo_id.present?
+          category.custom_fields[GITHUB_REPO_ID] = repo_id
+          category.save_custom_fields
+        end
+
+        if category.blank? && repo_id.present?
+          category =
+            Category.where(
+              id:
+                CategoryCustomField
+                  .select(:category_id)
+                .where(name: GITHUB_REPO_ID, value: repo_id)
+            ).first
+
+          if category.present?
+            # update repository name in category custom field
+            category.custom_fields[GITHUB_REPO_NAME] = repo_name
+            category.save_custom_fields
+          end
+        end
 
         if !category
           short_name = find_category_name(repo_name.split("/", 2).last)
@@ -34,6 +56,7 @@ module DiscourseCodeReview::State::GithubRepoCategories
             SiteSetting.default_categories_muted = (existing_category_ids << category.id).join("|")
           end
 
+          category.custom_fields[GITHUB_REPO_ID] = repo_id if repo_id.present?
           category.custom_fields[GITHUB_REPO_NAME] = repo_name
           category.save_custom_fields
         end
