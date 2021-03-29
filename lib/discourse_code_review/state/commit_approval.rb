@@ -94,32 +94,36 @@ module DiscourseCodeReview::State::CommitApproval
     private
 
     def ensure_approved_post(topic, approver)
-      post =
-        Post.where(
-          topic_id: topic.id,
-          user_id: approver.id,
-          action_code: "approved"
-        ).first
+      DistributedMutex.synchronize("code-review:ensure-approved-post:#{topic.id}") do
+        ActiveRecord::Base.transaction(requires_new: true) do
+          post =
+            Post.where(
+              topic_id: topic.id,
+              user_id: approver.id,
+              action_code: "approved"
+            ).first
 
-      unless post
-        old_highest_post_number = topic.highest_post_number
-        post =
-          topic.add_moderator_post(
-            approver,
-            nil,
-            bump: false,
-            post_type: Post.types[:small_action],
-            action_code: "approved"
-          )
+          unless post
+            old_highest_post_number = topic.highest_post_number
+            post =
+              topic.add_moderator_post(
+                approver,
+                nil,
+                bump: false,
+                post_type: Post.types[:small_action],
+                action_code: "approved"
+              )
 
-        PostTiming.pretend_read(
-          topic.id,
-          old_highest_post_number,
-          post.post_number
-        )
+            PostTiming.pretend_read(
+              topic.id,
+              old_highest_post_number,
+              post.post_number
+            )
+          end
+
+          post
+        end
       end
-
-      post
     end
 
     def transition_to_approved(topic)
