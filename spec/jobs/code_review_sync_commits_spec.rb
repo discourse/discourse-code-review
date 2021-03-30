@@ -37,7 +37,7 @@ describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
 
     it "creates a commit topic and a category topic" do
       expect {
-        described_class.new.execute(repo_name: '10xninjarockstar/ultimatetodolist')
+        described_class.new.execute(repo_name: '10xninjarockstar/ultimatetodolist', repo_id: 24)
       }.to change { Topic.count }.by(2)
 
       topics = Topic.order('id desc').limit(2)

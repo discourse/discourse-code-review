@@ -53,7 +53,7 @@ module DiscourseCodeReview
       end
 
       it "does not explode" do
-        repo = GithubRepo.new('fake_repo/fake_repo', nil, nil)
+        repo = GithubRepo.new('fake_repo/fake_repo', nil, nil, repo_id: 24)
         repo.stubs(:default_branch).returns("origin/master")
         repo.path = checkout_path
         repo.last_commit = nil
@@ -76,7 +76,7 @@ module DiscourseCodeReview
       end
 
       it "truncates the diff" do
-        repo = GithubRepo.new('fake_repo/fake_repo', nil, nil)
+        repo = GithubRepo.new('fake_repo/fake_repo', nil, nil, repo_id: 24)
         repo.stubs(:default_branch).returns("origin/master")
         repo.path = checkout_path
         repo.last_commit = nil
@@ -108,7 +108,7 @@ module DiscourseCodeReview
         sha = `git rev-parse HEAD`.strip
       end
 
-      repo = GithubRepo.new('fake_repo/fake_repo', nil, nil)
+      repo = GithubRepo.new('fake_repo/fake_repo', nil, nil, repo_id: 24)
       repo.stubs(:default_branch).returns("origin/master")
       repo.path = checkout_path
 
@@ -130,7 +130,7 @@ module DiscourseCodeReview
         sha = `git rev-parse HEAD`.strip
       end
 
-      repo = GithubRepo.new('fake_repo/fake_repo', nil, nil)
+      repo = GithubRepo.new('fake_repo/fake_repo', nil, nil, repo_id: 24)
       repo.stubs(:default_branch).returns("origin/master")
       repo.path = checkout_path
 

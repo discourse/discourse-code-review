@@ -9,7 +9,7 @@ module DiscourseCodeReview
     end
 
     let(:parent_category) { Fabricate(:category) }
-    let(:repo) { GithubRepo.new("discourse/discourse", Octokit::Client.new, nil) }
+    let(:repo) { GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24) }
 
     it "creates categories with a description" do
       category = Category.find_by(id: Importer.new(repo).category_id)
@@ -41,7 +41,7 @@ module DiscourseCodeReview
       # lets muck stuff up first ... and create a dupe category
       Category.create!(name: 'discourse', user: Discourse.system_user)
 
-      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
       id = Importer.new(repo).category_id
 
       expect(id).to be > 0
@@ -49,7 +49,7 @@ module DiscourseCodeReview
     end
 
     it "can cleanly associate old commits" do
-      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
 
       diff = "```\nwith a diff"
 
@@ -84,7 +84,7 @@ module DiscourseCodeReview
 
     it "can handle complex imports" do
 
-      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
 
       diff = "```\nwith a diff"
 
@@ -113,7 +113,7 @@ module DiscourseCodeReview
     end
 
     it "approves followed-up topics" do
-      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
       repo.expects(:default_branch_contains?).with('a91843f0dc7b97e700dc85505404eafd62b7f8c5').returns(true)
       repo.expects(:followees).with('a91843f0dc7b97e700dc85505404eafd62b7f8c5').returns([])
       repo.expects(:default_branch_contains?).with('ca1208a63669d4d4ad7452367008d40fa090f645').returns(true)
@@ -143,7 +143,7 @@ module DiscourseCodeReview
     end
 
     it "approves followed-up topics with partial hashes" do
-      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
       repo.expects(:default_branch_contains?).with('5ff6c10320cab7ef82ecda40c57cfb9e539b7e72').returns(true)
       repo.expects(:followees).with('5ff6c10320cab7ef82ecda40c57cfb9e539b7e72').returns([])
       repo.expects(:default_branch_contains?).with('dbfb2a1e11b6a4f33d35b26885193774e7ab9362').returns(true)
@@ -173,7 +173,7 @@ module DiscourseCodeReview
     end
 
     it "does not extract followees from revert commits" do
-      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil)
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
       repo.expects(:default_branch_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
       repo.expects(:followees).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns([])
       repo.expects(:default_branch_contains?).with('d2a7f29595786376a3010cb7e320d66f5b8d60ef').returns(true)
