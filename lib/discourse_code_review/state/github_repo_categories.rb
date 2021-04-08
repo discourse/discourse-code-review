@@ -47,6 +47,16 @@ module DiscourseCodeReview::State::GithubRepoCategories
               category.parent_category_id = SiteSetting.code_review_default_parent_category.to_i
             end
 
+            if SiteSetting.code_review_create_admin_only_categories
+              category.read_restricted = true
+              category.category_groups = [
+                CategoryGroup.new(
+                  group_id: Group::AUTO_GROUPS[:admins],
+                  permission_type: CategoryGroup.permission_types[:full],
+                )
+              ]
+            end
+
             category.save!
 
             if SiteSetting.code_review_default_mute_new_categories

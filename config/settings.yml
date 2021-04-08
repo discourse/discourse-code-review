@@ -19,6 +19,8 @@ plugins:
   code_review_unmerged_tag: "unmerged"
   code_review_commit_tag: "commit"
   code_review_pull_request_tag: "pull-request"
+  code_review_create_admin_only_categories:
+    default: false
   code_review_github_webhook_secret: 
     default: ""
     secret: true

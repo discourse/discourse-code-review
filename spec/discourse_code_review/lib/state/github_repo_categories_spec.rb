@@ -53,7 +53,7 @@ describe DiscourseCodeReview::State::GithubRepoCategories do
     }.to_not change { Category.count }
   end
 
-  context "code_review_default_mute_new_categories enabled" do
+  context "when code_review_default_mute_new_categories is enabled" do
     before do
       SiteSetting.code_review_default_mute_new_categories = true
     end
@@ -74,6 +74,25 @@ describe DiscourseCodeReview::State::GithubRepoCategories do
 
       c2 = described_class.ensure_category(repo_name: "repo-name2", repo_id: 25)
       expect(SiteSetting.default_categories_muted.split("|").map(&:to_i)).to contain_exactly(c2.id)
+    end
+  end
+
+  context "when code_review_create_admin_only_categories is enabled" do
+    before do
+      SiteSetting.code_review_create_admin_only_categories = true
+    end
+
+    it "sets read_restricted on new categories" do
+      c = described_class.ensure_category(repo_name: "repo-name", repo_id: 24)
+      expect(c.read_restricted).to eq(true)
+    end
+
+    it "adds a category group for admins" do
+      c = described_class.ensure_category(repo_name: "repo-name", repo_id: 24)
+      category_groups = CategoryGroup.where(category_id: c.id).to_a
+      expect(category_groups.size).to eq(1)
+      expect(category_groups.first.group_id).to eq(Group::AUTO_GROUPS[:admins])
+      expect(category_groups.first.permission_type).to eq(CategoryGroup.permission_types[:full])
     end
   end
 end

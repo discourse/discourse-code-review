@@ -12,6 +12,7 @@ en:
     code_review_unmerged_tag: "Tag to apply to unmerged commits"
     code_review_commit_tag: "Tag to apply to commit topics"
     code_review_pull_request_tag: "Tag to apply to pull request topics"
+    code_review_create_admin_only_categories: "Cause new code review categories to be viewable only by admins"
     code_review_github_webhook_secret: "web hook secret string to use use for https://sitename/code-review/webhook"
     code_review_allow_self_approval: "Allow self approval of commits"
     code_review_skip_duration_minutes: "Skip button will skip commit for this many minutes"
