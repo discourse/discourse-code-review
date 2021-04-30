@@ -94,10 +94,16 @@ module DiscourseCodeReview::State::CommitTopics
 
             tags << SiteSetting.code_review_commit_tag
 
+            truncated_title =
+              if Topic.fancy_title(title).length > Topic.max_fancy_title_length
+                Topic.fancy_title(title).truncate(Topic.max_fancy_title_length)
+              else
+                title
+
             post = PostCreator.create!(
               user,
               raw: raw,
-              title: title,
+              title: truncated_title,
               created_at: commit[:date],
               category: category_id,
               tags: tags,
