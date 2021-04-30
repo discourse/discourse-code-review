@@ -99,6 +99,7 @@ module DiscourseCodeReview::State::CommitTopics
                 Topic.fancy_title(title).truncate(Topic.max_fancy_title_length)
               else
                 title
+              end
 
             post = PostCreator.create!(
               user,
