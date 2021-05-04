@@ -94,10 +94,22 @@ module DiscourseCodeReview::State::CommitTopics
 
             tags << SiteSetting.code_review_commit_tag
 
+            truncated_title = title
+            iterations = 0
+            while Topic.fancy_title(truncated_title).length > Topic.max_fancy_title_length
+              if iterations >= 3
+                truncated_title = "Automatic title for commit #{commit[:hash][0...8]}"
+                break
+              end
+              iterations += 1
+              truncation = [10, Topic.max_fancy_title_length - iterations * 50].max
+              truncated_title = truncated_title.truncate(truncation)
+            end
+
             post = PostCreator.create!(
               user,
               raw: raw,
-              title: Topic.fancy_title(title).truncate(Topic.max_fancy_title_length),
+              title: truncated_title,
               created_at: commit[:date],
               category: category_id,
               tags: tags,
