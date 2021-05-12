@@ -25,6 +25,8 @@ register_svg_icon 'history'
 require_dependency 'auth/github_authenticator'
 require_dependency 'lib/staff_constraint'
 
+load File.expand_path('../lib/discourse_code_review/engine.rb', __FILE__)
+
 module HackGithubAuthenticator
   def after_authenticate(auth_token, existing_account: nil)
     result = super(auth_token, existing_account: existing_account)
