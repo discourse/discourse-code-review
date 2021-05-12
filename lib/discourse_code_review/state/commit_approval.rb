@@ -7,7 +7,7 @@ module DiscourseCodeReview::State::CommitApproval
   class << self
     def skip(topic, user)
       if SiteSetting.code_review_skip_duration_minutes > 0
-        DiscourseCodeReview::SkippedCodeReview.upsert({
+        SkippedCodeReview.upsert({
             topic_id: topic.id,
             user_id: user.id,
             expires_at: SiteSetting.code_review_skip_duration_minutes.minutes.from_now,
