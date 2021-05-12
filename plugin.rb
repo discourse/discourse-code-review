@@ -350,6 +350,7 @@ Rake::Task.define_task code_review_full_sha_backfill: :environment do
   incr = 0
 
   puts "Found #{total} posts with a commit sha from the discourse-code-review plugin."
+  sha_regex = Regexp.new(/sha: (\w{6,10})/)
 
   posts_with_commit.find_each do |post_with_commit|
     puts "Replacing sha in post #{post_with_commit.id}..."
@@ -364,14 +365,8 @@ Rake::Task.define_task code_review_full_sha_backfill: :environment do
     end
 
     full_git_sha = post_with_commit.topic.custom_fields[DiscourseCodeReview::COMMIT_HASH]
-    doc = Nokogiri::HTML5::fragment(post_with_commit.raw)
-    doc.search("small").each do |small_element|
-      if small_element.content.include?("sha: ")
-        small_element.content = "sha: #{full_git_sha}"
-      end
-    end
+    new_raw = post_with_commit.raw.gsub(sha_regex, "sha: #{full_git_sha}")
 
-    new_raw = doc.to_s
     if new_raw == post_with_commit.raw
       puts "Nothing to change for post #{post_with_commit.id}, continuing. (new raw same as old raw)"
       incr += 1
