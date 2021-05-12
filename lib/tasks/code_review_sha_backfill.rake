@@ -20,6 +20,8 @@ task 'discourse_code_review:full_sha_backfill' => :environment do
   puts "Found #{total} posts with a commit sha from the discourse-code-review plugin."
 
   posts_with_commit.find_each do |post_with_commit|
+    puts "Replacing sha in post #{post_with_commit.id}..."
+
     if post_with_commit.post_revisions.find { |rev|
       rev.modifications["edit_reason"].include?("discourse code review full sha backfill")
     }
