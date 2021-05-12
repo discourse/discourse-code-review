@@ -35,12 +35,17 @@ describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
       )
     end
 
-    it "creates a commit topic and a category topic" do
+    it "creates a commit topic and a category topic, with a full sha in the first post" do
       expect {
         described_class.new.execute(repo_name: '10xninjarockstar/ultimatetodolist', repo_id: 24)
       }.to change { Topic.count }.by(2)
 
       topics = Topic.order('id desc').limit(2)
+
+      commit_post = topics.first.first_post
+
+      hash = topics.first.custom_fields[DiscourseCodeReview::COMMIT_HASH]
+      expect(commit_post.raw).to include("sha: #{hash}")
     end
   end
 end

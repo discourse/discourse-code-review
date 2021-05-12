@@ -74,9 +74,9 @@ module DiscourseCodeReview::State::CommitTopics
           body, linked_topics = auto_link_commits(commit[:body])
           linked_topics.merge! find_linked_commits(title)
 
-          short_hash = "<small>sha: #{commit[:hash][0...8]}</small>"
+          hash_html = "<small>sha: #{commit[:hash]}</small>"
 
-          raw = "[excerpt]\n#{body}\n[/excerpt]\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link} #{short_hash}"
+          raw = "[excerpt]\n#{body}\n[/excerpt]\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link} #{hash_html}"
 
           topic = find_topic_by_commit_hash(commit[:hash])
 
