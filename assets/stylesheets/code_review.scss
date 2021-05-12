@@ -12,7 +12,7 @@ tbody {
         align-items: baseline;
 
         .committer {
-          color: var(--primary-high, $primary-high);
+          color: var(--primary-high);
           font-size: $font-down-1;
           font-weight: bold;
           margin-right: 12px;
@@ -24,11 +24,11 @@ tbody {
         }
 
         .approved {
-          color: var(--success, $success);
+          color: var(--success);
         }
 
         .followup {
-          color: var(--danger, $danger);
+          color: var(--danger);
         }
 
         .pending {
