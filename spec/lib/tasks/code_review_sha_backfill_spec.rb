@@ -4,7 +4,9 @@ require 'rails_helper'
 
 describe "tasks/code_review_sha_backfill" do
   before do
+    Rake::Task.clear
     Discourse::Application.load_tasks
+    DiscourseCodeReview::RakeTasks.define_tasks
   end
 
   def raw
