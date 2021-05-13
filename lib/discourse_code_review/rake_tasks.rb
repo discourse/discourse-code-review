@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DiscourseCodeReview
   class RakeTasks
     def self.define_tasks
@@ -9,7 +11,7 @@ module DiscourseCodeReview
       Rake::Task.define_task code_review_tag_commits: :environment do
         topics =
           Topic
-          .where(
+            .where(
             id:
             TopicCustomField
           .select(:topic_id)
