@@ -42,19 +42,15 @@ some code
       post.reload
 
       expect(post.raw.chomp).to eq(original_raw.gsub("sha: c187ede3", "sha: c187ede3c67f23478bc2d3c20187bd98ac025b9e").chomp)
-      revision = PostRevision.last
-      expect(revision.modifications["edit_reason"]).to eq([nil, "discourse code review full sha backfill"])
     end
 
-    it "is idempotent based on revision reason" do
+    it "is idempotent based on raw not changing and the query not getting longer shas" do
       Rake::Task['code_review_full_sha_backfill'].invoke
-      revision = PostRevision.last
-      expect(revision.modifications["edit_reason"]).to eq([nil, "discourse code review full sha backfill"])
-
+      post_baked_at = post.reload.baked_at
       Rake::Task['code_review_full_sha_backfill'].reenable
-      Rake::Task['code_review_full_sha_backfill'].invoke
 
-      expect(PostRevision.count).to eq(1)
+      Rake::Task['code_review_full_sha_backfill'].invoke
+      expect(post.reload.baked_at).to eq_time(post_baked_at)
     end
   end
 end

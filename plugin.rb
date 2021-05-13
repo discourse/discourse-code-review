@@ -337,14 +337,13 @@ Rake::Task.define_task code_review_full_sha_backfill: :environment do
   posts_with_commit = Post
     .joins("INNER JOIN topics ON topics.id = posts.topic_id")
     .joins("INNER JOIN topic_custom_fields ON topics.id = topic_custom_fields.topic_id")
-    .joins("LEFT JOIN post_revisions ON post_revisions.post_id = posts.id")
     .includes(topic: :_custom_fields)
-    .includes(:post_revisions)
     .where("topic_custom_fields.name = '#{DiscourseCodeReview::COMMIT_HASH}' AND
             topics.deleted_at IS NULL AND
             posts.deleted_at IS NULL AND
             posts.post_number = 1 AND
-            posts.raw LIKE '%sha: %'")
+            posts.raw ~ 'sha: [0-9a-f]{6,10}' AND
+            posts.raw !~ 'sha: [0-9a-f]{11,60}'")
 
   total = posts_with_commit.count
   incr = 0
@@ -354,17 +353,8 @@ Rake::Task.define_task code_review_full_sha_backfill: :environment do
   posts_with_commit.find_each do |post_with_commit|
     puts "Replacing sha in post #{post_with_commit.id}..."
 
-    if post_with_commit.post_revisions.find { |rev|
-      rev.modifications["edit_reason"].include?("discourse code review full sha backfill")
-    }
-      puts "Nothing to change for post #{post_with_commit.id}, continuing. (already revised with full sha)"
-      incr += 1
-      puts "Completed #{incr}/#{total}."
-      next
-    end
-
     full_git_sha = post_with_commit.topic.custom_fields[DiscourseCodeReview::COMMIT_HASH]
-    new_raw = post_with_commit.raw.gsub(/sha: (\w{6,10})/, "sha: #{full_git_sha}")
+    new_raw = post_with_commit.raw.gsub(/sha: [0-9a-f]{6,10}\b/, "sha: #{full_git_sha}")
 
     if new_raw == post_with_commit.raw
       puts "Nothing to change for post #{post_with_commit.id}, continuing. (new raw same as old raw)"
@@ -373,15 +363,8 @@ Rake::Task.define_task code_review_full_sha_backfill: :environment do
       next
     end
 
-    PostRevisor.new(post_with_commit).revise!(
-      Discourse.system_user,
-      {
-        raw: new_raw,
-        edit_reason: "discourse code review full sha backfill"
-      },
-      skip_validations: true,
-      bypass_bump: true
-    )
+    post_with_commit.update(raw: new_raw)
+    post_with_commit.rebake!
 
     incr += 1
     puts "Completed #{incr}/#{total}."
