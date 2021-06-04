@@ -39,11 +39,11 @@ module DiscourseCodeReview
           `git add a`
           `git commit -am 'first commit'`
 
-          `git checkout -b test`
+          `git checkout -q -b test`
           File.write('b', 'test')
           `git add b`
           `git commit -am testing`
-          `git checkout master`
+          `git checkout -q master`
 
           File.write('a', "hello world\n")
           `git commit -am 'second commit'`
