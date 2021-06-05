@@ -22,7 +22,8 @@ module DiscourseCodeReview
         with_tmpdir do |origin_path|
           @origin_path = origin_path
 
-          `git init -b main #{origin_path}`
+          `git init #{origin_path}`
+          `git branch -m main`
           DiscourseCodeReview::Source::GitRepo.new(origin_path, checkout_path)
 
           Dir.chdir(checkout_path) do
