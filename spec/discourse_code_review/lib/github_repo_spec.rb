@@ -23,7 +23,7 @@ module DiscourseCodeReview
           @origin_path = origin_path
 
           `git init #{origin_path}`
-          `git branch -m main`
+          system("git checkout -q -b main", chdir: origin_path)
           DiscourseCodeReview::Source::GitRepo.new(origin_path, checkout_path)
 
           Dir.chdir(checkout_path) do
