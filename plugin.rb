@@ -9,12 +9,12 @@
 # match version in discourse dev
 gem 'addressable', '2.7.0'
 gem 'sawyer', '0.8.2'
-gem 'octokit', '4.16.0'
+gem 'octokit', '4.21.0'
 gem 'pqueue', '2.1.0'
-gem 'rugged', '0.28.4.1'
+gem 'rugged', '1.1.0'
 
 if Rails.env.test?
-  gem 'graphql', '1.11.6'
+  gem 'graphql', '1.12.12'
 end
 
 enabled_site_setting :code_review_enabled

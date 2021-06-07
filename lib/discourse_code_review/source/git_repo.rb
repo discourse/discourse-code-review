@@ -113,8 +113,8 @@ module DiscourseCodeReview::Source
     private
 
     def rugged_commits_since(from, to)
-      from = @repo.rev_parse(from) if from
-      to = @repo.rev_parse(to)
+      from = @repo.rev_parse(from).oid if from
+      to = @repo.rev_parse(to).oid
 
       walker = Rugged::Walker.new(@repo)
       walker.push(to)

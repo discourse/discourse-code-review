@@ -23,6 +23,7 @@ module DiscourseCodeReview
           @origin_path = origin_path
 
           `git init #{origin_path}`
+          system("git checkout -q -b main", chdir: origin_path)
           DiscourseCodeReview::Source::GitRepo.new(origin_path, checkout_path)
 
           Dir.chdir(checkout_path) do
@@ -39,11 +40,11 @@ module DiscourseCodeReview
           `git add a`
           `git commit -am 'first commit'`
 
-          `git checkout -b test`
+          `git checkout -q -b test`
           File.write('b', 'test')
           `git add b`
           `git commit -am testing`
-          `git checkout master`
+          `git checkout -q main`
 
           File.write('a', "hello world\n")
           `git commit -am 'second commit'`
@@ -54,11 +55,11 @@ module DiscourseCodeReview
 
       it "does not explode" do
         repo = GithubRepo.new('fake_repo/fake_repo', nil, nil, repo_id: 24)
-        repo.stubs(:default_branch).returns("origin/master")
+        repo.stubs(:default_branch).returns("origin/main")
         repo.path = checkout_path
         repo.last_commit = nil
 
-        commits = repo.commits_since("origin/master~2", merge_github_info: false)
+        commits = repo.commits_since("origin/main~2", merge_github_info: false)
 
         expect(commits.last[:diff]).to eq("MERGE COMMIT")
       end
@@ -77,7 +78,7 @@ module DiscourseCodeReview
 
       it "truncates the diff" do
         repo = GithubRepo.new('fake_repo/fake_repo', nil, nil, repo_id: 24)
-        repo.stubs(:default_branch).returns("origin/master")
+        repo.stubs(:default_branch).returns("origin/main")
         repo.path = checkout_path
         repo.last_commit = nil
 
@@ -109,7 +110,7 @@ module DiscourseCodeReview
       end
 
       repo = GithubRepo.new('fake_repo/fake_repo', nil, nil, repo_id: 24)
-      repo.stubs(:default_branch).returns("origin/master")
+      repo.stubs(:default_branch).returns("origin/main")
       repo.path = checkout_path
 
       SiteSetting.code_review_catch_up_commits = 1
@@ -131,7 +132,7 @@ module DiscourseCodeReview
       end
 
       repo = GithubRepo.new('fake_repo/fake_repo', nil, nil, repo_id: 24)
-      repo.stubs(:default_branch).returns("origin/master")
+      repo.stubs(:default_branch).returns("origin/main")
       repo.path = checkout_path
 
       # mimic force push event

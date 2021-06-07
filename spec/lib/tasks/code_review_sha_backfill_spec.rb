@@ -40,18 +40,24 @@ some code
 
     it "updates the post raw with the post revisor to have the full sha" do
       original_raw = post.raw
-      Rake::Task['code_review_full_sha_backfill'].invoke
+      capture_stdout do
+        Rake::Task['code_review_full_sha_backfill'].invoke
+      end
       post.reload
 
       expect(post.raw.chomp).to eq(original_raw.gsub("sha: c187ede3", "sha: c187ede3c67f23478bc2d3c20187bd98ac025b9e").chomp)
     end
 
     it "is idempotent based on raw not changing and the query not getting longer shas" do
-      Rake::Task['code_review_full_sha_backfill'].invoke
+      capture_stdout do
+        Rake::Task['code_review_full_sha_backfill'].invoke
+      end
       post_baked_at = post.reload.baked_at
       Rake::Task['code_review_full_sha_backfill'].reenable
 
-      Rake::Task['code_review_full_sha_backfill'].invoke
+      capture_stdout do
+        Rake::Task['code_review_full_sha_backfill'].invoke
+      end
       expect(post.reload.baked_at).to eq_time(post_baked_at)
     end
   end
