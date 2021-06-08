@@ -1,4 +1,4 @@
-import { acceptance } from "discourse/tests/helpers/qunit-helpers";
+import { acceptance, queryAll } from "discourse/tests/helpers/qunit-helpers";
 
 const restPrefix = "/admin/plugins/code-review";
 
@@ -107,3 +107,61 @@ acceptance("Github Webhook Configuration", function (needs) {
     assert.equal(find(".code-review-webhook-configured").length, 3);
   });
 });
+
+acceptance("GitHub Webhook Configuration - Repo List Error", function (needs) {
+  needs.user();
+
+  needs.pretender((server, helper) => {
+    server.get(`${restPrefix}/organizations.json`, () => {
+      return helper.response(["org1"]);
+    });
+
+    server.get(`${restPrefix}/organizations/org1/repos.json`, () => {
+      return helper.response(401, {
+        error: "credential error",
+        failed: "FAILED",
+      });
+    });
+  });
+
+  test("Should show an error message", async (assert) => {
+    await visit("/admin/plugins/code-review");
+    assert.equal(queryAll(".modal-body").text(), "credential error");
+    await click(".modal-footer .btn-primary");
+    assert.ok(exists(".code-review-configure-webhooks-button:disabled"));
+  });
+});
+
+acceptance(
+  "GitHub Webhook Configuration - Webhook Config Get Error",
+  function (needs) {
+    needs.user();
+
+    needs.pretender((server, helper) => {
+      server.get(`${restPrefix}/organizations.json`, () => {
+        return helper.response(["org1"]);
+      });
+
+      server.get(`${restPrefix}/organizations/org1/repos.json`, () => {
+        return helper.response(["repo1"]);
+      });
+
+      server.get(
+        `${restPrefix}/organizations/org1/repos/repo1/has-configured-webhook.json`,
+        () => {
+          return helper.response(400, {
+            error: "permissions error",
+            failed: "FAILED",
+          });
+        }
+      );
+    });
+
+    test("Should show an error message", async (assert) => {
+      await visit("/admin/plugins/code-review");
+      assert.equal(queryAll(".modal-body").text(), "permissions error");
+      await click(".modal-footer .btn-primary");
+      assert.ok(exists(".code-review-configure-webhooks-button:disabled"));
+    });
+  }
+);

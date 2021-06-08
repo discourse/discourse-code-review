@@ -1,11 +1,22 @@
 <h1>{{i18n "code_review.github_webhooks"}}</h1>
 
-{{d-button
-  action=(action "configureWebhooks")
-  label="code_review.configure_webhooks"
-  class="code-review-configure-webhooks-button"
-}}
+{{#if this.organizations}}
+  <div class="alert alert-warning">
+    {{html-safe (i18n "code_review.configure_webhooks_warning") }}
+  </div>
 
+  {{d-button
+    action=(action "configureWebhooks")
+    label="code_review.configure_webhooks"
+    class="code-review-configure-webhooks-button"
+    disabled=loadError
+    title=configureWebhooksTitle
+  }}
+{{else}}
+  {{html-safe (i18n "code_review.no_organizations_configured") }}
+{{/if}}
+
+{{#conditional-loading-spinner condition=loading}}
 <div class="code-review-webhook-tree">
   {{#each this.organizations as |organization|}}
     <div class="code-review-webhook-org">
@@ -35,3 +46,4 @@
     </div>
   {{/each}}
 </div>
+{{/conditional-loading-spinner}}
