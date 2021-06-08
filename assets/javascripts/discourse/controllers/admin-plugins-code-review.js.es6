@@ -1,5 +1,5 @@
 import { ajax } from "discourse/lib/ajax";
-import I18n from "I18n";
+import { Promise } from "rsvp";
 import discourseComputed from "discourse-common/utils/decorators";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 
@@ -26,7 +26,7 @@ export default Ember.Controller.extend({
 
       Promise.all(promises)
         .then(() => this.set("loading", false))
-        .catch((err) => {
+        .catch(() => {
           this.set("organizationReposLoadFailed", true);
         });
     });
