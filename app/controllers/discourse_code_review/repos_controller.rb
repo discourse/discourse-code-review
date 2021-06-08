@@ -6,11 +6,12 @@ module DiscourseCodeReview
     before_action :set_repo, only: [:has_configured_webhook, :configure_webhook]
 
     def index
-      render_json_dump(
-        client
-          .organization_repositories(organization)
-          .map(&:name)
-      )
+      repository_names = client.organization_repositories(organization).map(&:name)
+      render_json_dump(repository_names)
+    rescue Octokit::Unauthorized
+      render json: failed_json.merge(
+        error: I18n.t("discourse_code_review.bad_github_credentials_error")
+      ), status: 401
     end
 
     def has_configured_webhook
@@ -20,10 +21,13 @@ module DiscourseCodeReview
       has_configured_webhook &&= hook[:events].to_set == webhook_events.to_set
       has_configured_webhook &&= hook[:config][:url] == webhook_config[:url]
       has_configured_webhook &&= hook[:config][:content_type] == webhook_config[:content_type]
-
       render_json_dump(
         has_configured_webhook: has_configured_webhook
       )
+    rescue Octokit::NotFound
+      render json: failed_json.merge(
+        error: I18n.t("discourse_code_review.bad_github_permissions_error")
+      ), status: 400
     end
 
     def configure_webhook

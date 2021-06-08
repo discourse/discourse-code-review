@@ -63,7 +63,47 @@ describe DiscourseCodeReview::ReposController do
       expect(response.status).to eq(200)
     end
 
+    context "#index" do
+      context "when the API returns Octokit::Unauthorized" do
+        let!(:client) do
+          client = mock
+          client.stubs(:organization_repositories).with('org').raises(Octokit::Unauthorized)
+          client
+        end
+
+        before do
+          set_client(client)
+        end
+
+        it "returns a friendly error to the client" do
+          get '/admin/plugins/code-review/organizations/org/repos.json'
+          expect(JSON.parse(response.body)).to eq(
+            'error' => I18n.t("discourse_code_review.bad_github_credentials_error"), 'failed' => "FAILED"
+          )
+        end
+      end
+    end
+
     context "#has_configured_webhook" do
+      context "when the API returns Octokit::NotFound" do
+        let!(:client) do
+          client = mock
+          client.stubs(:hooks).with('org/repo').raises(Octokit::NotFound)
+          client
+        end
+
+        before do
+          set_client(client)
+        end
+
+        it "returns a friendly error to the client" do
+          get '/admin/plugins/code-review/organizations/org/repos/repo/has-configured-webhook.json'
+          expect(JSON.parse(response.body)).to eq(
+            'error' => I18n.t("discourse_code_review.bad_github_permissions_error"), 'failed' => "FAILED"
+          )
+        end
+      end
+
       context "when a webhook is configured" do
         let!(:client) do
           client = mock
