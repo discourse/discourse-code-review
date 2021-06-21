@@ -4,19 +4,21 @@ import { popupAjaxError } from "discourse/lib/ajax-error";
 import DiscourseURL from "discourse/lib/url";
 import { findAll } from "discourse/models/login-method";
 
-function actOnCommit(topic, action) {
-  return ajax(`/code-review/${action}.json`, {
-    type: "POST",
-    data: { topic_id: topic.id },
-  })
-    .then((result) => {
-      if (result.next_topic_url) {
-        DiscourseURL.routeTo(result.next_topic_url);
-      } else {
-        DiscourseURL.routeTo("/");
-      }
-    })
-    .catch(popupAjaxError);
+async function actOnCommit(topic, action) {
+  try {
+    let result = ajax(`/code-review/${action}.json`, {
+      type: "POST",
+      data: { topic_id: topic.id },
+    });
+
+    if (result.next_topic_url) {
+      DiscourseURL.routeTo(result.next_topic_url);
+    } else {
+      DiscourseURL.routeTo("/");
+    }
+  } catch (error) {
+    popupAjaxError(error);
+  }
 }
 
 function initialize(api) {
