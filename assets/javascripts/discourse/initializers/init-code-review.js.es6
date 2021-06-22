@@ -7,7 +7,7 @@ import { computed } from "@ember/object";
 
 async function actOnCommit(topic, action) {
   try {
-    let result = ajax(`/code-review/${action}.json`, {
+    let result = await ajax(`/code-review/${action}.json`, {
       type: "POST",
       data: { topic_id: topic.id },
     });
