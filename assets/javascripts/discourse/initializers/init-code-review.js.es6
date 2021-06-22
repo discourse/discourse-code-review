@@ -3,6 +3,7 @@ import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import DiscourseURL from "discourse/lib/url";
 import { findAll } from "discourse/models/login-method";
+import { computed } from "@ember/object";
 
 async function actOnCommit(topic, action) {
   try {
@@ -33,7 +34,7 @@ function initialize(api) {
   // note there are slightly cleaner ways of doing this but we would need
   // to amend core for the plugin which is not feeling right
   api.modifyClass("controller:preferences/account", {
-    canUpdateAssociatedAccounts: Ember.computed("authProviders", function () {
+    canUpdateAssociatedAccounts: computed("authProviders", function () {
       return (
         findAll(this.siteSettings, this.capabilities, this.site.isMobileDevice)
           .length > 0

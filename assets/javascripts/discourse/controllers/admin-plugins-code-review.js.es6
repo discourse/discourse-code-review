@@ -2,22 +2,25 @@ import { ajax } from "discourse/lib/ajax";
 import { Promise } from "rsvp";
 import discourseComputed from "discourse-common/utils/decorators";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import Controller from "@ember/controller";
+import EmberObject from "@ember/object";
+import { A } from "@ember/array";
 
 const prefix = "/admin/plugins/code-review";
 
-export default Ember.Controller.extend({
+export default Controller.extend({
   organizations: null,
   loading: true,
 
   async loadOrganizations() {
     try {
       let orgNames = await ajax(`${prefix}/organizations.json`);
-      this.set("organizations", Ember.A([]));
+      this.set("organizations", A([]));
 
       for (const orgName of orgNames) {
-        let organization = Ember.Object.create({
+        let organization = EmberObject.create({
           name: orgName,
-          repos: Ember.A([]),
+          repos: A([]),
         });
         this.organizations.pushObject(organization);
       }
@@ -39,7 +42,7 @@ export default Ember.Controller.extend({
       );
 
       for (const repoName of repoNames) {
-        let repo = Ember.Object.create({
+        let repo = EmberObject.create({
           name: repoName,
           hasConfiguredWebhook: null,
           receivedWebhookState: false,
