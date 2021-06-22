@@ -2,91 +2,82 @@ import { ajax } from "discourse/lib/ajax";
 import { Promise } from "rsvp";
 import discourseComputed from "discourse-common/utils/decorators";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import Controller from "@ember/controller";
+import EmberObject from "@ember/object";
+import { A } from "@ember/array";
 
 const prefix = "/admin/plugins/code-review";
 
-export default Ember.Controller.extend({
-  init() {
-    this._super(...arguments);
+export default Controller.extend({
+  organizations: null,
+  loading: true,
 
-    const organizations = Ember.A([]);
-    this.set("organizations", organizations);
-    this.set("loading", true);
+  async loadOrganizations() {
+    try {
+      let orgNames = await ajax(`${prefix}/organizations.json`);
+      this.set("organizations", A([]));
 
-    ajax(`${prefix}/organizations.json`).then((orgNames) => {
-      let promises = [];
       for (const orgName of orgNames) {
-        let organization = Ember.Object.create({
+        let organization = EmberObject.create({
           name: orgName,
-          repos: Ember.A([]),
+          repos: A([]),
         });
-        organizations.pushObject(organization);
-        promises.push(this.loadOrganizationRepos(organization));
+        this.organizations.pushObject(organization);
       }
 
-      Promise.all(promises)
-        .then(() => this.set("loading", false))
-        .catch(() => {
-          this.set("organizationReposLoadFailed", true);
+      await Promise.all(
+        this.organizations.map(this.loadOrganizationRepos.bind(this))
+      );
+    } catch (error) {
+      this.set("organizationReposLoadFailed", true);
+    } finally {
+      this.set("loading", false);
+    }
+  },
+
+  async loadOrganizationRepos(organization) {
+    try {
+      let repoNames = await ajax(
+        `${prefix}/organizations/${organization.name}/repos.json`
+      );
+
+      for (const repoName of repoNames) {
+        let repo = EmberObject.create({
+          name: repoName,
+          hasConfiguredWebhook: null,
+          receivedWebhookState: false,
         });
-    });
-  },
+        organization.repos.pushObject(repo);
+      }
 
-  loadOrganizationRepos(organization) {
-    return ajax(`${prefix}/organizations/${organization.name}/repos.json`)
-      .then((repoNames) => {
-        for (const repoName of repoNames) {
-          let repo = Ember.Object.create({
-            name: repoName,
-            hasConfiguredWebhook: null,
-            receivedWebhookState: false,
-          });
-          organization.repos.pushObject(repo);
-        }
+      // No point continuing doing requests for the webhooks if there
+      // is an error with the first request, the token permissions must be fixed first
+      await this.hasConfiguredWebhook(organization.name, organization.repos[0]);
 
-        // No point continuing doing requests for the webhooks if there
-        // is an error with the first request, the token permissions must be fixed first;
-        this.hasConfiguredWebhook(organization.name, organization.repos[0])
-          .then(() => {
-            Promise.all(
-              this.loadWebhookConfiguration(
-                organization.name,
-                organization.repos
-              )
-            ).then(() => this.set("loading", false));
-          })
-          .catch((response) => {
-            this.setProperties({ loading: false, loadError: true });
-            popupAjaxError(response);
-          });
-      })
-      .catch((response) => {
-        this.setProperties({ loading: false, loadError: true });
-        popupAjaxError(response);
-      });
-  },
-
-  loadWebhookConfiguration(orgName, repos) {
-    let promises = [];
-    for (let repo of repos) {
-      promises.push(this.hasConfiguredWebhook(orgName, repo));
+      await Promise.all(
+        organization.repos.map((repo) =>
+          this.hasConfiguredWebhook(organization.name, repo)
+        )
+      );
+    } catch (response) {
+      this.set("loadError", true);
+      popupAjaxError(response);
+    } finally {
+      this.set("loading", false);
     }
-    return promises;
   },
 
-  hasConfiguredWebhook(orgName, repo) {
+  async hasConfiguredWebhook(orgName, repo) {
     if (repo.receivedWebhookState) {
-      return Promise.resolve(true);
+      return true;
     }
 
-    return ajax(
+    let response = await ajax(
       `${prefix}/organizations/${orgName}/repos/${repo.name}/has-configured-webhook.json`
-    )
-      .then((response) => {
-        repo.set("receivedWebhookState", true);
-        repo.set("hasConfiguredWebhook", response["has_configured_webhook"]);
-      })
-      .catch(popupAjaxError);
+    );
+
+    repo.set("receivedWebhookState", true);
+    repo.set("hasConfiguredWebhook", response["has_configured_webhook"]);
   },
 
   @discourseComputed("loadError")
@@ -99,34 +90,34 @@ export default Ember.Controller.extend({
   },
 
   actions: {
-    configureWebhook(organization, repo) {
+    async configureWebhook(organization, repo) {
       if (repo.hasConfiguredWebhook === false) {
-        ajax(
+        let response = await ajax(
           `${prefix}/organizations/${organization.name}/repos/${repo.name}/configure-webhook.json`,
           {
             type: "POST",
           }
-        ).then((response) => {
-          repo.set("hasConfiguredWebhook", response["has_configured_webhook"]);
-        });
+        );
+
+        repo.set("hasConfiguredWebhook", response["has_configured_webhook"]);
       }
     },
 
-    configureWebhooks() {
+    async configureWebhooks() {
       for (const organization of this.organizations) {
         for (const repo of organization.repos) {
           if (repo.hasConfiguredWebhook === false) {
-            ajax(
+            let response = await ajax(
               `${prefix}/organizations/${organization.name}/repos/${repo.name}/configure-webhook.json`,
               {
                 type: "POST",
               }
-            ).then((response) => {
-              repo.set(
-                "hasConfiguredWebhook",
-                response["has_configured_webhook"]
-              );
-            });
+            );
+
+            repo.set(
+              "hasConfiguredWebhook",
+              response["has_configured_webhook"]
+            );
           }
         }
       }
