@@ -135,7 +135,7 @@ describe DiscourseCodeReview::ReposController do
 
           it "does not 404 error" do
             get "/admin/plugins/code-review/organizations/org/repos/#{repo_name}/has-configured-webhook.json"
-            expect(response.status).not_to eq(404)
+            expect(response.status).to eq(200)
             expect(JSON.parse(response.body)).to eq('has_configured_webhook' => true)
           end
         end
