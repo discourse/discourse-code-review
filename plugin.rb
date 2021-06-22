@@ -228,7 +228,10 @@ after_initialize do
 
       scope format: true, constraints: { format: 'json' } do
         resources :organizations, only: [:index] do
-          resources :repos, only: [:index] do
+
+          # need to allow dots in the id, use the same username
+          # regex from core
+          resources :repos, only: [:index], id: /[%\w.\-]+?/ do
             member do
               get '/has-configured-webhook' => 'repos#has_configured_webhook'
               post '/configure-webhook' => 'repos#configure_webhook'

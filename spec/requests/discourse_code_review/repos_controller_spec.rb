@@ -105,9 +105,10 @@ describe DiscourseCodeReview::ReposController do
       end
 
       context "when a webhook is configured" do
+        let(:repo_name) { "repo" }
         let!(:client) do
           client = mock
-          client.stubs(:hooks).with('org/repo').returns([
+          client.stubs(:hooks).with("org/#{repo_name}").returns([
             {
               events: webhook_events,
               config: {
@@ -125,8 +126,18 @@ describe DiscourseCodeReview::ReposController do
         end
 
         it "says yes" do
-          get '/admin/plugins/code-review/organizations/org/repos/repo/has-configured-webhook.json'
+          get "/admin/plugins/code-review/organizations/org/repos/#{repo_name}/has-configured-webhook.json"
           expect(JSON.parse(response.body)).to eq('has_configured_webhook' => true)
+        end
+
+        context "when repo name has a . in it" do
+          let(:repo_name) { "Some-coolrepo.org" }
+
+          it "does not 404 error" do
+            get "/admin/plugins/code-review/organizations/org/repos/#{repo_name}/has-configured-webhook.json"
+            expect(response.status).not_to eq(404)
+            expect(JSON.parse(response.body)).to eq('has_configured_webhook' => true)
+          end
         end
       end
 
