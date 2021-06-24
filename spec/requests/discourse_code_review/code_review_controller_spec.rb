@@ -255,7 +255,6 @@ describe DiscourseCodeReview::CodeReviewController do
           commit.topic_id,
           notification_level: TopicUser.notification_levels[:tracking],
           last_read_post_number: 1,
-          highest_seen_post_number: 1,
         )
 
         post '/code-review/approve.json', params: { topic_id: commit.topic_id }
@@ -267,7 +266,6 @@ describe DiscourseCodeReview::CodeReviewController do
           ).first
 
         expect(topic_user.last_read_post_number).to eq(2)
-        expect(topic_user.highest_seen_post_number).to eq(2)
       end
     end
 
