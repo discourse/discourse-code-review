@@ -6,8 +6,6 @@
 # authors: Sam Saffron
 # url: https://github.com/discourse/discourse-code-review
 
-# match version in discourse dev
-gem 'addressable', '2.7.0'
 gem 'sawyer', '0.8.2'
 gem 'octokit', '4.21.0'
 gem 'pqueue', '2.1.0'
