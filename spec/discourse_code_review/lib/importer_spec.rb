@@ -201,5 +201,26 @@ module DiscourseCodeReview
 
       expect(followee.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
     end
+
+    it "does not parse emojis in commit message" do
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
+      repo.expects(:default_branch_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
+      repo.expects(:followees).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns([])
+
+      commit = {
+        subject: "hello world",
+        body: "this is the body\nwith an emoji :)",
+        email: "sam@sam.com",
+        github_login: "sam",
+        github_id: "111",
+        date: 1.day.ago,
+        diff: "```\nwith a diff",
+        hash: "154f503d2e99f904356b52f2fae9edcc495708fa"
+      }
+
+      topic = Topic.find(Importer.new(repo).import_commit(commit))
+      expect(topic.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
+      expect(topic.posts.pluck_first(:raw)).to include("with an emoji :)")
+    end
   end
 end
