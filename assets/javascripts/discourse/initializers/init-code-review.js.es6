@@ -5,6 +5,8 @@ import DiscourseURL from "discourse/lib/url";
 import { findAll } from "discourse/models/login-method";
 import { computed } from "@ember/object";
 
+const PLUGIN_ID = "discourse-code-review";
+
 async function actOnCommit(topic, action) {
   try {
     let result = await ajax(`/code-review/${action}.json`, {
@@ -34,6 +36,8 @@ function initialize(api) {
   // note there are slightly cleaner ways of doing this but we would need
   // to amend core for the plugin which is not feeling right
   api.modifyClass("controller:preferences/account", {
+    pluginId: PLUGIN_ID,
+
     canUpdateAssociatedAccounts: computed("authProviders", function () {
       return (
         findAll(this.siteSettings, this.capabilities, this.site.isMobileDevice)
@@ -43,6 +47,8 @@ function initialize(api) {
   });
 
   api.modifyClass("controller:preferences/notifications", {
+    pluginId: PLUGIN_ID,
+
     init() {
       this._super(...arguments);
       this.saveAttrNames.push("custom_fields");
