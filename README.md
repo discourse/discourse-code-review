@@ -1,3 +1,5 @@
-# discourse-code-review
+# Discourse Code Review Plugin
 
-Docs at: https://meta.discourse.org/t/discourse-code-review/103142
+Review GitHub commits on Discourse
+
+For more information, please see: https://meta.discourse.org/t/discourse-code-review/103142
