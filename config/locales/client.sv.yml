@@ -5,3 +5,40 @@
 # https://translate.discourse.org/
 
 sv:
+  js:
+    action_codes:
+      approved: "Godkända"
+      followup: "Uppföljning"
+      followed_up: "Uppföljda"
+      merged: "Sammanslagna"
+      renamed: "Bytt namn"
+      pr_merge_info: "Information om PR-sammanslagning"
+    notifications:
+      code_review:
+        commit_approved:
+          single: '"%{topicTitle}" har godkänts'
+          multiple: "%{numApprovedCommits} åtaganden godkändes"
+          title: "åtagande godkänt"
+    code_review:
+      title: "Kodgranskning"
+      approve:
+        title: "Godkänn åtagande"
+        label: "Godkänn"
+      followup:
+        title: "Följ upp åtagande"
+        label: "Följ upp"
+      followed_up:
+        title: "Följde upp åtagande"
+        label: "Uppföljda"
+      skip:
+        title: "Hoppa över åtagande"
+        label: "Hoppa över"
+      approval_given: "Godkännande givet"
+      approval_pending: "Väntar på godkännande"
+      github_webhooks: "Github Webhooks"
+      no_organizations_configured: "Du måste konfigurera minst en organisation med webbplatsinställningar för <code>kodgransknings-github-organisationerna</code> innan webhooks kan konfigureras."
+      webhooks_load_error: "Det uppstod ett fel vid inläsning av webhook-data och webhooks kan inte konfigureras förrän detta har lösts."
+      configure_webhooks: "Konfigurera Webhooks"
+      configure_webhook: "Konfigurera Webhook"
+      notify_on_approval: "Avisera vid godkännande av kodgranskning"
+      configure_webhooks_warning: "Genom att klicka på 'Konfigurera Webhooks' används GitHub API för att skapa webhooks för <strong>varje lagringsplats i varje organisation som du har konfigurerat</strong>. Händelseutlösarna <code>push</code>, <code>commit_comment</code>, <code>issue_comment</code>, <code>pull_request</code>, <code>pull_request_review</code> och <code>pull_request_comment</code> skapas. Observera att du också måste ha konfigurerat webbplatsinställningen <code>code review github webhook secret</code> för att detta ska fungera. Se <a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">GitHub-webhook-dokumentationen</a> för mer information."
