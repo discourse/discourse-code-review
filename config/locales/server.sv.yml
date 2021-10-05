@@ -5,3 +5,32 @@
 # https://translate.discourse.org/
 
 sv:
+  site_settings:
+    code_review_enabled: "aktivera granskning av Discourse-kod"
+    code_review_github_token: "Token som ska användas för github-API och kan genereras via https://github.com/settings/tokens/new. 'repo'-tillstånd krävs om sync_to_github eller code_review_allow_private_clone har aktiverats"
+    code_review_sync_to_github: "KRÄVER: code_review_github_token, ska kommentarer här skickas till github?"
+    code_review_catch_up_commits: "När en ny lagringsplats läggs till ska detta antal ämnen skapas för gamla åtaganden"
+    code_review_allow_private_clone: "KRÄVER: code_review_github_token, kommer att klona lagringsplatserna som kopplad användare, denna skyddsåtgärd finns för att inaktivera kloning av privata lagringsplatser på offentliga webbplatser."
+    code_review_allow_manual_followup: "Tillåt uppföljningsknapp vid åtaganden"
+    code_review_pending_tag: "Tagg som ska tillämpas på väntande åtaganden"
+    code_review_followup_tag: "Tagg som ska tillämpas på uppföljningsåtaganden"
+    code_review_approved_tag: "Tagg som ska tillämpas på godkända åtaganden"
+    code_review_unmerged_tag: "Tagg som ska tillämpas på icke-sammanslagna åtaganden"
+    code_review_commit_tag: "Tagg som ska tillämpas på åtagandeämnen"
+    code_review_pull_request_tag: "Tagg som ska tillämpas på dragförfrågningsämnen"
+    code_review_github_webhook_secret: "webhook hemlig sträng som ska användas för https://sitename/code-review/webhook"
+    code_review_allow_self_approval: "Tillåt självgodkännande av åtaganden"
+    code_review_skip_duration_minutes: "Hoppa över-knappen hoppar över åtagandet under detta antal minuter"
+    code_review_auto_assign_on_followup: "Tilldela automatiskt ämne till författaren vid uppföljning"
+    code_review_auto_unassign_on_approve: "Ta automatiskt bort tilldelningen av ämnet vid godkännande"
+    code_review_auto_approve_followed_up_commits: "Godkänn automatiskt åtaganden som aktuella åtaganden hänvisar till"
+    code_review_github_organizations: "Github-organisationer (kommaseparerade) som innehåller lagringsplatser som ska synkroniseras här"
+    code_review_approve_approved_prs: "Godkänn automatiskt åtaganden som finns i godkända dragförfrågningar"
+    code_review_default_mute_new_categories: "Tysta för alla användarkategorier som skapats av tillägget"
+    code_review_default_parent_category: "Förvald överordnad kategori för kategorier som skapats av tillägget"
+    code_review_theme: "Aktivera tema för anpassad kodgranskning"
+  discourse_code_review:
+    category_description: |
+      Denna kategori skapades för att innehålla kodgranskningar för %{repo_name}. Ämnen skapas för varje åtagande eller dragförfrågning.
+    bad_github_permissions_error: "Det uppstod ett problem vid hämtning av webhook-data från GitHub. Kontrollera att din token som konfigurerats i webbplatsinställningen code_review_github_token har 'repo'-omfånget aktiverat. Se mer information på https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps."
+    bad_github_credentials_error: "Det uppstod ett problem med dina GitHub-autentiseringsuppgifter. Kontrollera din webbplatsinställning för code_review_github_token och försök igen."
