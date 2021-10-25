@@ -39,10 +39,7 @@ function initialize(api) {
     pluginId: PLUGIN_ID,
 
     canUpdateAssociatedAccounts: computed("authProviders", function () {
-      return (
-        findAll(this.siteSettings, this.capabilities, this.site.isMobileDevice)
-          .length > 0
-      );
+      return findAll().length > 0;
     }),
   });
 
