@@ -8,3 +8,31 @@ he:
   js:
     action_codes:
       approved: "אושר"
+      followup: "לעקוב"
+      followed_up: "במעקב"
+      merged: "מוזג"
+      renamed: "השם השתנה"
+      pr_merge_info: "פרטי מיזוג בקשת הדחיפה"
+    notifications:
+      code_review:
+        commit_approved:
+          single: '„%{topicTitle}” קיבל אישור'
+          multiple: "%{numApprovedCommits} הגשות קיבלו אישור"
+          title: "ההגשה אושרה"
+    code_review:
+      title: "סקירת קוד"
+      approve:
+        title: "אישור הגשה"
+        label: "אישור"
+      followup:
+        title: "מעקב אחר הגשה"
+        label: "מעקב"
+      followed_up:
+        title: "הגשה במעקב"
+        label: "במעקב"
+      skip:
+        title: "דילוג על הגשה"
+        label: "דילוג"
+      approval_given: "ניתן אישור"
+      approval_pending: "אישור ממתין"
+      github_webhooks: "התליות מקוונות של GitHub"
