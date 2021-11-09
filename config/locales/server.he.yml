@@ -5,3 +5,6 @@
 # https://translate.discourse.org/
 
 he:
+  site_settings:
+    code_review_enabled: "לאפשר סקירת קוד עם Discourse"
+    code_review_github_organizations: "ארגוני Github (מופרדים בפסיקים) המכילים מאגרים שיש לסנכרן כאן"

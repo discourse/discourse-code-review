@@ -36,3 +36,6 @@ he:
       approval_given: "ניתן אישור"
       approval_pending: "אישור ממתין"
       github_webhooks: "התליות מקוונות של GitHub"
+      configure_webhooks: "הגדרת התליות רשת"
+      configure_webhook: "הגדרת התליית רשת"
+      notify_on_approval: "להודיע על אישורי סקירת קוד"
