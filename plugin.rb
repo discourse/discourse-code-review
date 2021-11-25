@@ -9,7 +9,7 @@
 gem 'sawyer', '0.8.2'
 gem 'octokit', '4.21.0'
 gem 'pqueue', '2.1.0'
-gem 'rugged', '1.1.0'
+gem 'rugged', '1.2.0'
 
 if Rails.env.test?
   gem 'graphql', '1.12.12'
@@ -179,11 +179,7 @@ after_initialize do
 
   # TODO Drop after Discourse 2.6.0 release
   register_editable_user_custom_field(DiscourseCodeReview::NOTIFY_REVIEW_CUSTOM_FIELD)
-  if respond_to?(:allow_staff_user_custom_field)
-    allow_staff_user_custom_field(DiscourseCodeReview::NOTIFY_REVIEW_CUSTOM_FIELD)
-  else
-    whitelist_staff_user_custom_field(DiscourseCodeReview::NOTIFY_REVIEW_CUSTOM_FIELD)
-  end
+  allow_staff_user_custom_field(DiscourseCodeReview::NOTIFY_REVIEW_CUSTOM_FIELD)
 
   User.register_custom_field_type(DiscourseCodeReview::NOTIFY_REVIEW_CUSTOM_FIELD, :boolean)
 
@@ -304,6 +300,37 @@ after_initialize do
         tags: [SiteSetting.code_review_pending_tag]
       ).list_topics_by(current_user)
     )
+  end
+
+  # TODO(Roman): Remove #respond_to? after the 2.8 release.
+  if respond_to?(:register_notification_consolidation_plan)
+    consolidation_window = 6.hours
+
+    consolidation_plan = Notifications::ConsolidateNotifications.new(
+      from: Notification.types[:code_review_commit_approved],
+      to: Notification.types[:code_review_commit_approved],
+      threshold: 1,
+      consolidation_window: consolidation_window,
+      unconsolidated_query_blk: ->(notifications, _data) do
+        notifications.where("(data::json ->> 'num_approved_commits')::int = 1")
+      end,
+      consolidated_query_blk: ->(notifications, _data) do
+        notifications.where("(data::json ->> 'num_approved_commits')::int > 1")
+      end
+    ).set_mutations(
+      set_data_blk: ->(notification) do
+        data = notification.data_hash
+        previous_approved_count = Notification.where(
+          user: notification.user,
+          notification_type: Notification.types[:code_review_commit_approved]
+        ).where('created_at > ?', consolidation_window.ago).pluck("data::json ->> 'num_approved_commits'")
+
+        previous_approved_count = previous_approved_count.map(&:to_i).sum
+        data.merge(num_approved_commits: previous_approved_count + 1)
+      end
+    )
+
+    register_notification_consolidation_plan(consolidation_plan)
   end
 end
 
