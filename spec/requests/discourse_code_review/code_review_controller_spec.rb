@@ -227,7 +227,7 @@ describe DiscourseCodeReview::CodeReviewController do
 
         expect(author.notifications.count).to eq(1)
         notification = author.notifications.first
-        expect(JSON.parse(notification.data)).to eq("num_approved_commits" => 2)
+        expect(JSON.parse(notification.data).dig("num_approved_commits")).to eq(2)
         expect(notification.topic_id).to be_nil
         expect(notification.post_number).to be_nil
       end
