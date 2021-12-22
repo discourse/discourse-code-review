@@ -85,8 +85,7 @@ module DiscourseCodeReview
     end
 
     def resolve_username(github_login, name, email)
-      username = UserNameSuggester.sanitize_username(github_login || name)
-      UserNameSuggester.suggest(username, email)
+      UserNameSuggester.suggest(github_login, name, email)
     end
   end
 end
