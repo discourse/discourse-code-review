@@ -43,7 +43,7 @@ module DiscourseCodeReview
 
         User.create!(
           email: email,
-          username: UserNameSuggester.suggest(username.presence || email),
+          username: UserNameSuggester.suggest(username, email),
           name: name.presence || User.suggest_name(email),
           staged: true
         )
