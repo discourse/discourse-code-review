@@ -39,11 +39,9 @@ module DiscourseCodeReview
       end
 
       user ||= begin
-        username = UserNameSuggester.sanitize_username(github_login || name)
-
         User.create!(
           email: email,
-          username: UserNameSuggester.suggest(username, email),
+          username: resolve_username(github_login, name, email),
           name: name.presence || User.suggest_name(email),
           staged: true
         )
@@ -84,6 +82,11 @@ module DiscourseCodeReview
           nil
         end
       email || "#{github_login}@fake.github.com"
+    end
+
+    def resolve_username(github_login, name, email)
+      username = UserNameSuggester.sanitize_username(github_login || name)
+      UserNameSuggester.suggest(username, email)
     end
   end
 end
