@@ -311,14 +311,14 @@ after_initialize do
       to: Notification.types[:code_review_commit_approved],
       threshold: 1,
       consolidation_window: consolidation_window,
-      unconsolidated_query_blk: ->(notifications, _data) do
+      unconsolidated_query_blk: Proc.new do |notifications|
         notifications.where("(data::json ->> 'num_approved_commits')::int = 1")
       end,
-      consolidated_query_blk: ->(notifications, _data) do
+      consolidated_query_blk: Proc.new do |notifications|
         notifications.where("(data::json ->> 'num_approved_commits')::int > 1")
       end
     ).set_mutations(
-      set_data_blk: ->(notification) do
+      set_data_blk: Proc.new do |notification|
         data = notification.data_hash
         previous_approved_count = Notification.where(
           user: notification.user,
