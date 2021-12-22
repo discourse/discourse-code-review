@@ -85,7 +85,10 @@ module DiscourseCodeReview
     end
 
     def resolve_username(github_login, name, email)
-      UserNameSuggester.suggest(github_login, name, email)
+      suggester_input = [github_login, name]
+      suggester_input << email if SiteSetting.use_email_for_username_and_name_suggestions
+
+      UserNameSuggester.suggest(*suggester_input)
     end
   end
 end
