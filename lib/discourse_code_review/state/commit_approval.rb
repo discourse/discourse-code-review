@@ -127,19 +127,24 @@ module DiscourseCodeReview::State::CommitApproval
     end
 
     def transition_to_approved(topic)
-      tags = topic.tags.pluck(:name)
-      if !tags.include?(SiteSetting.code_review_approved_tag)
-        tags -= [
-          SiteSetting.code_review_followup_tag,
-          SiteSetting.code_review_pending_tag
-        ]
+      already_approved = true
 
-        tags << SiteSetting.code_review_approved_tag
+      DistributedMutex.synchronize("code-review:ensure-approved-tag:#{topic.id}") do
+        tags = topic.tags.pluck(:name)
+        if !tags.include?(SiteSetting.code_review_approved_tag)
+          tags -= [
+            SiteSetting.code_review_followup_tag,
+            SiteSetting.code_review_pending_tag
+          ]
 
-        DiscourseTagging.tag_topic_by_names(topic, Guardian.new(Discourse.system_user), tags)
+          tags << SiteSetting.code_review_approved_tag
 
-        yield
+          DiscourseTagging.tag_topic_by_names(topic, Guardian.new(Discourse.system_user), tags)
+          already_approved = false
+        end
       end
+
+      yield unless already_approved
     end
 
     def send_approved_notification(topic, post)
