@@ -328,6 +328,8 @@ after_initialize do
         previous_approved_count = previous_approved_count.map(&:to_i).sum
         data.merge(num_approved_commits: previous_approved_count + 1)
       end
+    ).set_precondition(
+      precondition_blk: Proc.new { |data| data[:num_approved_commits] > 1 }
     )
 
     register_notification_consolidation_plan(consolidation_plan)
