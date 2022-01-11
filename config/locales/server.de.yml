@@ -5,3 +5,32 @@
 # https://translate.discourse.org/
 
 de:
+  site_settings:
+    code_review_enabled: "Discourse-Code-Review aktivieren"
+    code_review_github_token: "Das Token für die Github-API. Kann unter https://github.com/settings/tokens/new generiert werden. Die Berechtigung „repo“ ist erforderlich, wenn sync_to_github oder code_review_allow_private_clone aktiviert ist"
+    code_review_sync_to_github: "ERFORDERT: code_review_github_token. Sollen Kommentare hier an github gesendet werden?"
+    code_review_catch_up_commits: "Wenn ein neues Repo hinzugefügt wird, wird diese Anzahl von Themen für alte Commits erstellt"
+    code_review_allow_private_clone: "ERFORDERT: code_review_github_token. Klont die Repos als zugehöriger Benutzer. Diese Sicherung dient dazu, das Klonen privater Repos auf öffentlichen Websites zu verhindern."
+    code_review_allow_manual_followup: "Schaltfläche „Nachbereiten“ bei Commits erlauben"
+    code_review_pending_tag: "Auf ausstehende Commits anzuwendendes Schlagwort"
+    code_review_followup_tag: "Auf Nachbereitungs-Commits anzuwendendes Schlagwort"
+    code_review_approved_tag: "Auf genehmigte Commits anzuwendendes Schlagwort"
+    code_review_unmerged_tag: "Auf nicht zusammengeführte Commits anzuwendendes Schlagwort"
+    code_review_commit_tag: "Auf Commit-Themen anzuwendendes Schlagwort"
+    code_review_pull_request_tag: "Auf PR-Themen anzuwendendes Schlagwort"
+    code_review_github_webhook_secret: "Webhook-Geheimstring zur Verwendung für https://sitename/code-review/webhook"
+    code_review_allow_self_approval: "Selbstgenehmigung von Commits zulassen"
+    code_review_skip_duration_minutes: "Die Schaltfläche „Überspringen“ überspringt Commit für so viele Minuten"
+    code_review_auto_assign_on_followup: "Autor bei Nachbereitung automatisch Thema zuweisen"
+    code_review_auto_unassign_on_approve: "Zuweisung des Themas bei Genehmigung automatisch aufheben"
+    code_review_auto_approve_followed_up_commits: "Commits, die vom aktuellen Commit referenziert werden, automatisch genehmigen"
+    code_review_github_organizations: "Github-Organisationen (getrennt durch Komma) mit Repos, die hier synchronisiert werden sollen"
+    code_review_approve_approved_prs: "Commits automatisch genehmigen, die in genehmigten PRs existieren"
+    code_review_default_mute_new_categories: "Für alle vom Plug-in erstellten Benutzerkategorien stummschalten"
+    code_review_default_parent_category: "Standardmäßige übergeordnete Kategorie für Kategorien, die vom Plug-in erstellt wurden"
+    code_review_theme: "Benutzerdefiniertes Code-Review-Theme aktivieren"
+  discourse_code_review:
+    category_description: |
+      Diese Kategorie wurde für Code-Reviews für %{repo_name} erstellt. Themen werden für jeden Commit oder jedes PR erstellt.
+    bad_github_permissions_error: "Es gab ein Problem beim Abrufen von Webhook-Daten von GitHub. Bitte überprüfe, ob für dein Token, das in der Website-Einstellung code_review_github_token konfiguriert ist, der Bereich „repo“ aktiviert ist. Siehe https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps für weitere Details."
+    bad_github_credentials_error: "Es gab ein Problem mit deinen GitHub-Anmeldedaten. Bitte überprüfe deine Website-Einstellung code_review_github_token und versuche es erneut."

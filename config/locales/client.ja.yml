@@ -5,3 +5,40 @@
 # https://translate.discourse.org/
 
 ja:
+  js:
+    action_codes:
+      approved: "承認済み"
+      followup: "フォローアップ"
+      followed_up: "フォローアップ済み"
+      merged: "マージ済み"
+      renamed: "名前変更済み"
+      pr_merge_info: "PR マージ情報"
+    notifications:
+      code_review:
+        commit_approved:
+          single: '「%{topicTitle}」が承認されました'
+          multiple: "%{numApprovedCommits} 件のコミットが承認されました"
+          title: "コミットが承認されました"
+    code_review:
+      title: "コードレビュー"
+      approve:
+        title: "コミットの承認"
+        label: "承認"
+      followup:
+        title: "コミットのフォローアップ"
+        label: "フォローアップ"
+      followed_up:
+        title: "フォローアップ済みのコミット"
+        label: "フォローアップ済み"
+      skip:
+        title: "コミットをスキップ"
+        label: "スキップ"
+      approval_given: "承認済み"
+      approval_pending: "承認待ち"
+      github_webhooks: "Github Webhook"
+      no_organizations_configured: "Webhook を構成する前に、少なくとも 1 つの組織の <code>code review github organizations</code> サイト設定を構成する必要があります。"
+      webhooks_load_error: "Webhook データの読み込み中にエラーが発生しました。Webhook はこれが解決されるまで構成できません。"
+      configure_webhooks: "Webhook を構成"
+      configure_webhook: "Webhook を構成"
+      notify_on_approval: "コードレビューの承認を通知する"
+      configure_webhooks_warning: "「Webhook を構成」をクリックすると、GitHub API を使用して、<strong>構成済みのすべての組織の各リポジトリ</strong>に Webhook が作成されます。 <code>push</code>、<code>commit_comment</code>、<code>issue_comment</code>、<code>pull_request</code>、<code>pull_request_review</code>、および <code>pull_request_comment</code> イベントトリガーが作成されます。これが機能するには、<code>code review github webhook secret</code> サイト設定が構成されていることも必要であることに注意してください。詳細は、<a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">GitHub の Webhook に関するドキュメント</a>をご覧ください。"

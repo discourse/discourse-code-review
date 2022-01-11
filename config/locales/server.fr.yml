@@ -5,3 +5,32 @@
 # https://translate.discourse.org/
 
 fr:
+  site_settings:
+    code_review_enabled: "activer la révision du code de Discourse"
+    code_review_github_token: "Jeton à utiliser pour l'API github, il peut être généré via https://github.com/settings/tokens/new . L'autorisation « repo » est requise si sync_to_github ou code_review_allow_private_clone est activé"
+    code_review_sync_to_github: "REQUIS : code_review_github_token, les commentaires ici doivent-ils être envoyés à github ?"
+    code_review_catch_up_commits: "Lorsqu'un nouveau dépôt est ajouté, ce nombre de sujets sont créés pour les anciens commits"
+    code_review_allow_private_clone: "REQUIS : code_review_github_token, clonera les dépôts en tant qu'utilisateur associé, cette sauvegarde est en mise en place pour désactiver le clonage des dépôts privés sur les sites publics."
+    code_review_allow_manual_followup: "Autoriser le bouton de suivi sur les commits"
+    code_review_pending_tag: "Étiquette à appliquer aux commits en attente"
+    code_review_followup_tag: "Étiquette à appliquer aux commits suivis"
+    code_review_approved_tag: "Étiquette à appliquer aux commits approuvés"
+    code_review_unmerged_tag: "Étiquette à appliquer aux commits non fusionnés"
+    code_review_commit_tag: "Étiquette à appliquer aux sujets de commit"
+    code_review_pull_request_tag: "Étiquette à appliquer aux sujets de requête « pull »"
+    code_review_github_webhook_secret: "chaîne secrète du webhook à utiliser pour https://sitename/code-review/webhook"
+    code_review_allow_self_approval: "Autoriser l'auto-approbation des commits"
+    code_review_skip_duration_minutes: "Le bouton « Ignorer » permet d'ignorer le commit pendant ce nombre de minutes"
+    code_review_auto_assign_on_followup: "Attribuer automatiquement un sujet à l'auteur lors du suivi"
+    code_review_auto_unassign_on_approve: "Annuler l'attribution automatique du sujet lors de l'approbation"
+    code_review_auto_approve_followed_up_commits: "Approuver automatiquement les commits référencés à partir du commit actuel"
+    code_review_github_organizations: "Organisations Github (séparées par des virgules) contenant des dépôts qui doivent être synchronisés ici"
+    code_review_approve_approved_prs: "Approbation automatique des commits qui existent dans les requêtes « pull » approuvées"
+    code_review_default_mute_new_categories: "Mettre en sourdine pour toutes les catégories d'utilisateurs créées par l'extension"
+    code_review_default_parent_category: "Catégorie parent par défaut pour les catégories créées par l'extension"
+    code_review_theme: "Activer le thème de révision de code personnalisé"
+  discourse_code_review:
+    category_description: |
+      Cette catégorie a été créée pour contenir les révisions de code pour %{repo_name}. Des sujets sont créés pour chaque commit ou requête « pull ».
+    bad_github_permissions_error: "Un problème est survenu lors de la récupération des données du webhook à partir de GitHub. Veuillez vérifier que votre jeton configuré dans le paramètre de site code_review_github_token a l'autorisation « repo » activée. Consultez https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps pour en savoir plus."
+    bad_github_credentials_error: "Un problème est survenu avec vos informations d'identification GitHub. Vérifiez votre paramètre de site code_review_github_token et réessayez."

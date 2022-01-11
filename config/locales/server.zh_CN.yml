@@ -5,3 +5,32 @@
 # https://translate.discourse.org/
 
 zh_CN:
+  site_settings:
+    code_review_enabled: "启用 Discourse 代码审查"
+    code_review_github_token: "用于 github API 的令牌，可以通过 https://github.com/settings/tokens/new 生成。如果启用了 sync_to_github 或 code_review_allow_private_clone，则需要“repo”权限"
+    code_review_sync_to_github: "要求：code_review_github_token，这里的评论要发到 github 吗？"
+    code_review_catch_up_commits: "添加新仓库时，为旧提交创建此数量的话题"
+    code_review_allow_private_clone: "要求：code_review_github_token，将作为关联用户克隆仓库，此保护措施可禁止在公共站点上克隆私有仓库。"
+    code_review_allow_manual_followup: "允许提交的跟进按钮"
+    code_review_pending_tag: "应用于待处理提交的标签"
+    code_review_followup_tag: "应用于跟进提交的标签"
+    code_review_approved_tag: "应用于已批准提交的标签"
+    code_review_unmerged_tag: "应用于未合并提交的标签"
+    code_review_commit_tag: "应用于提交话题的标签"
+    code_review_pull_request_tag: "应用于拉取请求话题的标签"
+    code_review_github_webhook_secret: "用于 https://sitename/code-review/webhook 的网络钩子密钥字符串"
+    code_review_allow_self_approval: "允许自我批准提交"
+    code_review_skip_duration_minutes: "跳过按钮将在此数值的分钟内跳过提交"
+    code_review_auto_assign_on_followup: "跟进时自动将话题分配给作者"
+    code_review_auto_unassign_on_approve: "批准时自动取消分配话题"
+    code_review_auto_approve_followed_up_commits: "自动批准从当前提交引用的提交"
+    code_review_github_organizations: "应在此处同步的仓库所属的 Github 组织（逗号分隔）"
+    code_review_approve_approved_prs: "自动批准已批准的拉取请求中存在的提交"
+    code_review_default_mute_new_categories: "为插件创建的所有用户类别设置免打扰"
+    code_review_default_parent_category: "插件创建的类别的默认上级类别"
+    code_review_theme: "启用自定义代码审查主题"
+  discourse_code_review:
+    category_description: |
+      此类别的创建目的是包含 %{repo_name} 的代码审查。会为每个提交或拉取请求创建话题。
+    bad_github_permissions_error: "从 GitHub 获取网络钩子数据时出现问题。请检查您在 code_review_github_token 站点设置中配置的令牌是否启用了“repo”范围。请参阅 https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps，了解详细信息。"
+    bad_github_credentials_error: "您的 GitHub 凭据存在问题。请检查您的 code_review_github_token 站点设置，然后重试。"
