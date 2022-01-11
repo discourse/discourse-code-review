@@ -5,3 +5,40 @@
 # https://translate.discourse.org/
 
 pt_BR:
+  js:
+    action_codes:
+      approved: "Aprovou"
+      followup: "Acompanhar"
+      followed_up: "Acompanhou"
+      merged: "Mesclou"
+      renamed: "Renomeou"
+      pr_merge_info: "Informações de mesclagem de RP"
+    notifications:
+      code_review:
+        commit_approved:
+          single: 'Aprovou "%{topicTitle}"'
+          multiple: "%{numApprovedCommits} confirmações foram aprovadas"
+          title: "confirmação aprovada"
+    code_review:
+      title: "Revisão de código"
+      approve:
+        title: "Aprovar confirmação"
+        label: "Aprovar"
+      followup:
+        title: "Acompanhar confirmação"
+        label: "Acompanhar"
+      followed_up:
+        title: "Confirmação acompanhada"
+        label: "Acompanhou"
+      skip:
+        title: "Pular confirmação"
+        label: "Pular"
+      approval_given: "Aprovação concedida"
+      approval_pending: "Aprovação pendente"
+      github_webhooks: "Webhooks do Github"
+      no_organizations_configured: "Você precisa configurar pelo menos uma organização com a configuração do site de <code>organizações do github para revisão de código</code> antes de configurar webhooks."
+      webhooks_load_error: "Houve um erro ao carregar dados do webhook, os webhooks não podem ser configurados até resolver isso."
+      configure_webhooks: "Configurar webhooks"
+      configure_webhook: "Configurar webhooks"
+      notify_on_approval: "Notificar sobre aprovações de revisão no código"
+      configure_webhooks_warning: "Clicar em \"Configurar webhooks\" usará a API do GitHub para criar webhooks para <strong>todos os repositórios das organizações configuradas</strong>. Serão criados gatilhos dos eventos <code>push</code>, <code>commit_comment</code>, <code>issue_comment</code>, <code>pull_request</code>, <code>pull_request_review</code> e <code>pull_request_comment</code>. Observe que você também precisa ter a configuração do site <code>segredo do webhook do github para revisão de código</code> para isso funcionar. Acesse <a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">GitHub webhook documentation</a> para obter mais informações."

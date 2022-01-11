@@ -5,3 +5,40 @@
 # https://translate.discourse.org/
 
 ar:
+  js:
+    action_codes:
+      approved: "تمت الموافقة"
+      followup: "المتابعة"
+      followed_up: "تمت المتابعة"
+      merged: "تم الدمج"
+      renamed: "تمت إعادة التسمية"
+      pr_merge_info: "معلومات دمج PR"
+    notifications:
+      code_review:
+        commit_approved:
+          single: 'تمت الموافقة على "%{topicTitle}"'
+          multiple: "تمت الموافقة على %{numApprovedCommits} من الإرسالات"
+          title: "تمت الموافقة على الإرسال"
+    code_review:
+      title: "مراجعة الرمز"
+      approve:
+        title: "الموافقة على الإرسال"
+        label: "الموافقة"
+      followup:
+        title: "المتابعة بشأن الإرسال"
+        label: "المتابعة"
+      followed_up:
+        title: "تمت المتابعة بشأن الإرسال"
+        label: "تمت المتابعة"
+      skip:
+        title: "تخطي الإرسال"
+        label: "تخطي"
+      approval_given: "تم منح الموافقة"
+      approval_pending: "الموافقة قيد الانتظار"
+      github_webhooks: "خطافات ويب Github"
+      no_organizations_configured: "أنت بحاجة إلى إعداد مؤسسة واحدة على الأقل باستخدام إعداد الموقع <code>code review github organizations</code> قبل أن تتمكن من إعداد خطافات الويب."
+      webhooks_load_error: "حدث خطأ في تحميل بيانات خطاف الويب، ولا يمكن إعداد خطافات الويب حتى يتم تصحيح هذا الخطأ."
+      configure_webhooks: "إعداد خطافات الويب"
+      configure_webhook: "إعداد خطاف الويب"
+      notify_on_approval: "إرسال إشعار بالموافقات على مراجعة الرمز"
+      configure_webhooks_warning: "سيؤدي النقر على \"إعداد خطافات الويب\" إلى استخدام واجهة برمجة تطبيقات GitHub لإنشاء خطافات الويب <strong>لكل مستودع في كل مؤسسة أعددتها</strong>. سيتم إنشاء مشغِّلات الأحداث <code>push</code>، و<code>commit_comment</code>، و<code>issue_comment</code>، و<code>pull_request</code>، و<code>pull_request_review</code>، و<code>pull_request_comment</code>. يُرجى العلم بأنك يجب أن تكون قد أعددت أيضًا إعداد الموقع <code>code review github webhook secret</code> لتسير الأمور بشكلٍ صحيح. راجع <a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">وثائق خطافات ويب GitHub</a> لمزيدٍ من المعلومات."

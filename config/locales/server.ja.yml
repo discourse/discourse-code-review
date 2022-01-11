@@ -5,3 +5,32 @@
 # https://translate.discourse.org/
 
 ja:
+  site_settings:
+    code_review_enabled: "Discourse コードレビューを有効にする"
+    code_review_github_token: "GitHub API に使用するトークン。これは、https://github.com/settings/tokens/new で生成できます。sync_to_github or code_review_allow_private_clone が有効である場合は、「repo」権限が必要です。"
+    code_review_sync_to_github: "必須: code_review_github_token。ここのコメントを GitHub に送信する必要がありますか？"
+    code_review_catch_up_commits: "新しいリポジトリが追加されると、古いコミットにこの数のトピックを作成する"
+    code_review_allow_private_clone: "必須: code_review_github_token。関連付けられたユーザーとしてレポジトリのクローンを作成します。このセーフガードは、公開サイトでの非公開リポジトリのクローン作成を無効にするために用意されています。"
+    code_review_allow_manual_followup: "コミットにフォローアップボタンを許可する"
+    code_review_pending_tag: "保留中のコミットに適用するタグ"
+    code_review_followup_tag: "フォローアップコミットに適用するタグ"
+    code_review_approved_tag: "承認済みコミットに適用するタグ"
+    code_review_unmerged_tag: "マージされていないコミットに適用するタグ"
+    code_review_commit_tag: "コミットトピックに適用するタグ"
+    code_review_pull_request_tag: "プルリクエストのトピックに適用するタグ"
+    code_review_github_webhook_secret: "https://sitename/code-review/webhook に使用する Webhook シークレット文字列"
+    code_review_allow_self_approval: "コミットの自己承認を許可する"
+    code_review_skip_duration_minutes: "スキップボタンはこの時間（分数）コミットをスキップする"
+    code_review_auto_assign_on_followup: "フォローアップ時にトピックを作成者に自動的に割り当てる"
+    code_review_auto_unassign_on_approve: "承認時にトピックの割り当てを自動的に解除する"
+    code_review_auto_approve_followed_up_commits: "現在のコミットから参照されているコミットを自動的に承認する"
+    code_review_github_organizations: "ここで同期する必要のあるリポジトリを含む GitHub 組織（コンマ区切り）"
+    code_review_approve_approved_prs: "承認済みのプルリクエストに存在するコミットを自動承認する"
+    code_review_default_mute_new_categories: "プラグインによって作成されたすべてのユーザーカテゴリをミュートする"
+    code_review_default_parent_category: "プラグインによって作成されたカテゴリのデフォルトの親カテゴリ"
+    code_review_theme: "カスタムコードレビューテーマを有効にする"
+  discourse_code_review:
+    category_description: |
+      このカテゴリは、%{repo_name} のコードレビューを含むために作成されました。トピックは、コミットまたはプルリクエストごとに作成されます。
+    bad_github_permissions_error: "GitHub から Webhook データを取得する際に問題が発生しました。code_review_github_token サイト設定で構成されているトークンで「repo」スコープが有効になっていることを確認してください。詳細は、https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps をご覧ください。"
+    bad_github_credentials_error: "GitHub 資格情報に問題がありました。code_review_github_token サイト設定を確認して、もう一度お試しください。"

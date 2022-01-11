@@ -5,3 +5,40 @@
 # https://translate.discourse.org/
 
 de:
+  js:
+    action_codes:
+      approved: "Genehmigt"
+      followup: "Nachbereiten"
+      followed_up: "Nachbereitet"
+      merged: "Zusammengeführt"
+      renamed: "Umbenannt"
+      pr_merge_info: "Informationen zur PR-Zusammenführung"
+    notifications:
+      code_review:
+        commit_approved:
+          single: '„%{topicTitle}“ genehmigt'
+          multiple: "%{numApprovedCommits} Commits wurden genehmigt"
+          title: "Commit genehmigt"
+    code_review:
+      title: "Code-Review"
+      approve:
+        title: "Commit genehmigen"
+        label: "Genehmigen"
+      followup:
+        title: "Commit nachbereiten"
+        label: "Nachbereiten"
+      followed_up:
+        title: "Commit nachbereitet"
+        label: "Nachbereitet"
+      skip:
+        title: "Commit überspringen"
+        label: "Überspringen"
+      approval_given: "Genehmigung erteilt"
+      approval_pending: "Genehmigung ausstehend"
+      github_webhooks: "Github-Webhooks"
+      no_organizations_configured: "Du musst mindestens eine Organisation mit der Website-Einstellung <code>code review github organizations</code> konfigurieren, bevor Webhooks konfiguriert werden können."
+      webhooks_load_error: "Es gab einen Fehler beim Laden von Webhook-Daten. Webhooks können nicht konfiguriert werden, bis dieser Fehler behoben ist."
+      configure_webhooks: "Webhooks konfigurieren"
+      configure_webhook: "Webhook konfigurieren"
+      notify_on_approval: "Bei Code-Review-Genehmigungen benachrichtigen"
+      configure_webhooks_warning: "Wenn du auf „Webhooks konfigurieren“ klickst, wird die GitHub-API verwendet, um Webhooks für <strong>jedes Repository in jeder von dir konfigurierten Organisation</strong> zu erstellen. Die Ereignisauslöser <code>push</code>, <code>commit_comment</code>, <code>issue_comment</code>, <code>pull_request</code>, <code>pull_request_review</code> und <code>pull_request_comment</code> werden erstellt. Bitte beachte, dass du auch die Website-Einstellung <code>code review github webhook secret</code> konfiguriert haben musst, damit dies funktioniert. Weitere Informationen findest du in der <a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">GitHub-Webhook-Dokumentation</a>."

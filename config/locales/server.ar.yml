@@ -5,3 +5,32 @@
 # https://translate.discourse.org/
 
 ar:
+  site_settings:
+    code_review_enabled: "تفعيل مراجعة رمز Discourse"
+    code_review_github_token: "الرمز المميَّز لاستخدامه في واجهة برمجة تطبيقات github، يمكن إنشاء ذلك عن طريق https://github.com/settings/tokens/new. إذن 'repo' مطلوب إذا كان sync_to_github أو code_review_allow_private_clone مفعلًا"
+    code_review_sync_to_github: "يتطلب: code_review_github_token، هل يجب إرسال التعليقات الموجودة هنا إلى github؟"
+    code_review_catch_up_commits: "إنشاء هذا العدد من الموضوعات للإرسالات القديمة عند إنشاء مستودع جديد"
+    code_review_allow_private_clone: "يتطلب: سيستنسخ code_review_github_token المستودعات كالمستخدم المرتبط، هذه الحماية مصمَّمة لإيقاف نسخ المستودعات الخاصة على المواقع العامة."
+    code_review_allow_manual_followup: "السماح بزر المتابعة على الإرسالات"
+    code_review_pending_tag: "الوسم الذي سيتم تطبيقه على الإرسالات قيد الانتظار"
+    code_review_followup_tag: "الوسم الذي سيتم تطبيقه على إرسالات المتابعة"
+    code_review_approved_tag: "الوسم الذي سيتم تطبيقه على الإرسالات التي تمت الموافقة عليها"
+    code_review_unmerged_tag: "الوسم الذي سيتم تطبيقه على الإرسالات غير المدمجة"
+    code_review_commit_tag: "الوسم الذي سيتم تطبيقه لإرسال الموضوعات"
+    code_review_pull_request_tag: "الوسم الذي سيتم تطبيقه لسحب موضوعات الطلب"
+    code_review_github_webhook_secret: "سلسلة خطاف الويب السرية لاستخدامها في https://sitename/code-review/webhook"
+    code_review_allow_self_approval: "السماح بالموافقة التلقائية على الإرسالات"
+    code_review_skip_duration_minutes: "سيؤدي استخدام زر التخطي إلى تخطي الإرسال لهذا العدد من الدقائق"
+    code_review_auto_assign_on_followup: "تخصيص الموضوع إلى المؤلف تلقائيًا عند المتابعة"
+    code_review_auto_unassign_on_approve: "إلغاء تخصيص الموضوع تلقائيًا عند الموافقة"
+    code_review_auto_approve_followed_up_commits: "الموافقة تلقائيًا على الإرسالات المرجعية من الإرسال الحالي"
+    code_review_github_organizations: "مؤسسات Github (مفصولة بفاصلة) التي تحتوي على مستودعات يجب مزامنتها هنا"
+    code_review_approve_approved_prs: "الموافقة التلقائية على الإرسالات الموجودة في طلبات السحب التي تمت الموافقة عليها"
+    code_review_default_mute_new_categories: "كتم جميع فئات المستخدمين التي أنشأها المكوِّن الإضافي"
+    code_review_default_parent_category: "الفئة الرئيسية الافتراضية للفئات التي أنشأها المكوِّن الإضافي"
+    code_review_theme: "تفعيل سمة مراجعة التعليمات البرمجية المخصَّصة"
+  discourse_code_review:
+    category_description: |
+      تم إنشاء هذه الفئة لتحتوي على مراجعات لرمز المستودع %{repo_name}. يتم إنشاء الموضوعات لكل طلب إرسال أو سحب.
+    bad_github_permissions_error: "حدثت مشكلة في أثناء جلب بيانات خطاف الويب من GitHub. يُرجى التحقُّق من تفعيل نطاق \"المستودع\" في الرمز المميَّز الذي تم إعداده في إعداد الموقع code_review_github_token. راجع https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps لمزيدٍ من التفاصيل."
+    bad_github_credentials_error: "حدثت مشكلة في بيانات اعتماد GitHub الخاصة بك. يُرجى التحقُّق من إعداد الموقع code_review_github_token الخاص بك وإعادة المحاولة."

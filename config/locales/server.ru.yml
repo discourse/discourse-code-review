@@ -5,3 +5,27 @@
 # https://translate.discourse.org/
 
 ru:
+  site_settings:
+    code_review_enabled: "включить проверку кода Discourse"
+    code_review_github_token: "Токен для использования в github API, его можно сгенерировать с помощью https://github.com/settings/tokens/new. Разрешение «repo» требуется, если включён sync_to_github или code_review_allow_private_clone"
+    code_review_sync_to_github: "ТРЕБУЕТСЯ: code_review_github_token, следует ли отправлять комментарии на github?"
+    code_review_catch_up_commits: "При добавлении нового репозитория создайте такое количество тем для старых коммитов"
+    code_review_allow_private_clone: "ТРЕБУЕТСЯ: code_review_github_token будет клонировать репозитории в качестве связанного пользователя, эта защита действует для отключения клонирования частных репозиториев на публичных сайтах."
+    code_review_allow_manual_followup: "Кнопка «Отслеживать» при коммите"
+    code_review_pending_tag: "Тег для применения к отложенным коммитам"
+    code_review_followup_tag: "Тег для применения к отслеживаемым коммитам"
+    code_review_approved_tag: "Тег для применения к одобренным коммитам"
+    code_review_unmerged_tag: "Тег для применения к необъединённым коммитам"
+    code_review_commit_tag: "Тег для применения к темам коммита"
+    code_review_pull_request_tag: "Тег для применения к темам запросов на извлечение"
+    code_review_github_webhook_secret: "секретная строка веб-хука для использования для https://sitename/code-review/webhook"
+    code_review_allow_self_approval: "Разрешить самоодобрение коммитов"
+    code_review_skip_duration_minutes: "Кнопка «Пропустить» пропустит фиксацию на столько минут"
+    code_review_auto_assign_on_followup: "Автоматически назначать тему автору при последующих действиях"
+    code_review_auto_unassign_on_approve: "Автоматически отменить назначение темы при одобрении"
+    code_review_auto_approve_followed_up_commits: "Автоматически одобрять коммиты, ссылающиеся на текущие коммиты"
+    code_review_github_organizations: "Организации Github (через запятую), содержащие репозитории, которые должны быть синхронизированы здесь"
+    code_review_approve_approved_prs: "Автоматически одобряет коммиты, которые существуют в одобренных запросах на извлечение"
+    code_review_default_mute_new_categories: "Отключить звук для всех категорий пользователей, созданных плагином"
+    code_review_default_parent_category: "Родительская категория по умолчанию для категорий, созданных плагином"
+    code_review_theme: "Включить пользовательский обзор кода темы"

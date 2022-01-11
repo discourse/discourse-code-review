@@ -5,3 +5,40 @@
 # https://translate.discourse.org/
 
 zh_CN:
+  js:
+    action_codes:
+      approved: "已批准"
+      followup: "跟进"
+      followed_up: "已跟进"
+      merged: "已合并"
+      renamed: "已重命名"
+      pr_merge_info: "PR 合并信息"
+    notifications:
+      code_review:
+        commit_approved:
+          single: '“%{topicTitle}”已被批准'
+          multiple: "%{numApprovedCommits} 项提交已被批准"
+          title: "提交已被批准"
+    code_review:
+      title: "代码审查"
+      approve:
+        title: "批准提交"
+        label: "批准"
+      followup:
+        title: "跟进提交"
+        label: "跟进"
+      followed_up:
+        title: "已跟进提交"
+        label: "已跟进"
+      skip:
+        title: "跳过提交"
+        label: "跳过"
+      approval_given: "批准已授予"
+      approval_pending: "批准待处理"
+      github_webhooks: "Github 网络钩子"
+      no_organizations_configured: "在配置网络钩子之前，您需要至少配置一个具有 <code>code review github organizations</code> 站点设置的组织。"
+      webhooks_load_error: "加载网络钩子数据时出错，在此问题解决之前无法配置网络钩子。"
+      configure_webhooks: "配置网络钩子"
+      configure_webhook: "配置网络钩子"
+      notify_on_approval: "通知代码审查批准"
+      configure_webhooks_warning: "点击“配置网络钩子”将使用 GitHub API 为<strong>您配置的每个组织中的每个仓库</strong>创建网络钩子。<code>push</code>、<code>commit_comment</code>、<code>issue_comment</code>、<code>pull_request</code>、<code>pull_request_review</code> 和 <code>pull_request_comment</code> 事件触发器将被创建。请注意，您还必须配置 <code>code review github webhook secret</code> 站点设置才能使其正常工作。请参阅 <a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">GitHub 网络钩子文档</a>，了解更多信息。"

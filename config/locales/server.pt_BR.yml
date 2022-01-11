@@ -5,3 +5,32 @@
 # https://translate.discourse.org/
 
 pt_BR:
+  site_settings:
+    code_review_enabled: "ativar revisão de código do Discourse"
+    code_review_github_token: "Token para usar a API do github, pode ser gerada em https://github.com/settings/tokens/new . 'repo' permission é necessário se sync_to_github or code_review_allow_private_clone estiver ativado"
+    code_review_sync_to_github: "REQUER: code_review_github_token, enviar comentários para o github?"
+    code_review_catch_up_commits: "Ao adicionar um novo repositório, criar esta quantidade de tópicos para confirmações antigas"
+    code_review_allow_private_clone: "REQUER: code_review_github_token, clonará os repositórios como usuário(a) associado(a), essa proteção foi aplicada para destivar a clonagem de repositórios privados em sites públicos."
+    code_review_allow_manual_followup: "Permitir botão de acompanhamento em confirmações"
+    code_review_pending_tag: "Etiqueta para aplicar confirmações pendentes"
+    code_review_followup_tag: "Etiqueta para aplicar confirmações acompanhadas"
+    code_review_approved_tag: "Etiqueta para aplicar confirmações aprovadas"
+    code_review_unmerged_tag: "Etiqueta para aplicar confirmações não mescladas"
+    code_review_commit_tag: "Etiqueta para aplicar para confirmar tópicos"
+    code_review_pull_request_tag: "Etiqueta para aplicar para receber tópicos solicitados"
+    code_review_github_webhook_secret: "string secreta do webhook para uso. Use para https://sitename/code-review/webhook"
+    code_review_allow_self_approval: "Permitir autoaprovação de confirmações"
+    code_review_skip_duration_minutes: "O botão de pular irá pular a confirmação por estes minutos"
+    code_review_auto_assign_on_followup: "Atribuir tópico automaticamente ao(à) autor(a) ao acompanhar"
+    code_review_auto_unassign_on_approve: "Remover atribuição de tópico automaticamente ao aprovar"
+    code_review_auto_approve_followed_up_commits: "Aprovar automaticamente confirmações indicadas na confirmação atual"
+    code_review_github_organizations: "Organizações do Github (separadas por vírgula) contendo repositórios que devem ser sincronizados aqui"
+    code_review_approve_approved_prs: "Aprovar automaticamente confirmações existentes em solicitações de recepção aprovadas"
+    code_review_default_mute_new_categories: "Silenciar todas as categorias de usuário(a) criadas pelo plugin"
+    code_review_default_parent_category: "Categoria pai padrão para categorias criadas pelo plugin"
+    code_review_theme: "Ativar tema de revisão de código personalizado"
+  discourse_code_review:
+    category_description: |
+      Esta categoria foi criada para conter revisões de código para %{repo_name}. Tópicos são criados para cada confirmação ou solicitação de recepção.
+    bad_github_permissions_error: "Ocorreu um problema ao buscar dados do webhook no GitHub. Verifique se o token configurado na configuração do site code_review_github_token tem o escopo \"repositório\" ativado. Acesse https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps para obter mais informações."
+    bad_github_credentials_error: "Ocorreu um problema com as suas credenciais do GitHub. Verifique sua configuração do site code_review_github_token e tente novamente."

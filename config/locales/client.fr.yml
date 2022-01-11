@@ -5,3 +5,40 @@
 # https://translate.discourse.org/
 
 fr:
+  js:
+    action_codes:
+      approved: "Approuvé"
+      followup: "Suivre"
+      followed_up: "Suivi"
+      merged: "Fusionné"
+      renamed: "Renommé"
+      pr_merge_info: "Informations sur la fusion PR"
+    notifications:
+      code_review:
+        commit_approved:
+          single: '« %{topicTitle} » approuvé'
+          multiple: "%{numApprovedCommits} commits ont été approuvés"
+          title: "commit approuvé"
+    code_review:
+      title: "Examen du code"
+      approve:
+        title: "Approuver le commit"
+        label: "Approuver"
+      followup:
+        title: "Suivre le commit"
+        label: "Suivi"
+      followed_up:
+        title: "Commit suivi"
+        label: "Suivi"
+      skip:
+        title: "Ignorer le commit"
+        label: "Ignorer"
+      approval_given: "Approbation donnée"
+      approval_pending: "Approbation en attente"
+      github_webhooks: "Webhooks Github"
+      no_organizations_configured: "Vous devez configurer au moins une organisation avec <code>code review github organizations</code> avant de pouvoir configurer les webhooks."
+      webhooks_load_error: "Une erreur s'est produite lors du chargement des données du webhook, les webhooks ne peuvent pas être configurés tant que ce problème n'est pas résolu."
+      configure_webhooks: "Configurer les Webhooks"
+      configure_webhook: "Configurer le Webhook"
+      notify_on_approval: "Notifier les approbations de révision de code"
+      configure_webhooks_warning: "En cliquant sur « Configurer les Webhooks », vous utiliserez l'API de GitHub pour créer des webhooks pour <strong>chaque référentiel dans chaque organisation que vous avez configurée</strong>. Les déclencheurs d'événement <code>push</code>, <code>commit_comment</code>, <code>issue_comment</code>, <code>pull_request</code>, <code>pull_request_review</code>et <code>pull_request_comment</code> seront créés. Veuillez noter que vous devez également configurer le paramètre de site <code>code review github webhook secret</code> pour que cela fonctionne. Consultez la <a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">documentation du webhook GitHub</a> pour en savoir plus."

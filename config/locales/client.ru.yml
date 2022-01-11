@@ -5,3 +5,40 @@
 # https://translate.discourse.org/
 
 ru:
+  js:
+    action_codes:
+      approved: "Одобрено"
+      followup: "Отслеживать"
+      followed_up: "В отслеживаемых"
+      merged: "Объединено"
+      renamed: "Переименовано"
+      pr_merge_info: "Информация о слиянии запросов на извлечение"
+    notifications:
+      code_review:
+        commit_approved:
+          single: '«%{topicTitle}» одобрен'
+          multiple: "%{numApprovedCommits} коммитов было одобрено"
+          title: "коммит одобрен"
+    code_review:
+      title: "Рецензирование кода"
+      approve:
+        title: "Одобрить коммит"
+        label: "Одобрить"
+      followup:
+        title: "Отслеживать коммит"
+        label: "Отслеживать"
+      followed_up:
+        title: "Коммит в отслеживаемых"
+        label: "В отслеживаемых"
+      skip:
+        title: "Пропустить коммит"
+        label: "Пропустить"
+      approval_given: "Выдано одобрение"
+      approval_pending: "Ожидает одобрения"
+      github_webhooks: "Вебхуки Github"
+      no_organizations_configured: "Перед настройкой вебхуков необходимо настроить хотя бы одну организацию с параметром <code>github organizations</code> для проверки кода."
+      webhooks_load_error: "Произошла ошибка при загрузке данных вебхуков, вебхуки не могут быть настроены, пока эта проблема не будет решена."
+      configure_webhooks: "Настройка вебхуков"
+      configure_webhook: "Настройка вебхука"
+      notify_on_approval: "Уведомление об одобрении экспертизы кодов"
+      configure_webhooks_warning: "Нажав «Настройка вебхуков», вы будете использовать GitHub API для создания веб-хуков для <strong>для каждого репозитория в каждой настроенной вами организации</strong>. <code>push</code>, <code>commit_comment</code>, <code>issue_comment</code>, <code>pull_request</code>, <code>pull_request_review</code>и <code>pull_request_comment</code>. Обратите внимание, что для этого у вас также должен быть настроен параметр сайта <code>github webhook secret для проверки кода</code>. Дополнительную информацию см. в документации по вебхукам <a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">GitHub</a>."
