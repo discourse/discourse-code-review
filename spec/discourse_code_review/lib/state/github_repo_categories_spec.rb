@@ -14,6 +14,7 @@ describe DiscourseCodeReview::State::GithubRepoCategories do
 
   it "can use an existing category" do
     c = Fabricate(:category, name: "repo-name")
+    DiscourseCodeReview::GithubRepoCategory.create!(category_id: c.id, name: 'repo-name')
     c.custom_fields[DiscourseCodeReview::State::GithubRepoCategories::GITHUB_REPO_NAME] = "repo-name"
     c.save_custom_fields
     expect {
@@ -26,11 +27,12 @@ describe DiscourseCodeReview::State::GithubRepoCategories do
 
   it "can use an existing category based on repository ID" do
     c = Fabricate(:category, name: "repo-name")
+    DiscourseCodeReview::GithubRepoCategory.create!(category_id: c.id, name: 'repo-name', repo_id: '242')
     c.custom_fields[DiscourseCodeReview::State::GithubRepoCategories::GITHUB_REPO_ID] = "242"
     c.custom_fields[DiscourseCodeReview::State::GithubRepoCategories::GITHUB_REPO_NAME] = "repo-name"
     c.save_custom_fields
     expect {
-      c = described_class.ensure_category(repo_name: "new-repo-name", repo_id: 242)
+      c = described_class.ensure_category(repo_name: "new-repo-name", repo_id: "242")
       expect(c.name).to eq("repo-name")
     }.to_not change { Category.count }
     # updates repository name in custom field
@@ -40,6 +42,7 @@ describe DiscourseCodeReview::State::GithubRepoCategories do
   it "does not break when repository ID is not present" do
     c = Fabricate(:category, name: "repo-name")
     c.custom_fields[DiscourseCodeReview::State::GithubRepoCategories::GITHUB_REPO_NAME] = "repo-name"
+    DiscourseCodeReview::GithubRepoCategory.create!(category_id: c.id, name: 'repo-name')
     c.save_custom_fields
     expect {
       c = described_class.ensure_category(repo_name: "repo-name")
