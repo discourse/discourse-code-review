@@ -66,8 +66,8 @@ module DiscourseCodeReview
 
     def sync_all
       State::GithubRepoCategories
-        .github_repo_category_fields.each do |field|
-          sync_repo(field.value)
+        .each_repo_name do |name|
+          sync_repo(name)
         end
     end
 
