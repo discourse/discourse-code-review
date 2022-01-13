@@ -29,9 +29,11 @@ module DiscourseCodeReview
       topic = Fabricate(:topic)
       topic.custom_fields[DiscourseCodeReview::COMMIT_HASH] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
       topic.save
+      CommitTopic.create!(topic_id: topic.id, sha: "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb")
       topic2 = Fabricate(:topic)
       topic2.custom_fields[DiscourseCodeReview::COMMIT_HASH] = "a1db15feadc7951d8a2b4ae63384babd6c568ae0"
       topic2.save
+      CommitTopic.create!(topic_id: topic2.id, sha: "a1db15feadc7951d8a2b4ae63384babd6c568ae0")
 
       result = State::CommitTopics.auto_link_commits("a1db15feadc and another one dbbadb5c357")
       markdown = "[a1db15feadc](#{topic2.url}) and another one [dbbadb5c357](#{topic.url})"

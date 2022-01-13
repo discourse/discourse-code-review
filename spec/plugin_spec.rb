@@ -37,6 +37,7 @@ describe DiscourseCodeReview do
         Fabricate(:topic, category: category).tap do |topic|
           topic.custom_fields[DiscourseCodeReview::COMMIT_HASH] = 'a commit sha'
           topic.save_custom_fields
+          DiscourseCodeReview::CommitTopic.create!(topic_id: topic.id, sha: 'a commit sha')
         end
       end
 

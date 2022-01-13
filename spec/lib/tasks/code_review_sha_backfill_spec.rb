@@ -34,6 +34,7 @@ some code
     before do
       topic.custom_fields[DiscourseCodeReview::COMMIT_HASH] = 'c187ede3c67f23478bc2d3c20187bd98ac025b9e'
       topic.save_custom_fields
+      DiscourseCodeReview::CommitTopic.create!(topic_id: topic.id, sha: 'c187ede3c67f23478bc2d3c20187bd98ac025b9e')
       post.rebake!
       Rake::Task['code_review_full_sha_backfill'].reenable
     end

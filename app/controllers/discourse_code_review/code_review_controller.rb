@@ -153,18 +153,18 @@ module DiscourseCodeReview
       sha1 = params[:sha1]
 
       if sha1.present? && sha1.size >= 7
-        tcf = TopicCustomField
-          .where(name: DiscourseCodeReview::COMMIT_HASH)
-          .where("LEFT(LOWER(value), :len) = LOWER(:sha1)", len: sha1.size, sha1: sha1)
-          .order("created_at DESC")
-          .includes(:topic)
-          .first
+        topic =
+          Topic
+            .joins(:code_review_commit_topic)
+            .where("LEFT(LOWER(code_review_commit_topics.sha), :len) = LOWER(:sha1)", len: sha1.size, sha1: sha1)
+            .order("created_at DESC")
+            .first
       end
 
-      raise Discourse::NotFound.new if tcf.blank?
-      guardian.ensure_can_see!(tcf.topic)
+      raise Discourse::NotFound.new unless topic
+      guardian.ensure_can_see!(topic)
 
-      redirect_to tcf.topic.url
+      redirect_to topic.url
     end
 
     protected
