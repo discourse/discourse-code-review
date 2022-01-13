@@ -141,7 +141,7 @@ after_initialize do
 
     def self.sync_post_to_github(client, post)
       topic = post.topic
-      hash = topic&.custom_fields[DiscourseCodeReview::COMMIT_HASH]
+      hash = post.topic.code_review_commit_topic&.sha
       user = post.user
 
       if post.post_number > 1 && post.post_type == Post.types[:regular] && post.raw.present? && topic && hash && user
@@ -189,6 +189,7 @@ after_initialize do
   require File.expand_path("../app/controllers/discourse_code_review/admin_code_review_controller.rb", __FILE__)
   require File.expand_path("../app/models/skipped_code_review.rb", __FILE__)
   require File.expand_path("../app/models/github_repo_category.rb", __FILE__)
+  require File.expand_path("../app/models/commit_topic.rb", __FILE__)
   require File.expand_path("../app/jobs/regular/code_review_sync_commits", __FILE__)
   require File.expand_path("../app/jobs/regular/code_review_sync_commit_comments", __FILE__)
   require File.expand_path("../lib/enumerators", __FILE__)
@@ -259,7 +260,7 @@ after_initialize do
   end
 
   on(:before_post_process_cooked) do |doc, post|
-    unless post.topic.custom_fields[DiscourseCodeReview::COMMIT_HASH].present? && post.post_number == 1
+    unless post.post_number == 1 && post.topic.code_review_commit_topic
       doc =
         DiscourseCodeReview::State::CommitTopics
           .auto_link_commits(post.raw, doc)[2]
@@ -301,6 +302,10 @@ after_initialize do
         tags: [SiteSetting.code_review_pending_tag]
       ).list_topics_by(current_user)
     )
+  end
+
+  Topic.class_eval do
+    has_one :code_review_commit_topic, class_name: 'DiscourseCodeReview::CommitTopic'
   end
 
   # TODO(Roman): Remove #respond_to? after the 2.8 release.

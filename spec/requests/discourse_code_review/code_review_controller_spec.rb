@@ -3,13 +3,13 @@
 require 'rails_helper'
 
 describe DiscourseCodeReview::CodeReviewController do
+  fab!(:topic) { Fabricate(:topic) }
+  before_all do
+    topic.upsert_custom_fields(DiscourseCodeReview::COMMIT_HASH => '6a5aecee1234')
+    DiscourseCodeReview::CommitTopic.create!(topic_id: topic.id, sha: '6a5aecee1234')
+  end
 
   context "when not staff" do
-    fab!(:topic) { Fabricate(:topic) }
-    before do
-      topic.upsert_custom_fields(DiscourseCodeReview::COMMIT_HASH => '6a5aecee1234')
-    end
-
     it "returns 404 for anonymous users" do
       get '/code-review/redirect/6a5aecee'
       expect(response.status).to eq(404)
@@ -46,16 +46,11 @@ describe DiscourseCodeReview::CodeReviewController do
 
     context ".redirect" do
       it "will return 404 if that sha1 doesn't exist" do
-        get '/code-review/redirect/6a5aecee'
+        get '/code-review/redirect/deadbeef'
         expect(response.status).to eq(404)
       end
 
       context "with a sha1 that exists" do
-        fab!(:topic) { Fabricate(:topic) }
-        before do
-          topic.upsert_custom_fields(DiscourseCodeReview::COMMIT_HASH => '6a5aecee1234')
-        end
-
         it "will return 404 for a short sha1" do
           get '/code-review/redirect/6a5aec'
           expect(response.status).to eq(404)

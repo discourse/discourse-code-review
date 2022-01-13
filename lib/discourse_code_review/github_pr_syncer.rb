@@ -80,16 +80,8 @@ module DiscourseCodeReview
     def apply_github_approves(repo_name, commit_hash)
       topic =
         Topic
-          .where(
-            id:
-              TopicCustomField
-                .where(
-                  name: COMMIT_HASH,
-                  value: commit_hash
-                )
-                .limit(1)
-                .select(:topic_id)
-          )
+          .joins(:code_review_commit_topic)
+          .where(code_review_commit_topics: { sha: commit_hash })
           .first
 
       if topic
