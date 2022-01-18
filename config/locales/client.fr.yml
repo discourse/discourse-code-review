@@ -12,7 +12,7 @@ fr:
       followed_up: "Suivi"
       merged: "Fusionné"
       renamed: "Renommé"
-      pr_merge_info: "Informations sur la fusion PR"
+      pr_merge_info: "Informations sur la fusion de PR"
     notifications:
       code_review:
         commit_approved:
