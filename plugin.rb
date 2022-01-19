@@ -20,8 +20,6 @@ enabled_site_setting :code_review_enabled
 register_asset 'stylesheets/code_review.scss'
 register_svg_icon 'history'
 
-require_dependency 'auth/github_authenticator'
-require_dependency 'lib/staff_constraint'
 require File.expand_path("../lib/discourse_code_review/rake_tasks.rb", __FILE__)
 
 module HackGithubAuthenticator
