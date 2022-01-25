@@ -5,3 +5,32 @@
 # https://translate.discourse.org/
 
 fi:
+  site_settings:
+    code_review_enabled: "ota Discoursen koodin tarkistus käyttöön"
+    code_review_github_token: "Githubin APIssa käytettävä tunnus, sen voi luoda osoitteessa https://github.com/settings/tokens/new. \"Repo\"-oikeus vaaditaan, jos sync_to_github tai code_review_allow_private_clone on käytössä."
+    code_review_sync_to_github: "EDELLYTYS: code_review_github_token, pitäisikö nämä kommentit lähettää githubille?"
+    code_review_catch_up_commits: "Kun uusi tietosäilö lisätään, luo tämä määrä ketjuja vanhoille solmuille"
+    code_review_allow_private_clone: "EDELLYTYS: code_review_github_token, kloonaa tietosäilöt yhdistettynä käyttäjänä, tämä varotoimi on käytössä yksityisten tietosäilöjen kloonauksen estämiseksi julkisilla sivustoilla."
+    code_review_allow_manual_followup: "Salli seurantapainike solmuissa"
+    code_review_pending_tag: "Odottavissa solmuissa käytettävä tunniste"
+    code_review_followup_tag: "Seurantasolmuissa käytettävä tunniste"
+    code_review_approved_tag: "Hyväksytyissä solmuissa käytettävä tunniste"
+    code_review_unmerged_tag: "Yhdistämättömissä solmuissa käytettävä tunniste"
+    code_review_commit_tag: "Solmuketjuissa käytettävä tunniste"
+    code_review_pull_request_tag: "Vetopyyntöketjuissa käytettävä tunniste"
+    code_review_github_webhook_secret: "webhookin salainen merkkijono käytettäväksi kohteessa https://sivustonnimi/code-review/webhook"
+    code_review_allow_self_approval: "Salli solmujen itsenäinen hyväksyntä"
+    code_review_skip_duration_minutes: "Ohita-painike ohittaa solmun näin monen minuutin ajaksi"
+    code_review_auto_assign_on_followup: "Määritä ketju automaattisesti tekijälle seurannan yhteydessä"
+    code_review_auto_unassign_on_approve: "Poista ketjun määritys automaattisesti hyväksymisen yhteydessä"
+    code_review_auto_approve_followed_up_commits: "Hyväksy automaattisesti solmut, joihin on viitattu nykyisestä solmusta"
+    code_review_github_organizations: "Github-organisaatiot (erotettuna pilkulla), jotka sisältävät tietosäilöjä, jotka tulisi synkronoida täällä"
+    code_review_approve_approved_prs: "Hyväksy automaattisesti solmut, jotka ovat hyväksytyissä vetopyynnöissä"
+    code_review_default_mute_new_categories: "Mykistä kaikille lisäosan luomille käyttäjäluokille"
+    code_review_default_parent_category: "Oletusarvoinen ylätason alue lisäosan luomille alueille"
+    code_review_theme: "Ota mukautettu koodintarkistusteema käyttöön"
+  discourse_code_review:
+    category_description: |
+      Tämä alue luotiin sisältämään tietosäilön %{repo_name} kooditarkistuksia. Ketjuja luodaan jokaiselle solmulle tai vetopyynnölle.
+    bad_github_permissions_error: "Webhook-tietojen hakemisessa GitHubista tapahtui virhe. Tarkista, että code_review_github_token-sivustoasetuksissa määritetyssä tunnuksessa on repo-alue käytössä. Katso lisätietoja osoitteesta https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps."
+    bad_github_credentials_error: "GitHub-tunnistetiedoissasi oli ongelma. Tarkista code_review_github_token-sivustoasetus ja yritä uudelleen."

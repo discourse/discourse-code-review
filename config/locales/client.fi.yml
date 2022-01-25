@@ -5,3 +5,40 @@
 # https://translate.discourse.org/
 
 fi:
+  js:
+    action_codes:
+      approved: "Hyväksytty"
+      followup: "Seuranta"
+      followed_up: "Seurattu"
+      merged: "Yhdistetty"
+      renamed: "Nimetty uudelleen"
+      pr_merge_info: "Vetopyynnön yhdistämistiedot"
+    notifications:
+      code_review:
+        commit_approved:
+          single: '"%{topicTitle}" hyväksytty'
+          multiple: "%{numApprovedCommits} solmua hyväksyttiin"
+          title: "solmu hyväksytty"
+    code_review:
+      title: "Koodin tarkistus"
+      approve:
+        title: "Hyväksy solmu"
+        label: "Hyväksy"
+      followup:
+        title: "Seurantasolmu"
+        label: "Seuranta"
+      followed_up:
+        title: "Seurattu solmu"
+        label: "Seurattu"
+      skip:
+        title: "Ohita solmu"
+        label: "Ohita"
+      approval_given: "Hyväksyntä annettu"
+      approval_pending: "Odottaa hyväksyntää"
+      github_webhooks: "Githubin webhookit"
+      no_organizations_configured: "Sinun täytyy määrittää vähintään yksi organisaatio, jolla on <code>code review github organizations</code> -sivustoasetus, ennen kuin webhookeja voi määrittää."
+      webhooks_load_error: "Webhook-tietojen lataamisessa tapahtui virhe. Webhookeja ei voi määrittää ennen kuin ongelma on ratkaistu."
+      configure_webhooks: "Määritä webhookeja"
+      configure_webhook: "Määritä webhook"
+      notify_on_approval: "Ilmoita koodin tarkistuksen hyväksynnöistä"
+      configure_webhooks_warning: "Määritä webhookeja -valinnan napsauttaminen käyttää GitHubin APIa webhookien luomiseen <strong>jokaiselle tietosäilölle jokaisessa määrittämässäsi organisaatiossa</strong>. <code>Push</code>-, <code>commit_comment</code>-, <code>issue_comment</code>-, <code>pull_request</code>, <code>pull_request_review</code> ja <code>pull_request_comment</code>- tapahtumatriggerit luodaan. Huomaa, että sinulla täytyy olla myös <code>code review github webhook secret</code> -sivustoasetus määritettynä, jotta tämä toimii. Katso lisätietoja <a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">GitHubin webhook-ohjeista</a>."
