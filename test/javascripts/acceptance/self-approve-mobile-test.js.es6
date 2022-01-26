@@ -4,6 +4,8 @@ import {
   updateCurrentUser,
 } from "discourse/tests/helpers/qunit-helpers";
 import Fixtures from "discourse/tests/fixtures/topic";
+import { visit } from "@ember/test-helpers";
+import { test } from "qunit";
 
 acceptance("review mobile", function (needs) {
   needs.user();
