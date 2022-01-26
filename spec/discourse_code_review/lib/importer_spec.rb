@@ -11,6 +11,27 @@ module DiscourseCodeReview
     let(:parent_category) { Fabricate(:category) }
     let(:repo) { GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24) }
 
+    it "does not destroy user's draft" do
+      user = Fabricate(:user, email: "sam@sam.com")
+      Draft.set(user, Draft::NEW_TOPIC, 0, "test")
+
+      commit = {
+        subject: "hello world",
+        body: "this is the body",
+        email: "sam@sam.com",
+        github_login: "sam",
+        github_id: "111",
+        date: 1.day.ago,
+        diff: "```\nwith a diff",
+        hash: "a1db15feadc7951d8a2b4ae63384babd6c568ae0"
+      }
+
+      repo.expects(:default_branch_contains?).with(commit[:hash]).returns(true)
+      repo.expects(:followees).with(commit[:hash]).returns([])
+
+      expect { Importer.new(repo).import_commit(commit) }.not_to change { Draft.count }
+    end
+
     it "creates categories with a description" do
       category = Category.find_by(id: Importer.new(repo).category_id)
 

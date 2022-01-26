@@ -198,6 +198,7 @@ module DiscourseCodeReview
         nonce_value: github_id,
         raw: raw,
         skip_validations: true,
+        skip_draft: true,
         tags: [SiteSetting.code_review_pull_request_tag],
         title: topic_title,
         user: author,

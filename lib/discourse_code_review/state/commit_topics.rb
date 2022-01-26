@@ -115,6 +115,7 @@ module DiscourseCodeReview
                 category: category_id,
                 tags: tags,
                 skip_validations: true,
+                skip_draft: true,
               )
 
               TopicCustomField.create!(
