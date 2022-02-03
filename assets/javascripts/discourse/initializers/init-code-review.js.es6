@@ -115,7 +115,7 @@ function initialize(api) {
     dependentKeys: ["topic.tags"],
     displayed() {
       return (
-        this.get("currentUser.staff") &&
+        this.get("currentUser.can_review") &&
         allowApprove(this.currentUser, this.topic, this.siteSettings)
       );
     },
@@ -137,7 +137,7 @@ function initialize(api) {
     dependentKeys: ["topic.tags"],
     displayed() {
       return (
-        this.get("currentUser.staff") &&
+        this.get("currentUser.can_review") &&
         allowSkip(this.currentUser, this.topic, this.siteSettings)
       );
     },
@@ -159,7 +159,7 @@ function initialize(api) {
     dependentKeys: ["topic.tags"],
     displayed() {
       return (
-        this.get("currentUser.staff") &&
+        this.get("currentUser.can_review") &&
         allowFollowupButton(this.topic, this.siteSettings)
       );
     },
@@ -181,7 +181,7 @@ function initialize(api) {
     dependentKeys: ["topic.tags"],
     displayed() {
       return (
-        this.get("currentUser.staff") &&
+        this.get("currentUser.can_review") &&
         allowFollowedUpButton(this.currentUser, this.topic, this.siteSettings)
       );
     },

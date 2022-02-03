@@ -1,5 +1,9 @@
 plugins:
   code_review_enabled: false
+  code_review_allowed_groups:
+    default: ""
+    type: group_list
+    list_type: compact
   code_review_github_token: ""
   code_review_sync_to_github: false
   code_review_catch_up_commits: 10

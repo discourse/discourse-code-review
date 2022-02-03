@@ -279,6 +279,23 @@ after_initialize do
     end
   end
 
+  add_to_class(:user, :can_review?) do
+    @can_review ||= begin
+      if admin?
+        :true
+      else
+        allowed_groups = SiteSetting.code_review_allowed_groups.split('|').compact
+        allowed_groups.present? && groups.exists?(id: allowed_groups) ? :true : :false
+      end
+    end
+
+    @can_review == :true
+  end
+
+  add_to_serializer(:current_user, :can_review) do
+    object.can_review?
+  end
+
   require_dependency 'list_controller'
   class ::ListController
     skip_before_action :ensure_logged_in, only: %i[approval_given approval_pending]
