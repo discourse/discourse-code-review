@@ -93,7 +93,7 @@ module DiscourseCodeReview
             approvers =
               merge_info[:approvers]
                 .map(&method(:ensure_actor))
-                .select(&:staff?)
+                .select(&:can_review?)
                 .select { |user|
                   SiteSetting.code_review_allow_self_approval || topic.user_id != user.id
                 }

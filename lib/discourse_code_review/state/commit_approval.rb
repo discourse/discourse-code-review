@@ -29,7 +29,7 @@ module DiscourseCodeReview::State::CommitApproval
         transition_to_approved(topic) do
           send_approved_notification(topic, last_post)
 
-          if SiteSetting.code_review_auto_unassign_on_approve && topic.user.staff?
+          if SiteSetting.code_review_auto_unassign_on_approve && topic.user.can_review?
             DiscourseEvent.trigger(:unassign_topic, topic, approvers.first)
           end
         end
@@ -61,7 +61,7 @@ module DiscourseCodeReview::State::CommitApproval
           action_code: "followup"
         )
 
-        if SiteSetting.code_review_auto_assign_on_followup && topic.user.staff?
+        if SiteSetting.code_review_auto_assign_on_followup && topic.user.can_review?
           DiscourseEvent.trigger(:assign_topic, topic, topic.user, actor)
         end
       end
@@ -80,7 +80,7 @@ module DiscourseCodeReview::State::CommitApproval
       transition_to_approved(followee_topic) do
         send_approved_notification(followee_topic, last_post)
 
-        if SiteSetting.code_review_auto_unassign_on_approve && followee_topic.user.staff?
+        if SiteSetting.code_review_auto_unassign_on_approve && followee_topic.user.can_review?
           DiscourseEvent.trigger(
             :unassign_topic,
             followee_topic,

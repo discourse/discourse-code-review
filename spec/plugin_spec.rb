@@ -193,4 +193,27 @@ describe DiscourseCodeReview do
       end
     end
   end
+
+  describe 'can_review?' do
+    fab!(:group) { Fabricate(:group) }
+    fab!(:user) { Fabricate(:user) }
+
+    before do
+      SiteSetting.code_review_enabled = true
+    end
+
+    it 'returns true for user in allowed groups' do
+      SiteSetting.code_review_allowed_groups = "#{group.id}"
+
+      expect(user.can_review?).to eq(false)
+
+      group.add(user)
+      expect(User.find(user.id).can_review?).to eq(true)
+    end
+
+    it 'returns true for admins' do
+      expect(Fabricate(:admin).can_review?).to eq(true)
+      expect(user.can_review?).to eq(false)
+    end
+  end
 end
