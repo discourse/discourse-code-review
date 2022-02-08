@@ -263,10 +263,36 @@ module DiscourseCodeReview
 
       topic = Topic.find(Importer.new(repo).import_commit(commit))
       expect(topic.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
+      expect(topic.posts.pluck_first(:cooked)).to match_html <<~HTML
+      <div class="excerpt">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce et<br>
+        porttitor nibh, quis pellentesque mauris. Phasellus ornare auctor<br>
+        imperdiet. In id ex in nibh gravida commodo nec eget ipsum. Mauris<br>
+        interdum ex nisi, quis sollicitudin est ornare venenatis.</p>
 
-      p topic.posts.pluck_first(:cooked)
+        <p>Integer vitae eros sit amet magna aliquet accumsan eget a est. In at mi<br>
+        ligula. Duis dolor velit, efficitur sed dapibus ac, volutpat eget quam.</p>
 
-      expect(topic.posts.pluck_first(:raw)).to include("with an emoji :)")
+        <p>Sed eget imperdiet nulla. In molestie, urna eget tincidunt pulvinar,<br>
+        augue massa lobortis magna, quis semper ante leo sed est. Aenean ornare<br>
+        feugiat magna at ultricies. Fusce eget blandit magna, sit amet ornare<br>
+        orci. Nulla lobortis orci augue. In eu diam sed tortor suscipit mollis.</p>
+
+        <pre><code class="lang-auto">Reported-and-tested-by: A &lt;a@example.com&gt;
+        Reviewed-by: B &lt;b@example.com&gt;
+        Cc: C &lt;c@example.com&gt;
+        Cc: D &lt;d@example.com&gt;
+        Cc: E &lt;e@example.com&gt;
+        Signed-off-by: F &lt;f@example.com&gt;</code></pre>
+      </div>
+
+      <pre><code class="lang-diff">`‍``
+      with a diff
+      </code></pre>
+
+      <p><a href="https://github.com/discourse/discourse/commit/154f503d2e99f904356b52f2fae9edcc495708fa">GitHub</a><br>
+      <small>sha: 154f503d2e99f904356b52f2fae9edcc495708fa</small></p>
+      HTML
     end
   end
 end
