@@ -5,3 +5,5 @@
 # https://translate.discourse.org/
 
 fa_IR:
+  site_settings:
+    code_review_allowed_groups: "گروه‌های که مجاز به بررسی کد هستند"
