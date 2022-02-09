@@ -222,5 +222,77 @@ module DiscourseCodeReview
       expect(topic.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
       expect(topic.posts.pluck_first(:raw)).to include("with an emoji :)")
     end
+
+    it "escapes Git trailers" do
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
+      repo.expects(:default_branch_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
+      repo.expects(:followees).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns([])
+
+      body = <<~TEXT
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce et
+      porttitor nibh, quis pellentesque mauris. Phasellus ornare auctor
+      imperdiet. In id ex in nibh gravida commodo nec eget ipsum. Mauris
+      interdum ex nisi, quis sollicitudin est ornare venenatis.
+
+      Integer vitae eros sit amet magna aliquet accumsan eget a est. In at mi
+      ligula. Duis dolor velit, efficitur sed dapibus ac, volutpat eget quam.
+
+      Sed eget imperdiet nulla. In molestie, urna eget tincidunt pulvinar,
+      augue massa lobortis magna, quis semper ante leo sed est. Aenean ornare
+      feugiat magna at ultricies. Fusce eget blandit magna, sit amet ornare
+      orci. Nulla lobortis orci augue. In eu diam sed tortor suscipit mollis.
+
+      Reported-and-tested-by: A <a@example.com>
+      Reviewed-by: B <b@example.com>
+      Cc: C <c@example.com>
+      Cc: D <d@example.com>
+      Cc: E <e@example.com>
+      Signed-off-by: F <f@example.com>
+      TEXT
+
+      commit = {
+        subject: "hello world",
+        body: body,
+        email: "sam@sam.com",
+        github_login: "sam",
+        github_id: "111",
+        date: 1.day.ago,
+        diff: "```\nwith a diff",
+        hash: "154f503d2e99f904356b52f2fae9edcc495708fa"
+      }
+
+      topic = Topic.find(Importer.new(repo).import_commit(commit))
+      expect(topic.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
+      expect(topic.posts.pluck_first(:cooked)).to match_html <<~HTML
+      <div class="excerpt">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce et<br>
+        porttitor nibh, quis pellentesque mauris. Phasellus ornare auctor<br>
+        imperdiet. In id ex in nibh gravida commodo nec eget ipsum. Mauris<br>
+        interdum ex nisi, quis sollicitudin est ornare venenatis.</p>
+
+        <p>Integer vitae eros sit amet magna aliquet accumsan eget a est. In at mi<br>
+        ligula. Duis dolor velit, efficitur sed dapibus ac, volutpat eget quam.</p>
+
+        <p>Sed eget imperdiet nulla. In molestie, urna eget tincidunt pulvinar,<br>
+        augue massa lobortis magna, quis semper ante leo sed est. Aenean ornare<br>
+        feugiat magna at ultricies. Fusce eget blandit magna, sit amet ornare<br>
+        orci. Nulla lobortis orci augue. In eu diam sed tortor suscipit mollis.</p>
+
+        <pre><code class="lang-auto">Reported-and-tested-by: A &lt;a@example.com&gt;
+        Reviewed-by: B &lt;b@example.com&gt;
+        Cc: C &lt;c@example.com&gt;
+        Cc: D &lt;d@example.com&gt;
+        Cc: E &lt;e@example.com&gt;
+        Signed-off-by: F &lt;f@example.com&gt;</code></pre>
+      </div>
+
+      <pre><code class="lang-diff">`‍``
+      with a diff
+      </code></pre>
+
+      <p><a href="https://github.com/discourse/discourse/commit/154f503d2e99f904356b52f2fae9edcc495708fa">GitHub</a><br>
+      <small>sha: 154f503d2e99f904356b52f2fae9edcc495708fa</small></p>
+      HTML
+    end
   end
 end

@@ -74,7 +74,7 @@ module DiscourseCodeReview
 
             body, linked_topics = auto_link_commits(commit[:body])
             linked_topics.merge! find_linked_commits(title)
-
+            body = escape_trailers(body)
             hash_html = "<small>sha: #{commit[:hash]}</small>"
 
             raw = "[excerpt]\n#{body}\n[/excerpt]\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link} #{hash_html}"
@@ -208,6 +208,12 @@ module DiscourseCodeReview
         end
 
         result
+      end
+
+      def escape_trailers(body)
+        return body if body !~ /\n\n(?:.*[:=].*\n?)+.\z/mi
+        first, separator, last = body.rpartition("\n\n")
+        "#{first}#{separator}[code]\n#{last.strip}\n[/code]"
       end
     end
   end
