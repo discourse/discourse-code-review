@@ -7,4 +7,6 @@
 he:
   site_settings:
     code_review_enabled: "לאפשר סקירת קוד עם Discourse"
+    code_review_allowed_groups: "קבוצות שמורשות לסקור קוד"
+    code_review_github_token: "אסימון לשימוש ב־API של GitHub, אפשר לייצר אותו דרך https://github.com/settings/tokens/new. הרשאות ‚repo’ נחוצות אם sync_to_github (סנכרון לגיטהאב) ו־code_review_allow_private_clone (לאפשר שכפול פרטי לסקירת קוד) פעילים"
     code_review_github_organizations: "ארגוני Github (מופרדים בפסיקים) המכילים מאגרים שיש לסנכרן כאן"
