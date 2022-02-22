@@ -95,36 +95,22 @@ after_initialize do
     end
 
     def self.graphql_client
-      @graphql_client ||= GraphQLClient.new(self.octokit_bot_client)
+      @graphql_client = GraphQLClient.new(self.octokit_bot_client)
     end
 
     def self.github_commit_querier
-      @github_commit_querier ||= Source::CommitQuerier.new(self.graphql_client)
-    end
-
-    def self.github_pr_service
-      @github_pr_querier ||= Source::GithubPRQuerier.new(self.graphql_client)
-      @github_pr_service ||=
-        Source::GithubPRService.new(
-          self.octokit_bot_client,
-          @github_pr_querier
-        )
-    end
-
-    def self.github_user_querier
-      @github_user_querier ||= Source::GithubUserQuerier.new(self.octokit_client)
+      @github_commit_querier = Source::CommitQuerier.new(self.graphql_client)
     end
 
     def self.github_user_syncer
-      @github_user_syncer ||= GithubUserSyncer.new(self.github_user_querier)
+      @github_user_querier = Source::GithubUserQuerier.new(self.octokit_client)
+      @github_user_syncer = GithubUserSyncer.new(@github_user_querier)
     end
 
     def self.github_pr_syncer
-      @github_pr_syncer ||=
-        GithubPRSyncer.new(
-          self.github_pr_service,
-          self.github_user_syncer
-        )
+      @github_pr_querier = Source::GithubPRQuerier.new(self.graphql_client)
+      @github_pr_service = Source::GithubPRService.new(self.octokit_bot_client, @github_pr_querier)
+      @github_pr_syncer = GithubPRSyncer.new(@github_pr_service, self.github_user_syncer)
     end
 
     def self.without_rate_limiting
