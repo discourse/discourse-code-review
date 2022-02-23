@@ -19,16 +19,12 @@ module DiscourseCodeReview
     around(:each) do |example|
       with_tmpdir do |checkout_path|
         @checkout_path = checkout_path
-        with_tmpdir do |origin_path|
-          @origin_path = origin_path
+        @origin_path = setup_git_repo({})
 
-          `git init #{origin_path}`
-          system("git checkout -q -b main", chdir: origin_path)
-          DiscourseCodeReview::Source::GitRepo.new(origin_path, checkout_path)
+        DiscourseCodeReview::Source::GitRepo.new(origin_path, checkout_path)
 
-          Dir.chdir(checkout_path) do
-            example.run
-          end
+        Dir.chdir(checkout_path) do
+          example.run
         end
       end
     end
