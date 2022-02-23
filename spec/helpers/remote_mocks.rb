@@ -2,14 +2,16 @@
 
 module RemoteMocks
   class << self
+    include Helpers
+
     def repos
       @repos ||= []
     end
 
     def make_repo
-      path = "/tmp/#{SecureRandom.hex}"
+      path = setup_git_repo({})
       repos << path
-      Rugged::Repository.init_at(path)
+      Rugged::Repository.new(path)
     end
 
     def cleanup!
