@@ -224,6 +224,11 @@ module DiscourseCodeReview
     end
 
     it "escapes Git trailers" do
+      topic = Fabricate(:topic)
+      topic.custom_fields[DiscourseCodeReview::COMMIT_HASH] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
+      topic.save
+      CommitTopic.create!(topic_id: topic.id, sha: "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb")
+
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
       repo.expects(:default_branch_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
       repo.expects(:followees).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns([])
@@ -248,6 +253,7 @@ module DiscourseCodeReview
       Cc: D <d@example.com>
       Cc: E <e@example.com>
       Signed-off-by: F <f@example.com>
+      Commit: dbbadb5c357bc23daf1fa732f8670e55dc28b7cb
       TEXT
 
       commit = {
@@ -283,7 +289,8 @@ module DiscourseCodeReview
         Cc: C &lt;c@example.com&gt;
         Cc: D &lt;d@example.com&gt;
         Cc: E &lt;e@example.com&gt;
-        Signed-off-by: F &lt;f@example.com&gt;</code></pre>
+        Signed-off-by: F &lt;f@example.com&gt;
+        Commit: dbbadb5c357bc23daf1fa732f8670e55dc28b7cb</code></pre>
       </div>
 
       <pre><code class="lang-diff">`‍``

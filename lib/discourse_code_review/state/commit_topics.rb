@@ -72,9 +72,9 @@ module DiscourseCodeReview
                 "\n[... diff too long, it was truncated ...]\n"
               end
 
-            body, linked_topics = auto_link_commits(commit[:body])
+            body = escape_trailers(commit[:body])
+            body, linked_topics = auto_link_commits(body)
             linked_topics.merge! find_linked_commits(title)
-            body = escape_trailers(body)
             hash_html = "<small>sha: #{commit[:hash]}</small>"
 
             raw = "[excerpt]\n#{body}\n[/excerpt]\n\n```diff\n#{diff}\n#{truncated_message}```\n#{link} #{hash_html}"
