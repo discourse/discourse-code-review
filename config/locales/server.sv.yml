@@ -7,6 +7,7 @@
 sv:
   site_settings:
     code_review_enabled: "aktivera granskning av Discourse-kod"
+    code_review_allowed_groups: "Grupper tillåtna att granska kod"
     code_review_github_token: "Token som ska användas för github-API och kan genereras via https://github.com/settings/tokens/new. 'repo'-tillstånd krävs om sync_to_github eller code_review_allow_private_clone har aktiverats"
     code_review_sync_to_github: "KRÄVER: code_review_github_token, ska kommentarer här skickas till github?"
     code_review_catch_up_commits: "När en ny lagringsplats läggs till ska detta antal ämnen skapas för gamla åtaganden"
