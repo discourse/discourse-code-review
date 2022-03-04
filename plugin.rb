@@ -5,6 +5,7 @@
 # version: 0.1
 # authors: Sam Saffron
 # url: https://github.com/discourse/discourse-code-review
+# transpile_js: true
 
 gem 'sawyer', '0.8.2'
 gem 'octokit', '4.22.0'
