@@ -310,38 +310,34 @@ after_initialize do
     has_one :code_review_commit_topic, class_name: 'DiscourseCodeReview::CommitTopic'
   end
 
-  # TODO(Roman): Remove #respond_to? after the 2.8 release.
-  if respond_to?(:register_notification_consolidation_plan)
-    consolidation_window = 6.hours
+  consolidation_window = 6.hours
+  consolidation_plan = Notifications::ConsolidateNotifications.new(
+    from: Notification.types[:code_review_commit_approved],
+    to: Notification.types[:code_review_commit_approved],
+    threshold: 1,
+    consolidation_window: consolidation_window,
+    unconsolidated_query_blk: Proc.new do |notifications|
+      notifications.where("(data::json ->> 'num_approved_commits')::int = 1")
+    end,
+    consolidated_query_blk: Proc.new do |notifications|
+      notifications.where("(data::json ->> 'num_approved_commits')::int > 1")
+    end
+  ).set_mutations(
+    set_data_blk: Proc.new do |notification|
+      data = notification.data_hash
+      previous_approved_count = Notification.where(
+        user: notification.user,
+        notification_type: Notification.types[:code_review_commit_approved]
+      ).where('created_at > ?', consolidation_window.ago).pluck("data::json ->> 'num_approved_commits'")
 
-    consolidation_plan = Notifications::ConsolidateNotifications.new(
-      from: Notification.types[:code_review_commit_approved],
-      to: Notification.types[:code_review_commit_approved],
-      threshold: 1,
-      consolidation_window: consolidation_window,
-      unconsolidated_query_blk: Proc.new do |notifications|
-        notifications.where("(data::json ->> 'num_approved_commits')::int = 1")
-      end,
-      consolidated_query_blk: Proc.new do |notifications|
-        notifications.where("(data::json ->> 'num_approved_commits')::int > 1")
-      end
-    ).set_mutations(
-      set_data_blk: Proc.new do |notification|
-        data = notification.data_hash
-        previous_approved_count = Notification.where(
-          user: notification.user,
-          notification_type: Notification.types[:code_review_commit_approved]
-        ).where('created_at > ?', consolidation_window.ago).pluck("data::json ->> 'num_approved_commits'")
+      previous_approved_count = previous_approved_count.map(&:to_i).sum
+      data.merge(num_approved_commits: previous_approved_count + 1)
+    end
+  ).set_precondition(
+    precondition_blk: Proc.new { |data| data[:num_approved_commits] > 1 }
+  )
 
-        previous_approved_count = previous_approved_count.map(&:to_i).sum
-        data.merge(num_approved_commits: previous_approved_count + 1)
-      end
-    ).set_precondition(
-      precondition_blk: Proc.new { |data| data[:num_approved_commits] > 1 }
-    )
-
-    register_notification_consolidation_plan(consolidation_plan)
-  end
+  register_notification_consolidation_plan(consolidation_plan)
 end
 
 DiscourseCodeReview::RakeTasks.define_tasks
