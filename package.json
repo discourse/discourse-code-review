@@ -1,10 +1,10 @@
 {
   "name": "discourse-code-review",
   "version": "1.0.0",
-  "respository": "git@github.com:discourse/discourse-code-review.git",
+  "repository": "https://github.com/discourse/discourse-code-review",
   "author": "Discourse",
   "license": "MIT",
   "devDependencies": {
-    "eslint-config-discourse": "^2.0.0"
+    "eslint-config-discourse": "^3.0.0"
   }
 }

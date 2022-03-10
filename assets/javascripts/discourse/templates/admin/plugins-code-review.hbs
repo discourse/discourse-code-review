@@ -2,7 +2,7 @@
 
 {{#if this.organizations}}
   <div class="alert alert-warning">
-    {{html-safe (i18n "code_review.configure_webhooks_warning") }}
+    {{html-safe (i18n "code_review.configure_webhooks_warning")}}
   </div>
 
   {{d-button
@@ -13,7 +13,7 @@
     title=configureWebhooksTitle
   }}
 {{else}}
-  {{html-safe (i18n "code_review.no_organizations_configured") }}
+  {{html-safe (i18n "code_review.no_organizations_configured")}}
 {{/if}}
 
 {{#conditional-loading-spinner condition=loading}}
