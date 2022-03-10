@@ -3,9 +3,10 @@ import {
   exists,
   updateCurrentUser,
 } from "discourse/tests/helpers/qunit-helpers";
-import Fixtures from "discourse/tests/fixtures/topic";
+import topicFixtures from "discourse/tests/fixtures/topic";
 import { visit } from "@ember/test-helpers";
 import { test } from "qunit";
+import { cloneJSON } from "discourse-common/lib/object";
 
 acceptance("review desktop", function (needs) {
   needs.user();
@@ -15,7 +16,7 @@ acceptance("review desktop", function (needs) {
     code_review_followup_tag: "followup",
   });
   needs.pretender((server) => {
-    const json = Object.assign({}, Fixtures["/t/280/1.json"]);
+    const json = cloneJSON(topicFixtures["/t/280/1.json"]);
     json.tags = ["pending"];
 
     server.get("/t/281.json", () => {
