@@ -64,6 +64,20 @@ describe DiscourseCodeReview::ReposController do
     end
 
     context "#index" do
+      context "when the plugin is not configured" do
+        before do
+          SiteSetting.code_review_github_token = ''
+          SiteSetting.code_review_github_webhook_secret = ''
+        end
+
+        it "returns a friendly error to the client" do
+          get '/admin/plugins/code-review/organizations/org/repos.json'
+          expect(JSON.parse(response.body)).to eq(
+            'error' => I18n.t("discourse_code_review.bad_github_credentials_error"), 'failed' => "FAILED"
+          )
+        end
+      end
+
       context "when the API returns Octokit::Unauthorized" do
         let!(:client) do
           client = mock

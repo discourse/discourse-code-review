@@ -8,7 +8,7 @@ module DiscourseCodeReview
     def index
       repository_names = client.organization_repositories(organization).map(&:name)
       render_json_dump(repository_names)
-    rescue Octokit::Unauthorized
+    rescue DiscourseCodeReview::APIUserError, Octokit::Unauthorized
       render json: failed_json.merge(
         error: I18n.t("discourse_code_review.bad_github_credentials_error")
       ), status: 401
