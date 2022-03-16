@@ -117,12 +117,17 @@ module DiscourseCodeReview
                 skip_validations: true,
               )
 
+              TopicCustomField.where(
+                name: DiscourseCodeReview::COMMIT_HASH,
+                value: commit[:hash]
+              ).destroy_all
               TopicCustomField.create!(
                 topic_id: post.topic_id,
                 name: DiscourseCodeReview::COMMIT_HASH,
                 value: commit[:hash]
               )
 
+              CommitTopic.where(sha: commit[:hash]).destroy_all
               CommitTopic.create!(
                 topic_id: post.topic_id,
                 sha: commit[:hash],
