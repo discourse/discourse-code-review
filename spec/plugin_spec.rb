@@ -216,4 +216,14 @@ describe DiscourseCodeReview do
       expect(user.can_review?).to eq(false)
     end
   end
+
+  describe 'code_review_default_parent_category' do
+    fab!(:parent_category) { Fabricate(:category) }
+    fab!(:child_category) { Fabricate(:category, parent_category: parent_category) }
+
+    it 'check if code_review_default_parent_category is valid' do
+      expect { SiteSetting.code_review_default_parent_category = parent_category.id }.not_to raise_error
+      expect { SiteSetting.code_review_default_parent_category = child_category.id }.to raise_error
+    end
+  end
 end
