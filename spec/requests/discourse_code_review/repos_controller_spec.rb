@@ -72,7 +72,7 @@ describe DiscourseCodeReview::ReposController do
 
         it "returns a friendly error to the client" do
           get '/admin/plugins/code-review/organizations/org/repos.json'
-          expect(JSON.parse(response.body)).to eq(
+          expect(response.parsed_body).to eq(
             'error' => I18n.t("discourse_code_review.bad_github_credentials_error"), 'failed' => "FAILED"
           )
         end
