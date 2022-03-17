@@ -217,13 +217,14 @@ describe DiscourseCodeReview do
     end
   end
 
-  describe 'code_review_default_parent_category' do
+  describe 'validating code_review_default_parent_category site setting' do
     fab!(:parent_category) { Fabricate(:category) }
     fab!(:child_category) { Fabricate(:category, parent_category: parent_category) }
 
     it 'check if code_review_default_parent_category is valid' do
       expect { SiteSetting.code_review_default_parent_category = parent_category.id }.not_to raise_error
-      expect { SiteSetting.code_review_default_parent_category = child_category.id }.to raise_error
+      expect { SiteSetting.code_review_default_parent_category = child_category.id }.to raise_error(Discourse::InvalidParameters)
+      expect { SiteSetting.code_review_default_parent_category = -1 }.to raise_error(Discourse::InvalidParameters)
     end
   end
 end
