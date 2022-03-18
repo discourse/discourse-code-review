@@ -41,5 +41,49 @@ module DiscourseCodeReview
       expect(result[0]).to eq(markdown)
       expect(result[2].to_html).to eq(cooked)
     end
+
+    context "#ensure_commit" do
+      fab!(:user) { Fabricate(:user) }
+      fab!(:category) { Fabricate(:category) }
+
+      it "can handle deleted topics" do
+        commit = {
+          subject: "hello world",
+          body: "this is the body\nwith an emoji :)",
+          email: "sam@sam.com",
+          github_login: "sam",
+          github_id: "111",
+          date: 1.day.ago,
+          diff: "```\nwith a diff",
+          hash: "154f503d2e99f904356b52f2fae9edcc495708fa"
+        }
+
+        repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
+
+        topic_id = State::CommitTopics.ensure_commit(
+          category_id: category.id,
+          commit: commit,
+          merged: false,
+          repo_name: repo.name,
+          user: user,
+          followees: []
+        )
+
+        topic = Topic.find(topic_id)
+        PostDestroyer.new(Discourse.system_user, topic.first_post).destroy
+        expect(Topic.find_by(id: topic_id)).to eq(nil)
+
+        topic_id = State::CommitTopics.ensure_commit(
+          category_id: category.id,
+          commit: commit,
+          merged: false,
+          repo_name: repo.name,
+          user: user,
+          followees: []
+        )
+
+        expect(Topic.find_by(id: topic_id)).not_to eq(nil)
+      end
+    end
   end
 end
