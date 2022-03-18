@@ -39,6 +39,7 @@ plugins:
   code_review_default_parent_category:
     type: category
     default: ""
+    validator: "ParentCategoryValidator"
   code_review_theme:
     client: true
     default: false
