@@ -46,6 +46,32 @@ module DiscourseCodeReview
       fab!(:user) { Fabricate(:user) }
       fab!(:category) { Fabricate(:category) }
 
+      it "can handle commits without message" do
+        commit = {
+          subject: "",
+          body: "",
+          email: "re@gis.com",
+          github_login: "regis",
+          github_id: "123",
+          date: 10.day.ago,
+          diff: "```\nwith a diff",
+          hash: "1cd4e0bec9ebd50f353a52b9c197f713c0e1f422"
+        }
+
+        repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
+
+        topic_id = State::CommitTopics.ensure_commit(
+          category_id: category.id,
+          commit: commit,
+          merged: false,
+          repo_name: repo.name,
+          user: user,
+          followees: []
+        )
+
+        expect(Topic.find_by(id: topic_id).title).to start_with("No message for commit ")
+      end
+
       it "can handle deleted topics" do
         commit = {
           subject: "hello world",
