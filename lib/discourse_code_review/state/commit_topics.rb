@@ -63,7 +63,7 @@ module DiscourseCodeReview
               [GitHub](https://github.com/#{repo_name}/commit/#{commit[:hash]})
             LINK
 
-            title = commit[:subject]
+            title = commit[:subject].presence || "No message for commit #{commit[:hash][0, 8]}"
             # we add a unicode zero width joiner so code block is not corrupted
             diff = commit[:diff].gsub('```', "`\u200d``")
 
