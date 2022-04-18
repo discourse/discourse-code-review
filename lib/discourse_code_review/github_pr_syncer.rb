@@ -84,9 +84,11 @@ module DiscourseCodeReview
           .where(code_review_commit_topics: { sha: commit_hash })
           .first
 
+      Rails.logger.warn("[DiscourseCodeReview::GithubPRSyncer#apply_github_approves] [commit_hash = #{commit_hash}] topic.id = #{topic&.id}") if SiteSetting.code_review_debug
       if topic
         pr_service.associated_pull_requests(repo_name, commit_hash).each do |pr|
           merge_info = pr_service.merge_info(pr)
+          Rails.logger.warn("[DiscourseCodeReview::GithubPRSyncer#apply_github_approves] [commit_hash = #{commit_hash}] pr = #{pr.to_json}, merge_info = #{merge_info}") if SiteSetting.code_review_debug
           if merge_info[:merged_by]
             merged_by = ensure_actor(merge_info[:merged_by])
 
@@ -98,6 +100,7 @@ module DiscourseCodeReview
                   SiteSetting.code_review_allow_self_approval || topic.user_id != user.id
                 }
 
+            Rails.logger.warn("[DiscourseCodeReview::GithubPRSyncer#apply_github_approves] [commit_hash = #{commit_hash}] approvers = #{approvers}") if SiteSetting.code_review_debug
             State::CommitApproval.approve(
               topic,
               approvers,

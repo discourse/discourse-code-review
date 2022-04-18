@@ -17,6 +17,7 @@ module Jobs
 
       importer.sync_merged_commits do |commit_hash|
         if SiteSetting.code_review_approve_approved_prs
+          Rails.logger.warn("[Jobs::CodeReviewSyncCommits] Applying Github approves for repo_name = #{repo_name}, commit_hash = #{commit_hash}") if SiteSetting.code_review_debug
           DiscourseCodeReview
             .github_pr_syncer
             .apply_github_approves(repo_name, commit_hash)

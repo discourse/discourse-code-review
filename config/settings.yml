@@ -43,3 +43,6 @@ plugins:
   code_review_theme:
     client: true
     default: false
+  code_review_debug:
+    default: false
+    hidden: true
