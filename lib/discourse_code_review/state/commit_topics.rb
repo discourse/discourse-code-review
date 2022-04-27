@@ -216,9 +216,13 @@ module DiscourseCodeReview
       end
 
       def escape_trailers(body)
-        return body if body !~ /\n\n(?:\S+: .+\n?)+\Z/i
         first, separator, last = body.rpartition("\n\n")
-        "#{first}#{separator}[code]\n#{last.strip}\n[/code]"
+        return body if first.blank?
+
+        last.strip!
+        return body if last !~ /(?:\S+: .+\n?)+\Z/i
+
+        "#{first}#{separator}[code]\n#{last}\n[/code]"
       end
     end
   end
