@@ -1,11 +1,8 @@
 import { createWidgetFrom } from "discourse/widgets/widget";
 import { DefaultNotificationItem } from "discourse/widgets/default-notification-item";
-import { replaceIcon } from "discourse-common/lib/icon-library";
 import { postUrl } from "discourse/lib/utilities";
 import { userPath } from "discourse/lib/url";
 import I18n from "I18n";
-
-replaceIcon("notification.code_review_commit_approved", "check");
 
 createWidgetFrom(
   DefaultNotificationItem,
@@ -24,7 +21,7 @@ createWidgetFrom(
         });
       } else {
         return I18n.t("notifications.code_review.commit_approved.multiple", {
-          numApprovedCommits,
+          count: numApprovedCommits,
         });
       }
     },

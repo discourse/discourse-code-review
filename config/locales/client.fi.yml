@@ -17,7 +17,7 @@ fi:
       code_review:
         commit_approved:
           single: '"%{topicTitle}" hyväksytty'
-          multiple: "%{numApprovedCommits} solmua hyväksyttiin"
+          multiple: "%{count} solmua hyväksyttiin"
           title: "solmu hyväksytty"
     code_review:
       title: "Koodin tarkistus"

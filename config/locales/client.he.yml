@@ -17,7 +17,7 @@ he:
       code_review:
         commit_approved:
           single: '„%{topicTitle}” קיבל אישור'
-          multiple: "%{numApprovedCommits} הגשות קיבלו אישור"
+          multiple: "%{count} הגשות קיבלו אישור"
           title: "ההגשה אושרה"
     code_review:
       title: "סקירת קוד"

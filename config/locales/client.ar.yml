@@ -17,7 +17,7 @@ ar:
       code_review:
         commit_approved:
           single: 'تمت الموافقة على "%{topicTitle}"'
-          multiple: "تمت الموافقة على %{numApprovedCommits} من الإرسالات"
+          multiple: "تمت الموافقة على %{count} من الإرسالات"
           title: "تمت الموافقة على الإرسال"
     code_review:
       title: "مراجعة الرمز"

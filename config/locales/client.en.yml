@@ -11,7 +11,9 @@ en:
       code_review:
         commit_approved:
           single: '"%{topicTitle}" approved'
-          multiple: "%{numApprovedCommits} commits were approved"
+          multiple:
+            one: "%{count} commit was approved"
+            other: "%{count} commits were approved"
           title: "commit approved"
     code_review:
       title: "Code Review"

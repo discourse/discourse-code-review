@@ -17,7 +17,7 @@ de:
       code_review:
         commit_approved:
           single: '„%{topicTitle}“ genehmigt'
-          multiple: "%{numApprovedCommits} Commits wurden genehmigt"
+          multiple: "%{count} Commits wurden genehmigt"
           title: "Commit genehmigt"
     code_review:
       title: "Code-Review"
