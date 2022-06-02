@@ -347,6 +347,48 @@ module DiscourseCodeReview
       HTML
     end
 
+    it "escapes Git trailers only if it starts at the beginning of the line" do
+      topic = Fabricate(:topic)
+      topic.custom_fields[DiscourseCodeReview::COMMIT_HASH] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
+      topic.save
+      CommitTopic.create!(topic_id: topic.id, sha: "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb")
+
+      repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
+      repo.expects(:default_branch_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
+      repo.expects(:followees).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns([])
+
+      body = <<~TEXT
+      Commit title
+
+         example: https://example.com
+      TEXT
+
+      commit = {
+        subject: "hello world",
+        body: body,
+        email: "sam@sam.com",
+        github_login: "sam",
+        github_id: "111",
+        date: 1.day.ago,
+        diff: "```\nwith a diff",
+        hash: "154f503d2e99f904356b52f2fae9edcc495708fa"
+      }
+
+      topic = Topic.find(Importer.new(repo).import_commit(commit))
+      expect(topic.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
+      expect(topic.posts.pluck_first(:cooked)).to match_html <<~HTML
+        <div class="excerpt">
+        <p>Commit title</p>
+        <p>   example: <a href="https://example.com">https://example.com</a></p>
+        </div>
+        <pre><code class="lang-diff">`‍``
+        with a diff
+        </code></pre>
+        <p><a href="https://github.com/discourse/discourse/commit/154f503d2e99f904356b52f2fae9edcc495708fa">GitHub</a><br>
+        <small>sha: 154f503d2e99f904356b52f2fae9edcc495708fa</small></p>
+      HTML
+    end
+
     it "escapes correct Git trailers" do
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
       repo.expects(:default_branch_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
