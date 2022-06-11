@@ -2,7 +2,8 @@
   {{#each filteredTopicsByDate as |topicsByDate|}}
     {{#unless skipHeader}}
       <thead class="code-review">
-        {{raw "review-topic-list-header"
+        {{raw
+          "review-topic-list-header"
           topicsDate=topicsByDate.date
           canBulkSelect=canBulkSelect
           toggleInTitle=toggleInTitle
@@ -28,14 +29,16 @@
         bulkSelectEnabled=bulkSelectEnabled
         lastVisitedTopic=lastVisitedTopic
         discoveryList=discoveryList
-        hideCategory=hideCategory)
+        hideCategory=hideCategory
+      )
       tagName=""
       connectorTagName=""
     }}
 
     <tbody class="code-review">
       {{#each topicsByDate.topics as |topic|}}
-        {{review-topic-list-item topic=topic
+        {{review-topic-list-item
+          topic=topic
           bulkSelectEnabled=bulkSelectEnabled
           showTopicPostBadges=showTopicPostBadges
           hideCategory=hideCategory
@@ -48,7 +51,8 @@
           selected=selected
           tagsForUser=tagsForUser
         }}
-        {{raw "list/visited-line"
+        {{raw
+          "list/visited-line"
           lastVisitedTopic=lastVisitedTopic
           topic=topic
         }}
@@ -59,7 +63,8 @@
   {{! original app/templates/components/topic-list.hbs }}
   {{#unless skipHeader}}
     <thead>
-      {{raw "topic-list-header"
+      {{raw
+        "topic-list-header"
         canBulkSelect=canBulkSelect
         toggleInTitle=toggleInTitle
         hideCategory=hideCategory
@@ -84,14 +89,16 @@
       bulkSelectEnabled=bulkSelectEnabled
       lastVisitedTopic=lastVisitedTopic
       discoveryList=discoveryList
-      hideCategory=hideCategory)
+      hideCategory=hideCategory
+    )
     tagName=""
     connectorTagName=""
   }}
 
   <tbody>
     {{#each filteredTopics as |topic|}}
-      {{topic-list-item topic=topic
+      {{topic-list-item
+        topic=topic
         bulkSelectEnabled=bulkSelectEnabled
         showTopicPostBadges=showTopicPostBadges
         hideCategory=hideCategory
@@ -104,10 +111,7 @@
         selected=selected
         tagsForUser=tagsForUser
       }}
-      {{raw "list/visited-line"
-        lastVisitedTopic=lastVisitedTopic
-        topic=topic
-      }}
+      {{raw "list/visited-line" lastVisitedTopic=lastVisitedTopic topic=topic}}
     {{/each}}
   </tbody>
 {{/if}}
