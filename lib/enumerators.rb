@@ -1,60 +1,6 @@
 # frozen_string_literal: true
 
 module Enumerators
-  class MapWithPreviousEnumerator
-    include Enumerable
-
-    def initialize(enumerable, &f)
-      @enumerable = enumerable
-      @f = f
-    end
-
-    def each(&blk)
-      previous = nil
-      first = true
-
-      @enumerable.each do |value|
-        unless first
-          blk.call(@f.call(previous, value))
-        end
-
-        previous = value
-        first = false
-      end
-    end
-  end
-
-  class CompactEnumerator
-    include Enumerable
-
-    def initialize(enumerable)
-      @enumerable = enumerable
-    end
-
-    def each(&blk)
-      @enumerable.each do |value|
-        unless value.nil?
-          blk.call(value)
-        end
-      end
-    end
-  end
-
-  class MapEnumerator
-    include Enumerable
-
-    def initialize(enumerable, &f)
-      @enumerable = enumerable
-      @f = f
-    end
-
-    def each(&blk)
-      @enumerable.each do |value|
-        blk.call(@f.call(value))
-      end
-    end
-  end
-
   class FlattenMerge
     include Enumerable
 
