@@ -124,7 +124,7 @@ module DiscourseCodeReview
           }
         end
 
-      Enumerators::MapWithPreviousEnumerator.new(comments) do |previous, comment|
+      comments.lazy.each_cons.map do |previous, comment|
         event_info =
           PullRequestEventInfo.new(
             actor:
@@ -144,7 +144,7 @@ module DiscourseCodeReview
           )
 
         [event_info, event]
-      end
+      end.eager
     end
 
     def review_threads(pr)
@@ -174,9 +174,9 @@ module DiscourseCodeReview
           }
         end
 
-      Enumerators::MapEnumerator.new(events) do |event|
+      events.lazy.map do |event|
         CommentThread.new(github_id: event[:id])
-      end
+      end.eager
     end
 
     def commit_threads(pr)
@@ -219,7 +219,7 @@ module DiscourseCodeReview
           }
         end
 
-      Enumerators::MapEnumerator.new(events) do |event|
+      events.lazy.map do |event|
         first_comment = event[:comments][:nodes][0]
 
         CommitThread.new(
@@ -231,7 +231,7 @@ module DiscourseCodeReview
           commit_sha: event[:commit][:oid],
           created_at: Time.parse(first_comment[:createdAt])
         )
-      end
+      end.eager
     end
 
     def is_merged_into_default?(pr)
@@ -409,51 +409,49 @@ module DiscourseCodeReview
           }
         end
 
-      Enumerators::CompactEnumerator.new(
-        Enumerators::MapEnumerator.new(events) { |event|
-          event_info =
-            PullRequestEventInfo.new(
-              github_id: event[:id],
-              actor:
-                Actor.new(
-                  github_login: event[:actor][:login]
-                ),
-              created_at: Time.parse(event[:createdAt])
-            )
+      events.lazy.filter_map { |event|
+        event_info =
+          PullRequestEventInfo.new(
+            github_id: event[:id],
+            actor:
+              Actor.new(
+                github_login: event[:actor][:login]
+              ),
+            created_at: Time.parse(event[:createdAt])
+          )
 
-          event =
-            case event[:__typename]
-            when "ClosedEvent"
-              PullRequestEvent.create(:closed)
-            when "PullRequestReview"
-              if event[:body].present?
-                PullRequestEvent.create(
-                  :issue_comment,
-                  body: event[:body],
-                )
-              end
-            when "IssueComment"
+        event =
+          case event[:__typename]
+          when "ClosedEvent"
+            PullRequestEvent.create(:closed)
+          when "PullRequestReview"
+            if event[:body].present?
               PullRequestEvent.create(
                 :issue_comment,
                 body: event[:body],
               )
-            when "MergedEvent"
-              PullRequestEvent.create(:merged)
-            when "RenamedTitleEvent"
-              PullRequestEvent.create(
-                :renamed_title,
-                previous_title: event[:previousTitle],
-                new_title: event[:currentTitle]
-              )
-            when "ReopenedEvent"
-              PullRequestEvent.create(:reopened)
-            else
-              raise "Unexpected typename"
             end
+          when "IssueComment"
+            PullRequestEvent.create(
+              :issue_comment,
+              body: event[:body],
+            )
+          when "MergedEvent"
+            PullRequestEvent.create(:merged)
+          when "RenamedTitleEvent"
+            PullRequestEvent.create(
+              :renamed_title,
+              previous_title: event[:previousTitle],
+              new_title: event[:currentTitle]
+            )
+          when "ReopenedEvent"
+            PullRequestEvent.create(:reopened)
+          else
+            raise "Unexpected typename"
+          end
 
-          [event_info, event] unless event.nil?
-        }
-      )
+        [event_info, event] unless event.nil?
+      }.eager
     end
 
     def pull_request_data(pr)
@@ -507,13 +505,13 @@ module DiscourseCodeReview
           }
         end
 
-      Enumerators::MapEnumerator.new(prs) { |pr|
+      prs.lazy.map { |pr|
         PullRequest.new(
           owner: owner,
           name: name,
           issue_number: pr[:number]
         )
-      }
+      }.eager
     end
 
     def associated_pull_requests(owner, name, commit_sha)
@@ -543,13 +541,13 @@ module DiscourseCodeReview
           }
         end
 
-      Enumerators::MapEnumerator.new(prs) { |pr|
+      prs.lazy.map { |pr|
         PullRequest.new(
           owner: owner,
           name: name,
           issue_number: pr[:number]
         )
-      }
+      }.eager
     end
 
     private

@@ -97,17 +97,11 @@ module DiscourseCodeReview::Source
     end
 
     def commits_since(from, to)
-      Enumerators::MapEnumerator.new(
-        rugged_commits_since(from, to),
-        &method(:sanitize_commit)
-      )
+      rugged_commits_since(from, to).lazy.map(&method(:sanitize_commit)).eager
     end
 
     def commit_oids_since(from, to)
-      Enumerators::MapEnumerator.new(
-        rugged_commits_since(from, to).each_oid,
-        &method(:sanitize_string)
-      )
+      rugged_commits_since(from, to).each_oid.lazy.map(&method(:sanitize_string)).eager
     end
 
     private
