@@ -267,8 +267,8 @@ after_initialize do
     end
   end
 
-  add_to_class(:user, :can_review?) do
-    @can_review ||= begin
+  add_to_class(:user, :can_review_code?) do
+    @can_review_code ||= begin
       if admin?
         :true
       else
@@ -277,11 +277,11 @@ after_initialize do
       end
     end
 
-    @can_review == :true
+    @can_review_code == :true
   end
 
-  add_to_serializer(:current_user, :can_review) do
-    object.can_review?
+  add_to_serializer(:current_user, :can_review_code) do
+    object.can_review_code?
   end
 
   require_dependency 'list_controller'

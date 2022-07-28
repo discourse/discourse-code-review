@@ -3,11 +3,11 @@
 module DiscourseCodeReview
   class CodeReviewController < ::ApplicationController
     before_action :ensure_logged_in
-    before_action :ensure_can_review
+    before_action :ensure_can_review_code
 
     skip_before_action :verify_authenticity_token, only: :webhook
     skip_before_action :ensure_logged_in, only: :webhook
-    skip_before_action :ensure_can_review, only: :webhook
+    skip_before_action :ensure_can_review_code, only: :webhook
     skip_before_action :redirect_to_login_if_required, only: :webhook
     skip_before_action :check_xhr, only: [:webhook, :redirect]
 
@@ -219,8 +219,8 @@ module DiscourseCodeReview
       }
     end
 
-    def ensure_can_review
-      raise Discourse::InvalidAccess.new unless current_user && current_user.can_review?
+    def ensure_can_review_code
+      raise Discourse::InvalidAccess.new unless current_user && current_user.can_review_code?
     end
   end
 end

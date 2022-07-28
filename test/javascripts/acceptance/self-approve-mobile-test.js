@@ -9,7 +9,9 @@ import { test } from "qunit";
 import { cloneJSON } from "discourse-common/lib/object";
 
 acceptance("review mobile", function (needs) {
-  needs.user();
+  needs.user({
+    can_review_code: true,
+  });
   needs.mobileView();
   needs.settings({
     code_review_approved_tag: "approved",
