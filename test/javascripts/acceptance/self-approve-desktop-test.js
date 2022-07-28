@@ -9,7 +9,9 @@ import { test } from "qunit";
 import { cloneJSON } from "discourse-common/lib/object";
 
 acceptance("review desktop", function (needs) {
-  needs.user();
+  needs.user({
+    can_review_code: true,
+  });
   needs.settings({
     code_review_approved_tag: "approved",
     code_review_pending_tag: "pending",
