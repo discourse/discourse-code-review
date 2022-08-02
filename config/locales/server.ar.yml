@@ -28,7 +28,6 @@ ar:
     code_review_approve_approved_prs: "الموافقة التلقائية على الإرسالات الموجودة في طلبات السحب التي تمت الموافقة عليها"
     code_review_default_mute_new_categories: "كتم جميع فئات المستخدمين التي أنشأها المكوِّن الإضافي"
     code_review_default_parent_category: "الفئة الرئيسية الافتراضية للفئات التي أنشأها المكوِّن الإضافي"
-    code_review_theme: "تفعيل سمة مراجعة التعليمات البرمجية المخصَّصة"
   discourse_code_review:
     category_description: |
       تم إنشاء هذه الفئة لتحتوي على مراجعات لرمز المستودع %{repo_name}. يتم إنشاء الموضوعات لكل طلب إرسال أو سحب.

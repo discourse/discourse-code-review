@@ -28,7 +28,6 @@ it:
     code_review_approve_approved_prs: "Approva automaticamente i commit che esistono nelle richieste pull approvate"
     code_review_default_mute_new_categories: "Silenzia per tutte le categorie di utenti create dal plugin"
     code_review_default_parent_category: "Categoria superiore predefinita per le categorie create dal plug-in"
-    code_review_theme: "Abilita il tema di revisione del codice personalizzato"
   discourse_code_review:
     category_description: |
       Questa categoria è stata creata per contenere le revisioni del codice per %{repo_name}. Gli argomenti vengono creati per ogni commit o richiesta pull.

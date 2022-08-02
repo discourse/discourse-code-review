@@ -29,7 +29,6 @@ sv:
     code_review_approve_approved_prs: "Godkänn automatiskt åtaganden som finns i godkända dragförfrågningar"
     code_review_default_mute_new_categories: "Tysta för alla användarkategorier som skapats av tillägget"
     code_review_default_parent_category: "Förvald överordnad kategori för kategorier som skapats av tillägget"
-    code_review_theme: "Aktivera tema för anpassad kodgranskning"
   discourse_code_review:
     category_description: |
       Denna kategori skapades för att innehålla kodgranskningar för %{repo_name}. Ämnen skapas för varje åtagande eller dragförfrågning.

@@ -28,7 +28,6 @@ ja:
     code_review_approve_approved_prs: "承認済みのプルリクエストに存在するコミットを自動承認する"
     code_review_default_mute_new_categories: "プラグインによって作成されたすべてのユーザーカテゴリをミュートする"
     code_review_default_parent_category: "プラグインによって作成されたカテゴリのデフォルトの親カテゴリ"
-    code_review_theme: "カスタムコードレビューテーマを有効にする"
   discourse_code_review:
     category_description: |
       このカテゴリは、%{repo_name} のコードレビューを含むために作成されました。トピックは、コミットまたはプルリクエストごとに作成されます。
