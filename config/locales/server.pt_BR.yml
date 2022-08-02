@@ -28,7 +28,6 @@ pt_BR:
     code_review_approve_approved_prs: "Aprovar automaticamente confirmações existentes em solicitações de recepção aprovadas"
     code_review_default_mute_new_categories: "Silenciar todas as categorias de usuário(a) criadas pelo plugin"
     code_review_default_parent_category: "Categoria pai padrão para categorias criadas pelo plugin"
-    code_review_theme: "Ativar tema de revisão de código personalizado"
   discourse_code_review:
     category_description: |
       Esta categoria foi criada para conter revisões de código para %{repo_name}. Tópicos são criados para cada confirmação ou solicitação de recepção.

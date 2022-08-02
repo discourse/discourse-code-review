@@ -28,7 +28,6 @@ zh_CN:
     code_review_approve_approved_prs: "自动批准已批准的拉取请求中存在的提交"
     code_review_default_mute_new_categories: "为插件创建的所有用户类别设置免打扰"
     code_review_default_parent_category: "插件创建的类别的默认上级类别"
-    code_review_theme: "启用自定义代码审查主题"
   discourse_code_review:
     category_description: |
       此类别的创建目的是包含 %{repo_name} 的代码审查。会为每个提交或拉取请求创建话题。

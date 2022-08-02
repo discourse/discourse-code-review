@@ -28,7 +28,6 @@ fi:
     code_review_approve_approved_prs: "Hyväksy automaattisesti solmut, jotka ovat hyväksytyissä vetopyynnöissä"
     code_review_default_mute_new_categories: "Mykistä kaikille lisäosan luomille käyttäjäluokille"
     code_review_default_parent_category: "Oletusarvoinen ylätason alue lisäosan luomille alueille"
-    code_review_theme: "Ota mukautettu koodintarkistusteema käyttöön"
   discourse_code_review:
     category_description: |
       Tämä alue luotiin sisältämään tietosäilön %{repo_name} kooditarkistuksia. Ketjuja luodaan jokaiselle solmulle tai vetopyynnölle.

@@ -28,7 +28,6 @@ de:
     code_review_approve_approved_prs: "Commits automatisch genehmigen, die in genehmigten PRs existieren"
     code_review_default_mute_new_categories: "Für alle vom Plug-in erstellten Benutzerkategorien stummschalten"
     code_review_default_parent_category: "Standardmäßige übergeordnete Kategorie für Kategorien, die vom Plug-in erstellt wurden"
-    code_review_theme: "Benutzerdefiniertes Code-Review-Theme aktivieren"
   discourse_code_review:
     category_description: |
       Diese Kategorie wurde für Code-Reviews für %{repo_name} erstellt. Themen werden für jeden Commit oder jedes PR erstellt.

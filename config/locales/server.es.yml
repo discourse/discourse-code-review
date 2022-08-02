@@ -28,7 +28,6 @@ es:
     code_review_approve_approved_prs: "Aprobar automáticamente los commits que existen en las solicitudes de extracción aprobadas"
     code_review_default_mute_new_categories: "Silenciar todas las categorías de usuarios creadas por el plugin"
     code_review_default_parent_category: "Categoría principal predeterminada para las categorías creadas por el plugin"
-    code_review_theme: "Habilitar tema de revisión de código personalizado"
   discourse_code_review:
     category_description: |
       Esta categoría se creó para contener revisiones de código para %{repo_name}. Los temas se crean para cada commit o solicitud de extracción.

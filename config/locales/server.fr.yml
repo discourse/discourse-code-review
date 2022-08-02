@@ -28,7 +28,6 @@ fr:
     code_review_approve_approved_prs: "Approbation automatique des commits qui existent dans les requêtes « pull » approuvées"
     code_review_default_mute_new_categories: "Mettre en sourdine pour toutes les catégories d'utilisateurs créées par l'extension"
     code_review_default_parent_category: "Catégorie parent par défaut pour les catégories créées par l'extension"
-    code_review_theme: "Activer le thème de révision de code personnalisé"
   discourse_code_review:
     category_description: |
       Cette catégorie a été créée pour contenir les révisions de code pour %{repo_name}. Des sujets sont créés pour chaque commit ou requête « pull ».

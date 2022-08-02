@@ -29,7 +29,6 @@ he:
     code_review_approve_approved_prs: "לאשר אוטומטית הגשות שקיימות בבקשות משיכה (PRs) שאושרו"
     code_review_default_mute_new_categories: "להשתיק לכל קטגוריות המשתמשים שנוצרו על ידי התוסף"
     code_review_default_parent_category: "קטגוריות הורה לקטגוריות שנוצרו על ידי התוסף כברירת מחדל"
-    code_review_theme: "הפעלת ערכת עיצוב מותאמת לסקירת קוד"
   discourse_code_review:
     category_description: |
       קטגוריה זו נוצרה כדי להכיל סקירות קוד עבור %{repo_name}. נושאים נוצרו עבור כל הגשה או בקשת משיכה (PR).
