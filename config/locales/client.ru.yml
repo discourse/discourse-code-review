@@ -17,7 +17,7 @@ ru:
       code_review:
         commit_approved:
           single: 'Коммит «%{topicTitle}» одобрен'
-          multiple: "%{numApprovedCommits} коммитов было одобрено"
+          multiple: "%{count} коммитов было одобрено"
           title: "Коммит одобрен"
     code_review:
       title: "Проверка кода"

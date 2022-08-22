@@ -17,7 +17,7 @@ zh_CN:
       code_review:
         commit_approved:
           single: '“%{topicTitle}”已被批准'
-          multiple: "%{numApprovedCommits} 项提交已被批准"
+          multiple: "%{count} 项提交已被批准"
           title: "提交已被批准"
     code_review:
       title: "代码审查"

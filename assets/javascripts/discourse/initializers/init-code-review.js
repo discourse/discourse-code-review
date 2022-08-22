@@ -1,9 +1,10 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
-import DiscourseURL from "discourse/lib/url";
+import DiscourseURL, { userPath } from "discourse/lib/url";
 import { findAll } from "discourse/models/login-method";
 import { computed } from "@ember/object";
+import I18n from "I18n";
 
 const PLUGIN_ID = "discourse-code-review";
 
@@ -186,6 +187,56 @@ function initialize(api) {
       );
     },
   });
+
+  api.replaceIcon("notification.code_review_commit_approved", "check");
+
+  if (api.registerNotificationTypeRenderer) {
+    api.registerNotificationTypeRenderer(
+      "code_review_commit_approved",
+      (NotificationTypeBase) => {
+        return class extends NotificationTypeBase {
+          get linkTitle() {
+            return I18n.t("notifications.code_review.commit_approved.title");
+          }
+
+          get icon() {
+            return "check";
+          }
+
+          get linkHref() {
+            return (
+              super.linkHref ||
+              userPath(`${this.currentUser.username}/activity/approval-given`)
+            );
+          }
+
+          get label() {
+            const numApprovedCommits =
+              this.notification.data.num_approved_commits;
+            if (numApprovedCommits > 1) {
+              return I18n.t(
+                "notifications.code_review.commit_approved.multiple",
+                {
+                  count: numApprovedCommits,
+                }
+              );
+            } else {
+              return I18n.t(
+                "notifications.code_review.commit_approved.single",
+                {
+                  topicTitle: this.notification.fancy_title,
+                }
+              );
+            }
+          }
+
+          get description() {
+            return null;
+          }
+        };
+      }
+    );
+  }
 }
 
 export default {

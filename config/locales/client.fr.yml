@@ -17,7 +17,7 @@ fr:
       code_review:
         commit_approved:
           single: '« %{topicTitle} » approuvé'
-          multiple: "%{numApprovedCommits} commits ont été approuvés"
+          multiple: "%{count} commits ont été approuvés"
           title: "commit approuvé"
     code_review:
       title: "Examen du code"
