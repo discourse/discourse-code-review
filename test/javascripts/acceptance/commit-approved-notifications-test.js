@@ -5,7 +5,6 @@ import I18n from "I18n";
 
 acceptance("Discourse Code Review - Notifications", function (needs) {
   needs.user({ redesigned_user_menu_enabled: true });
-  needs.settings({ calendar_enabled: true });
 
   needs.pretender((server, helper) => {
     server.get("/notifications", () => {
