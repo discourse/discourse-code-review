@@ -17,7 +17,6 @@ ja:
       code_review:
         commit_approved:
           single: '「%{topicTitle}」が承認されました'
-          multiple: "%{count} 件のコミットが承認されました"
           title: "コミットが承認されました"
     code_review:
       title: "コードレビュー"

@@ -17,7 +17,6 @@ sv:
       code_review:
         commit_approved:
           single: '"%{topicTitle}" har godkänts'
-          multiple: "%{count} åtaganden godkändes"
           title: "åtagande godkänt"
     code_review:
       title: "Kodgranskning"
