@@ -17,7 +17,6 @@ pt_BR:
       code_review:
         commit_approved:
           single: 'Aprovou "%{topicTitle}"'
-          multiple: "%{count} confirmações foram aprovadas"
           title: "confirmação aprovada"
     code_review:
       title: "Revisão de código"

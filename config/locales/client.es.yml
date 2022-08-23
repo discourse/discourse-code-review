@@ -17,7 +17,6 @@ es:
       code_review:
         commit_approved:
           single: '«%{topicTitle}» aprobado'
-          multiple: "Se aprobaron %{count} commits"
           title: "commit aprobada"
     code_review:
       title: "Revisión de código"
