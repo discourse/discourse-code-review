@@ -23,8 +23,13 @@ module DiscourseCodeReview
       @default_branch ||= "origin/#{octokit_client.repository(@name)["default_branch"]}"
     end
 
+    def last_local_commit
+      PluginStore.get(DiscourseCodeReview::PluginName, LAST_COMMIT + @name)
+    end
+
     def last_commit
-      commit_hash = PluginStore.get(DiscourseCodeReview::PluginName, LAST_COMMIT + @name)
+      commit_hash = last_local_commit
+
       if commit_hash.present? && !commit_hash_valid?(commit_hash)
         Rails.logger.warn("Discourse Code Review: Failed to detect commit hash `#{commit_hash}` in #{path}, resetting last commit hash.")
         commit_hash = nil
