@@ -19,8 +19,8 @@ acceptance("Discourse Code Review - Notifications", function (needs) {
             created_at: "2001-10-17 15:41:10 UTC",
             post_number: 1,
             topic_id: 883,
-            fancy_title: "Commit #1",
-            slug: "commit-1",
+            fancy_title: "Osama's commit #1",
+            slug: "osama-s-commit-1",
             data: {
               num_approved_commits: 1,
             },
@@ -57,12 +57,12 @@ acceptance("Discourse Code Review - Notifications", function (needs) {
     assert.strictEqual(
       notifications[0].textContent.replaceAll(/\s+/g, " ").trim(),
       I18n.t("notifications.code_review.commit_approved.single", {
-        topicTitle: "Commit #1",
+        topicTitle: "Osama's commit #1",
       }),
       "notification for a single commit approval has the right content"
     );
     assert.ok(
-      notifications[0].href.endsWith("/t/commit-1/883"),
+      notifications[0].href.endsWith("/t/osama-s-commit-1/883"),
       "notification for a single commit approval links to the topic"
     );
     assert.ok(

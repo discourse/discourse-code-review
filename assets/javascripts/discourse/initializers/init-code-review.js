@@ -5,6 +5,7 @@ import DiscourseURL, { userPath } from "discourse/lib/url";
 import { findAll } from "discourse/models/login-method";
 import { computed } from "@ember/object";
 import I18n from "I18n";
+import { htmlSafe } from "@ember/template";
 
 const PLUGIN_ID = "discourse-code-review";
 
@@ -221,11 +222,10 @@ function initialize(api) {
                 }
               );
             } else {
-              return I18n.t(
-                "notifications.code_review.commit_approved.single",
-                {
+              return htmlSafe(
+                I18n.t("notifications.code_review.commit_approved.single", {
                   topicTitle: this.notification.fancy_title,
-                }
+                })
               );
             }
           }
