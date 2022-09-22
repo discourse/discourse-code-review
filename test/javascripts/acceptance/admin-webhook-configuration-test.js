@@ -169,7 +169,6 @@ acceptance(
 
     skip("Should show an error message", async (assert) => {
       await visit("/admin/plugins/code-review");
-      pauseTest();
       assert.equal(query(".modal-body").innerText, "permissions error");
       await click(".modal-footer .btn-primary");
       assert.ok(exists(".code-review-configure-webhooks-button:disabled"));
