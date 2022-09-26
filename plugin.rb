@@ -7,8 +7,8 @@
 # url: https://github.com/discourse/discourse-code-review
 # transpile_js: true
 
-gem 'sawyer', '0.8.2'
-gem 'octokit', '4.22.0'
+gem 'sawyer', '0.9.2'
+gem 'octokit', '5.6.1'
 gem 'pqueue', '2.1.0'
 gem 'rugged', '1.3.1'
 
