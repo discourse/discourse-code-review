@@ -14,7 +14,7 @@ module Jobs
 
       repo = DiscourseCodeReview::GithubRepo.new(repo_name, client, github_commit_querier, repo_id: repo_id)
 
-      if args[:skip_if_updated]
+      if args[:skip_if_up_to_date]
         begin
           octokit_repo = client.repository(repo_name)
           branch = client.branch(repo_name, octokit_repo.default_branch)

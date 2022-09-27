@@ -10,7 +10,7 @@ module Jobs
           :code_review_sync_commits,
           repo_name: repo_name,
           repo_id: repo_id,
-          skip_if_updated: true
+          skip_if_up_to_date: true
         )
       end
     end
