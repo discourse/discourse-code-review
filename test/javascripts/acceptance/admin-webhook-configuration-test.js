@@ -136,8 +136,8 @@ acceptance("GitHub Webhook Configuration - Repo List Error", function (needs) {
 
   test("Should show an error message", async (assert) => {
     await visit("/admin/plugins/code-review");
-    assert.equal(query(".modal-body").innerText, "credential error");
-    await click(".modal-footer .btn-primary");
+    assert.equal(query(".dialog-body").innerText.trim(), "credential error");
+    await click(".dialog-footer .btn-primary");
     assert.ok(exists(".code-review-configure-webhooks-button:disabled"));
   });
 });
@@ -169,8 +169,8 @@ acceptance(
 
     test("Should show an error message", async (assert) => {
       await visit("/admin/plugins/code-review");
-      assert.equal(query(".modal-body").innerText, "permissions error");
-      await click(".modal-footer .btn-primary");
+      assert.equal(query(".dialog-body").innerText.trim(), "permissions error");
+      await click(".dialog-footer .btn-primary");
       assert.ok(exists(".code-review-configure-webhooks-button:disabled"));
     });
   }
