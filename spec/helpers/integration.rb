@@ -6,7 +6,7 @@ require_relative 'rugged_interceptor'
 require_relative 'github_rest_api_mock'
 
 module CodeReviewIntegrationHelpers
-  def declare_github_repo!(owner:, repo:, default_branch: "main", &blk)
+  def declare_github_repo!(owner:, repo:, default_branch: "main", last_commit: "abcdef", &blk)
     local = RemoteMocks.make_repo
 
     RuggedInterceptor::Repository.intercept(
@@ -17,7 +17,8 @@ module CodeReviewIntegrationHelpers
     GithubRestAPIMock.declare_repo!(
       owner: owner,
       repo: repo,
-      default_branch: default_branch
+      default_branch: default_branch,
+      last_commit: last_commit,
     )
 
     blk.call(local)

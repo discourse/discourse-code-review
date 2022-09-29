@@ -13,6 +13,19 @@ module Jobs
       github_commit_querier = DiscourseCodeReview.github_commit_querier
 
       repo = DiscourseCodeReview::GithubRepo.new(repo_name, client, github_commit_querier, repo_id: repo_id)
+
+      if args[:skip_if_up_to_date]
+        begin
+          octokit_repo = client.repository(repo_name)
+          branch = client.branch(repo_name, octokit_repo.default_branch)
+          last_remote_commit = branch.commit.sha
+        rescue
+          Rails.logger.warn("Cannot fetch GitHub repo information for #{repo_name}")
+        end
+
+        return if repo.last_local_commit == last_remote_commit
+      end
+
       importer = DiscourseCodeReview::Importer.new(repo)
 
       importer.sync_merged_commits do |commit_hash|

@@ -11,6 +11,7 @@ describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
         owner: "10xninjarockstar",
         repo: "ultimatetodolist",
         default_branch: "main",
+        last_commit: "abcdef",
       ) do |repo|
         msg = "Initial commit"
 
@@ -46,6 +47,30 @@ describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
 
       hash = topics.first.custom_fields[DiscourseCodeReview::COMMIT_HASH]
       expect(commit_post.raw).to include("sha: #{hash}")
+    end
+
+    it "skips if last local and remote commit SHAs match" do
+      PluginStore.set(
+        DiscourseCodeReview::PluginName,
+        DiscourseCodeReview::GithubRepo::LAST_COMMIT + '10xninjarockstar/ultimatetodolist',
+        'abcdef'
+      )
+
+      expect {
+        described_class.new.execute(repo_name: '10xninjarockstar/ultimatetodolist', repo_id: 24, skip_if_up_to_date: true)
+      }.to change { Topic.count }.by(0)
+    end
+
+    it "does not skips if last local and remote commit SHAs mismatch" do
+      PluginStore.set(
+        DiscourseCodeReview::PluginName,
+        DiscourseCodeReview::GithubRepo::LAST_COMMIT + '10xninjarockstar/ultimatetodolist',
+        'abcdeg'
+      )
+
+      expect {
+        described_class.new.execute(repo_name: '10xninjarockstar/ultimatetodolist', repo_id: 24, skip_if_up_to_date: true)
+      }.to change { Topic.count }.by(2)
     end
   end
 end
