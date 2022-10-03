@@ -58,7 +58,7 @@ describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
 
       expect {
         described_class.new.execute(repo_name: '10xninjarockstar/ultimatetodolist', repo_id: 24, skip_if_up_to_date: true)
-      }.to change { Topic.count }.by(0)
+      }.not_to change { Topic.count }
     end
 
     it "does not skips if last local and remote commit SHAs mismatch" do

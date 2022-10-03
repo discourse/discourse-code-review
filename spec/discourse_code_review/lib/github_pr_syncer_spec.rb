@@ -105,7 +105,7 @@ describe DiscourseCodeReview::GithubPRSyncer do
     )
   end
 
-  context "#sync_pull_request" do
+  describe "#sync_pull_request" do
     context "when there are no events" do
       let!(:syncer) do
         pr_service =
@@ -129,7 +129,7 @@ describe DiscourseCodeReview::GithubPRSyncer do
 
         expect {
           syncer.sync_pull_request("owner/name", 101)
-        }.to change { Topic.count }.by(0)
+        }.not_to change { Topic.count }
       end
 
       it "creates one post" do
@@ -183,7 +183,7 @@ describe DiscourseCodeReview::GithubPRSyncer do
 
         expect {
           syncer.sync_pull_request('owner/name', 101)
-        }.to change { Post.count }.by(0)
+        }.not_to change { Post.count }
       end
 
       it "closes the topic" do
@@ -240,7 +240,7 @@ describe DiscourseCodeReview::GithubPRSyncer do
 
         expect {
           syncer.sync_pull_request('owner/name', 101)
-        }.to change { Post.count }.by(0)
+        }.not_to change { Post.count }
       end
     end
 
@@ -283,7 +283,7 @@ describe DiscourseCodeReview::GithubPRSyncer do
 
         expect {
           syncer.sync_pull_request('owner/name', 101)
-        }.to change { Post.count }.by(0)
+        }.not_to change { Post.count }
       end
     end
 
@@ -531,7 +531,7 @@ describe DiscourseCodeReview::GithubPRSyncer do
     end
   end
 
-  context "#mirror_pr_post" do
+  describe "#mirror_pr_post" do
     let!(:pr_service) { mock }
     let!(:user_querier) { mock }
     let!(:syncer) { create_pr_syncer(pr_service, user_querier) }

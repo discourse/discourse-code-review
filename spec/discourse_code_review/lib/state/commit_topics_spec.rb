@@ -42,7 +42,7 @@ module DiscourseCodeReview
       expect(result[2].to_html).to eq(cooked)
     end
 
-    context "#ensure_commit" do
+    describe "#ensure_commit" do
       fab!(:user) { Fabricate(:user) }
       fab!(:category) { Fabricate(:category) }
 
