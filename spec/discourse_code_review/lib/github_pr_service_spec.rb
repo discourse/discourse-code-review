@@ -159,7 +159,7 @@ describe DiscourseCodeReview::Source::GithubPRService do
     [event_info, event]
   }
 
-  context "#pull_request_events" do
+  describe "#pull_request_events" do
     it "preserves timeline events" do
       pr_querier =
         MockPRQuerier.new(

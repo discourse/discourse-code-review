@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe DiscourseCodeReview::GithubUserSyncer do
-  context "#ensure_user" do
+  describe "#ensure_user" do
     it "uses name for username by default" do
       name = "Bill"
       email = "billgates@gmail.com"

@@ -22,7 +22,7 @@ describe DiscourseCodeReview::CodeReviewController do
     end
   end
 
-  context "#webhook" do
+  describe "#webhook" do
     it "does nothing when the site setting is disabled" do
       SiteSetting.code_review_enabled = false
 
@@ -33,7 +33,7 @@ describe DiscourseCodeReview::CodeReviewController do
     end
   end
 
-  context "signed in as an admin" do
+  context "when signed in as an admin" do
     fab!(:signed_in_user) { Fabricate(:admin) }
     fab!(:another_admin) { Fabricate(:admin) }
 
@@ -44,7 +44,7 @@ describe DiscourseCodeReview::CodeReviewController do
       sign_in signed_in_user
     end
 
-    context ".redirect" do
+    describe ".redirect" do
       it "will return 404 if that sha1 doesn't exist" do
         get '/code-review/redirect/deadbeef'
         expect(response.status).to eq(404)
@@ -66,7 +66,7 @@ describe DiscourseCodeReview::CodeReviewController do
       end
     end
 
-    context '.skip' do
+    describe '.skip' do
       it "allows users to skip commits" do
         commit1 = create_post(
           raw: "this is a fake commit",
@@ -97,7 +97,7 @@ describe DiscourseCodeReview::CodeReviewController do
       end
     end
 
-    context '.approve' do
+    describe '.approve' do
       it 'doesn\'t allow you to approve your own commit if disabled' do
 
         SiteSetting.code_review_allow_self_approval = false
@@ -166,7 +166,7 @@ describe DiscourseCodeReview::CodeReviewController do
         commit = create_post(raw: "this is a fake commit", tags: ["hi", SiteSetting.code_review_pending_tag])
 
         expect { post '/code-review/approve.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(1)
-        expect { post '/code-review/approve.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(0)
+        expect { post '/code-review/approve.json', params: { topic_id: commit.topic_id } }.not_to change { commit.topic.posts.count }
       end
 
       it 'allows multiple reviewers to approve a commit' do
@@ -264,7 +264,7 @@ describe DiscourseCodeReview::CodeReviewController do
       end
     end
 
-    context '.followup' do
+    describe '.followup' do
       it 'allows you to approve your own commit' do
         # If discourse-assign is present, we need to enable methods defined by the plugin.
         SiteSetting.assign_enabled = true if defined?(TopicAssigner)
@@ -290,11 +290,11 @@ describe DiscourseCodeReview::CodeReviewController do
         commit = create_post(raw: "this is a fake commit", tags: ["hi", SiteSetting.code_review_pending_tag])
 
         expect { post '/code-review/followup.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(1)
-        expect { post '/code-review/followup.json', params: { topic_id: commit.topic_id } }.to change { commit.topic.posts.count }.by(0)
+        expect { post '/code-review/followup.json', params: { topic_id: commit.topic_id } }.not_to change { commit.topic.posts.count }
       end
     end
 
-    context '.followed_up' do
+    describe '.followed_up' do
       it 'puts the topic back into pending' do
         # If discourse-assign is present, we need to enable methods defined by the plugin.
         SiteSetting.assign_enabled = true if defined?(TopicAssigner)
@@ -310,7 +310,7 @@ describe DiscourseCodeReview::CodeReviewController do
       end
     end
 
-    context '.render_next_topic' do
+    describe '.render_next_topic' do
       let(:other_user) { Fabricate(:admin) }
 
       it 'prefers unread topics over read ones' do

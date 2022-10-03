@@ -56,7 +56,7 @@ describe DiscourseCodeReview::State::GithubRepoCategories do
     }.to_not change { Category.count }
   end
 
-  context "code_review_default_mute_new_categories enabled" do
+  context "when code_review_default_mute_new_categories is enabled" do
     before do
       SiteSetting.code_review_default_mute_new_categories = true
     end

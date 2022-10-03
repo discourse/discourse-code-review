@@ -63,7 +63,7 @@ describe DiscourseCodeReview::ReposController do
       expect(response.status).to eq(200)
     end
 
-    context "#index" do
+    describe "#index" do
       context "when the plugin is not configured" do
         before do
           SiteSetting.code_review_github_token = ''
@@ -98,7 +98,7 @@ describe DiscourseCodeReview::ReposController do
       end
     end
 
-    context "#has_configured_webhook" do
+    describe "#has_configured_webhook" do
       context "when the API returns Octokit::NotFound" do
         let!(:client) do
           client = mock
@@ -251,7 +251,7 @@ describe DiscourseCodeReview::ReposController do
       end
     end
 
-    context "#configure_webhook" do
+    describe "#configure_webhook" do
       context "when no existing webhook hits the right url" do
         let!(:client) do
           client = mock
