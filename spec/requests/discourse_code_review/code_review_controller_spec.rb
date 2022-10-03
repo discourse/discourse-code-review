@@ -33,7 +33,7 @@ describe DiscourseCodeReview::CodeReviewController do
     end
   end
 
-  context "signed in as an admin" do
+  context "when signed in as an admin" do
     fab!(:signed_in_user) { Fabricate(:admin) }
     fab!(:another_admin) { Fabricate(:admin) }
 
