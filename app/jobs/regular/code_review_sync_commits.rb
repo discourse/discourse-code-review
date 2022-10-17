@@ -2,6 +2,8 @@
 
 module Jobs
   class CodeReviewSyncCommits < ::Jobs::Base
+    sidekiq_options retry: false
+
     def execute(args)
       unless args[:repo_name].kind_of?(String)
         raise Discourse::InvalidParameters.new(:repo_name)
