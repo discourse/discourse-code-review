@@ -9,16 +9,27 @@ module Jobs
 
       repo_name, repo_id = args.values_at(:repo_name, :repo_id)
 
-      client = DiscourseCodeReview.octokit_client
+      octokit_client = DiscourseCodeReview.octokit_client
       github_commit_querier = DiscourseCodeReview.github_commit_querier
+      graphql_client = DiscourseCodeReview.graphql_client
 
-      repo = DiscourseCodeReview::GithubRepo.new(repo_name, client, github_commit_querier, repo_id: repo_id)
+      repo = DiscourseCodeReview::GithubRepo.new(repo_name, octokit_client, github_commit_querier, repo_id: repo_id)
 
       if args[:skip_if_up_to_date]
         begin
-          octokit_repo = client.repository(repo_name)
-          branch = client.branch(repo_name, octokit_repo.default_branch)
-          last_remote_commit = branch.commit.sha
+          owner, name = repo_name.split('/')
+          response = graphql_client.execute <<~GRAPHQL
+            query {
+              repo: repository(owner: \"#{owner}\", name: \"#{name}\") {
+                defaultBranchRef {
+                  target {
+                    oid
+                  }
+                }
+              }
+            }
+          GRAPHQL
+          last_remote_commit = response.dig(:repo, :defaultBranchRef, :target, :oid)
         rescue
           Rails.logger.warn("Cannot fetch GitHub repo information for #{repo_name}")
         end
