@@ -11,7 +11,6 @@ describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
         owner: "10xninjarockstar",
         repo: "ultimatetodolist",
         default_branch: "main",
-        last_commit: "abcdef",
       ) do |repo|
         msg = "Initial commit"
 
@@ -27,6 +26,12 @@ describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
           commit = `git rev-parse HEAD`
         end
       end
+
+      DiscourseCodeReview::Source::CommitQuerier
+        .any_instance
+        .stubs(:last_commit)
+        .with("10xninjarockstar", "ultimatetodolist")
+        .returns("abcdef")
 
       declare_github_commit_comment!(
         owner: "10xninjarockstar",
