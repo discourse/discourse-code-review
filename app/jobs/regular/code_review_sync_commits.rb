@@ -20,7 +20,6 @@ module Jobs
         begin
           owner, name = repo_name.split('/')
           last_remote_commit = github_commit_querier.last_commit(owner, name)
-          puts "last_remote_commit = #{last_remote_commit}"
         rescue GraphQLClient::GraphQLError => e
           Rails.logger.warn("Cannot fetch GitHub repo information for #{repo_name}")
         end
