@@ -19,6 +19,22 @@ module DiscourseCodeReview
       @graphql_client = graphql_client
     end
 
+    def last_commit(owner, name)
+      response = @graphql_client.execute <<~GRAPHQL
+        query {
+          repo: repository(owner: \"#{owner}\", name: \"#{name}\") {
+            defaultBranchRef {
+              target {
+                oid
+              }
+            }
+          }
+        }
+      GRAPHQL
+
+      response.dig(:repo, :defaultBranchRef, :target, :oid)
+    end
+
     def commits_authors(owner, name, refs)
       query = "
         query {

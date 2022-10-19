@@ -2,6 +2,8 @@
 
 module Jobs
   class CodeReviewSyncCommits < ::Jobs::Base
+    sidekiq_options retry: false
+
     def execute(args)
       unless args[:repo_name].kind_of?(String)
         raise Discourse::InvalidParameters.new(:repo_name)
@@ -9,17 +11,16 @@ module Jobs
 
       repo_name, repo_id = args.values_at(:repo_name, :repo_id)
 
-      client = DiscourseCodeReview.octokit_client
+      octokit_client = DiscourseCodeReview.octokit_client
       github_commit_querier = DiscourseCodeReview.github_commit_querier
 
-      repo = DiscourseCodeReview::GithubRepo.new(repo_name, client, github_commit_querier, repo_id: repo_id)
+      repo = DiscourseCodeReview::GithubRepo.new(repo_name, octokit_client, github_commit_querier, repo_id: repo_id)
 
       if args[:skip_if_up_to_date]
         begin
-          octokit_repo = client.repository(repo_name)
-          branch = client.branch(repo_name, octokit_repo.default_branch)
-          last_remote_commit = branch.commit.sha
-        rescue
+          owner, name = repo_name.split('/')
+          last_remote_commit = github_commit_querier.last_commit(owner, name)
+        rescue GraphQLClient::GraphQLError => e
           Rails.logger.warn("Cannot fetch GitHub repo information for #{repo_name}")
         end
 

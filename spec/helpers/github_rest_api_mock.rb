@@ -16,8 +16,8 @@ module GithubRestAPIMock
         }
     end
 
-    def declare_repo!(owner:, repo:, default_branch:, last_commit:)
-      infos[[owner, repo]] = { default_branch: default_branch, commit: { sha: last_commit } }
+    def declare_repo!(owner:, repo:, default_branch:)
+      infos[[owner, repo]] = { default_branch: default_branch }
     end
 
     def declare_commit_comment!(owner:, repo:, commit:, comment:)
