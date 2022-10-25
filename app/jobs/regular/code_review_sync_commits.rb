@@ -21,10 +21,9 @@ module Jobs
           owner, name = repo_name.split('/')
           last_remote_commit = github_commit_querier.last_commit(owner, name)
         rescue GraphQLClient::GraphQLError => e
-          Rails.logger.warn("Cannot fetch GitHub repo information for #{repo_name}")
         end
 
-        return if repo.last_local_commit == last_remote_commit
+        return if !last_remote_commit || repo.last_local_commit == last_remote_commit
       end
 
       importer = DiscourseCodeReview::Importer.new(repo)
