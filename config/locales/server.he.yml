@@ -32,4 +32,5 @@ he:
   discourse_code_review:
     category_description: |
       קטגוריה זו נוצרה כדי להכיל סקירות קוד עבור %{repo_name}. נושאים נוצרו עבור כל הגשה או בקשת משיכה (PR).
+    bad_github_permissions_error: "אירעה תקלה בשליפת נתוני התליות מ־GitHub. נא לבדוק שלאסימון שמוגדר בהגדרת האתר code_review_github_token מופעל התחום ‚repo’ (מאגר). כדאי לפנות אל https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps לפרטים נוספים."
     bad_github_credentials_error: "הייתה תקלה עם פרטי הגישה שלך ל־GitHub. נא לבדוק את הגדרת האתר שלך code_review_github_token (אסימון GitHub לסקירת קוד) ולנסות שוב."
