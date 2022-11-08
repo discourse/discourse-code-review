@@ -38,11 +38,11 @@ module DiscourseCodeReview
               existing_category_ids = Category.where(id: SiteSetting.default_categories_muted.split("|")).pluck(:id)
               SiteSetting.default_categories_muted = (existing_category_ids << category.id).join("|")
             end
-
-            repo_category = GithubRepoCategory.new(category_id: category.id)
           end
 
           if category
+            repo_category ||= GithubRepoCategory.new
+            repo_category.category_id = category.id
             repo_category.repo_id = repo_id
             repo_category.name = repo_name
             repo_category.save! if repo_category.changed?

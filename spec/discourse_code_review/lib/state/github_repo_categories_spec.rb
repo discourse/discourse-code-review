@@ -12,6 +12,17 @@ describe DiscourseCodeReview::State::GithubRepoCategories do
     }.to change { Category.count }.by(1)
   end
 
+  it "can recreate a category" do
+    expect {
+      c = described_class.ensure_category(repo_name: "repo-name", repo_id: 242)
+      c.destroy!
+      c = described_class.ensure_category(repo_name: "repo-name", repo_id: 242)
+      expect(c.name).to eq("repo-name")
+      expect(c.custom_fields[DiscourseCodeReview::State::GithubRepoCategories::GITHUB_REPO_ID]).to eq("242")
+      expect(c.custom_fields[DiscourseCodeReview::State::GithubRepoCategories::GITHUB_REPO_NAME]).to eq("repo-name")
+    }.to change { Category.count }.by(1)
+  end
+
   it "can use an existing category" do
     c = Fabricate(:category, name: "repo-name")
     DiscourseCodeReview::GithubRepoCategory.create!(category_id: c.id, name: 'repo-name')
