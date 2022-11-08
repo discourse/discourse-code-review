@@ -308,6 +308,10 @@ after_initialize do
     )
   end
 
+  Category.class_eval do
+    has_one :github_repo_category, class_name: 'DiscourseCodeReview::GithubRepoCategory', dependent: :destroy
+  end
+
   Topic.class_eval do
     has_one :code_review_commit_topic, class_name: 'DiscourseCodeReview::CommitTopic'
   end
