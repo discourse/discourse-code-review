@@ -69,6 +69,18 @@ describe DiscourseCodeReview::CodeReviewController do
         expect(Jobs::CodeReviewSyncPullRequest.jobs.count).to eq(1)
       end
     end
+
+    it "can rename github repositories" do
+      repo_category = DiscourseCodeReview::GithubRepoCategory.create!(repo_id: 1, name: 'old_name')
+
+      post '/code-review/webhook',
+        headers: { "HTTP_X_HUB_SIGNATURE" => "sha1=c060d3354194566f042ca8ba7eadf4ac9f87eeda" },
+        params: { repository: { id: 1, full_name: 'new_name' } }
+
+      expect(response.status).to eq(200)
+      expect(response.parsed_body).to eq('"ok"')
+      expect(repo_category.reload.name).to eq('new_name')
+    end
   end
 
   context "when signed in as an admin" do

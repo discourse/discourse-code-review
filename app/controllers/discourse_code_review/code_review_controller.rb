@@ -36,7 +36,12 @@ module DiscourseCodeReview
       if repo.present?
         repo_id = repo["id"]
         repo_name = repo["full_name"]
+
+        if repo_name.present? && repo_category = GithubRepoCategory.find_by(repo_id: repo_id)
+          repo_category.update!(name: repo_name)
+        end
       end
+
       Rails.logger.warn("repo_name is blank. #{params.to_json}") if repo_name.blank?
 
       if type == "commit_comment"
