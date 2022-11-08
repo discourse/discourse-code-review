@@ -17,6 +17,8 @@ zh_CN:
       code_review:
         commit_approved:
           single: '“%{topicTitle}”已被批准'
+          multiple:
+            other: "%{count} 项提交已被批准"
           title: "提交已被批准"
     code_review:
       title: "代码审查"
@@ -33,7 +35,9 @@ zh_CN:
         title: "跳过提交"
         label: "跳过"
       approval_given: "批准已授予"
+      approval_given_empty_state_title: "您还没有获得批准的提交"
       approval_pending: "批准待处理"
+      approval_pending_empty_state_title: "您没有等待批准的提交"
       github_webhooks: "Github 网络钩子"
       no_organizations_configured: "在配置网络钩子之前，您需要至少配置一个具有 <code>code review github organizations</code> 站点设置的组织。"
       webhooks_load_error: "加载网络钩子数据时出错，在此问题解决之前无法配置网络钩子。"
