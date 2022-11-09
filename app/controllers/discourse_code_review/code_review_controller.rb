@@ -55,22 +55,18 @@ module DiscourseCodeReview
         ::Jobs.enqueue_in(30.seconds, :code_review_sync_commits, repo_name: repo_name, repo_id: repo_id)
       end
 
-      if type == "commit_comment"
-        syncer = DiscourseCodeReview.github_pr_syncer
-        git_commit = params["comment"]["commit_id"]
-
-        syncer.sync_associated_pull_requests(repo_name, git_commit, repo_id: repo_id)
-      end
-
       if ["pull_request", "issue_comment", "pull_request_review", "pull_request_review_comment"].include? type
-        syncer = DiscourseCodeReview.github_pr_syncer
-
         issue_number =
           params['number'] ||
           (params['issue'] && params['issue']['number']) ||
           (params['pull_request'] && params['pull_request']['number'])
 
-        syncer.sync_pull_request(repo_name, issue_number, repo_id: repo_id)
+        ::Jobs.enqueue(
+          :code_review_sync_pull_request,
+          repo_name: repo_name,
+          issue_number: issue_number,
+          repo_id: repo_id
+        )
       end
 
       render plain: '"ok"'

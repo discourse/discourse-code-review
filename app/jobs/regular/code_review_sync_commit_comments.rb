@@ -16,9 +16,12 @@ module Jobs
       client = DiscourseCodeReview.octokit_client
       github_commit_querier = DiscourseCodeReview.github_commit_querier
       repo = DiscourseCodeReview::GithubRepo.new(repo_name, client, github_commit_querier, repo_id: repo_id)
-      importer = DiscourseCodeReview::Importer.new(repo)
 
+      importer = DiscourseCodeReview::Importer.new(repo)
       importer.sync_commit_sha(commit_sha)
+
+      syncer = DiscourseCodeReview.github_pr_syncer
+      syncer.sync_associated_pull_requests(repo_name, commit_sha, repo_id: repo_id)
     end
   end
 end

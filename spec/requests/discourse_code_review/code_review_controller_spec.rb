@@ -23,6 +23,11 @@ describe DiscourseCodeReview::CodeReviewController do
   end
 
   describe "#webhook" do
+    before do
+      SiteSetting.code_review_enabled = true
+      SiteSetting.code_review_github_webhook_secret = 'test'
+    end
+
     it "does nothing when the site setting is disabled" do
       SiteSetting.code_review_enabled = false
 
@@ -30,6 +35,39 @@ describe DiscourseCodeReview::CodeReviewController do
 
       expect(response.status).to eq(200)
       expect(response.parsed_body).to eq("disabled" => true)
+    end
+
+    context "when type is commit_comment" do
+      it "schedules a job" do
+        post "/code-review/webhook", headers: {
+          "HTTP_X_GITHUB_EVENT" => "commit_comment",
+          "HTTP_X_HUB_SIGNATURE" => "sha1=db40486f02c465c76062dc7d844fecfa48d4082b",
+        }, params: { comment: { commit_id: "abcdef" } }
+
+        expect(Jobs::CodeReviewSyncCommitComments.jobs.count).to eq(1)
+      end
+    end
+
+    context "when type is push" do
+      it "schedules a job" do
+        post "/code-review/webhook", headers: {
+          "HTTP_X_GITHUB_EVENT" => "push",
+          "HTTP_X_HUB_SIGNATURE" => "sha1=fc85087452696e5bcbe3b7a71fde00e320af2cca",
+        }
+
+        expect(Jobs::CodeReviewSyncCommits.jobs.count).to eq(1)
+      end
+    end
+
+    context "when type is pull_request" do
+      it "schedules a job" do
+        post "/code-review/webhook", headers: {
+          "HTTP_X_GITHUB_EVENT" => "pull_request",
+          "HTTP_X_HUB_SIGNATURE" => "sha1=fc85087452696e5bcbe3b7a71fde00e320af2cca",
+        }
+
+        expect(Jobs::CodeReviewSyncPullRequest.jobs.count).to eq(1)
+      end
     end
   end
 
