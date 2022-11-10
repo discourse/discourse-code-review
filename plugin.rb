@@ -178,6 +178,7 @@ after_initialize do
   require File.expand_path("../app/models/commit_topic.rb", __FILE__)
   require File.expand_path("../app/jobs/regular/code_review_sync_commits", __FILE__)
   require File.expand_path("../app/jobs/regular/code_review_sync_commit_comments", __FILE__)
+  require File.expand_path("../app/jobs/regular/code_review_sync_pull_request", __FILE__)
   require File.expand_path("../app/jobs/scheduled/code_review_sync_repos", __FILE__)
   require File.expand_path("../lib/enumerators", __FILE__)
   require File.expand_path("../lib/typed_data", __FILE__)
