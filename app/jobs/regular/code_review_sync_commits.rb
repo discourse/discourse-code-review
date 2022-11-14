@@ -2,7 +2,7 @@
 
 module Jobs
   class CodeReviewSyncCommits < ::Jobs::Base
-    sidekiq_options retry: false
+    include OctokitRateLimitRetryMixin
 
     def execute(args)
       unless args[:repo_name].kind_of?(String)

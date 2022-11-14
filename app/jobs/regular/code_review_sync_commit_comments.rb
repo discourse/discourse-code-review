@@ -2,6 +2,8 @@
 
 module Jobs
   class CodeReviewSyncCommitComments < ::Jobs::Base
+    include OctokitRateLimitRetryMixin
+
     def execute(args)
       repo_name, commit_sha, repo_id = args.values_at(:repo_name, :commit_sha, :repo_id)
 
