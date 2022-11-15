@@ -22,6 +22,7 @@ register_asset 'stylesheets/code_review.scss'
 register_svg_icon 'history'
 
 require File.expand_path("../lib/discourse_code_review/rake_tasks.rb", __FILE__)
+require File.expand_path("../lib/octokit_rate_limit_retry_mixin.rb", __FILE__)
 require File.expand_path("../lib/validators/parent_category_validator.rb", __FILE__)
 
 module HackGithubAuthenticator
