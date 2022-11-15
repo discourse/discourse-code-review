@@ -7,7 +7,7 @@ describe OctokitRateLimitRetryMixin do
     class TestJob < ::Jobs::Base
       include OctokitRateLimitRetryMixin
     end
-    
+
     let(:now) { Time.zone.now }
 
     let(:exception) { Jobs::HandledExceptionWrapper.new(Octokit::TooManyRequests.new) }
