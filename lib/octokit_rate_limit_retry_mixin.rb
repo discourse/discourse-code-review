@@ -3,7 +3,7 @@
 module OctokitRateLimitRetryMixin
   def self.included(base)
     base.sidekiq_retry_in do |count, exception|
-      case exception.wrapped
+      case exception&.wrapped
       when Octokit::TooManyRequests
         rate_limit = DiscourseCodeReview.octokit_client.rate_limit
         rand(rate_limit.resets_in..(rate_limit.resets_in + 60))
