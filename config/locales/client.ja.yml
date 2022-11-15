@@ -17,6 +17,8 @@ ja:
       code_review:
         commit_approved:
           single: '「%{topicTitle}」が承認されました'
+          multiple:
+            other: "%{count} 件のコミットが承認されました"
           title: "コミットが承認されました"
     code_review:
       title: "コードレビュー"
@@ -33,7 +35,9 @@ ja:
         title: "コミットをスキップ"
         label: "スキップ"
       approval_given: "承認済み"
+      approval_given_empty_state_title: "まだ承認されたコミットはありません"
       approval_pending: "承認待ち"
+      approval_pending_empty_state_title: "承認待ちのコミットはありません"
       github_webhooks: "Github Webhook"
       no_organizations_configured: "Webhook を構成する前に、少なくとも 1 つの組織の <code>code review github organizations</code> サイト設定を構成する必要があります。"
       webhooks_load_error: "Webhook データの読み込み中にエラーが発生しました。Webhook はこれが解決されるまで構成できません。"

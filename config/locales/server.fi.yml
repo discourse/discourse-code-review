@@ -7,6 +7,7 @@
 fi:
   site_settings:
     code_review_enabled: "ota Discoursen koodin tarkistus käyttöön"
+    code_review_allowed_groups: "Ryhmät, jotka saavat tarkistaa koodia"
     code_review_github_token: "Githubin APIssa käytettävä tunnus, sen voi luoda osoitteessa https://github.com/settings/tokens/new. \"Repo\"-oikeus vaaditaan, jos sync_to_github tai code_review_allow_private_clone on käytössä."
     code_review_sync_to_github: "EDELLYTYS: code_review_github_token, pitäisikö nämä kommentit lähettää githubille?"
     code_review_catch_up_commits: "Kun uusi tietosäilö lisätään, luo tämä määrä ketjuja vanhoille solmuille"

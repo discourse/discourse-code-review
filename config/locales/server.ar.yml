@@ -7,6 +7,7 @@
 ar:
   site_settings:
     code_review_enabled: "تفعيل مراجعة رمز Discourse"
+    code_review_allowed_groups: "المجموعات المسموح لها بمراجعة الرموز البرمجية"
     code_review_github_token: "الرمز المميَّز لاستخدامه في واجهة برمجة تطبيقات github، يمكن إنشاء ذلك عن طريق https://github.com/settings/tokens/new. إذن 'repo' مطلوب إذا كان sync_to_github أو code_review_allow_private_clone مفعلًا"
     code_review_sync_to_github: "يتطلب: code_review_github_token، هل يجب إرسال التعليقات الموجودة هنا إلى github؟"
     code_review_catch_up_commits: "إنشاء هذا العدد من الموضوعات للإرسالات القديمة عند إنشاء مستودع جديد"
