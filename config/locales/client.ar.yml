@@ -17,6 +17,13 @@ ar:
       code_review:
         commit_approved:
           single: 'تمت الموافقة على "%{topicTitle}"'
+          multiple:
+            zero: "%{count} التزام تمت الموافقة عليه"
+            one: "التزام واحد (%{count}) تمت الموافقة عليه"
+            two: "التزامان (%{count}) تمت الموافقة عليهما"
+            few: "%{count} التزامات تمت الموافقة عليها"
+            many: "%{count} التزامًا تمت الموافقة عليه"
+            other: "%{count} التزام تمت الموافقة عليه"
           title: "تمت الموافقة على الإرسال"
     code_review:
       title: "مراجعة الرمز"
@@ -33,7 +40,9 @@ ar:
         title: "تخطي الإرسال"
         label: "تخطي"
       approval_given: "تم منح الموافقة"
+      approval_given_empty_state_title: "ليس لديك أي التزامات تمت الموافقة عليها حتى الآن"
       approval_pending: "الموافقة قيد الانتظار"
+      approval_pending_empty_state_title: "ليس لديك التزامات تنتظر الموافقة"
       github_webhooks: "خطافات ويب Github"
       no_organizations_configured: "أنت بحاجة إلى إعداد مؤسسة واحدة على الأقل باستخدام إعداد الموقع <code>code review github organizations</code> قبل أن تتمكن من إعداد خطافات الويب."
       webhooks_load_error: "حدث خطأ في تحميل بيانات خطاف الويب، ولا يمكن إعداد خطافات الويب حتى يتم تصحيح هذا الخطأ."

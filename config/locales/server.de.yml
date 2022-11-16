@@ -7,6 +7,7 @@
 de:
   site_settings:
     code_review_enabled: "Discourse-Code-Review aktivieren"
+    code_review_allowed_groups: "Gruppen, die Code überprüfen dürfen"
     code_review_github_token: "Das Token für die Github-API. Kann unter https://github.com/settings/tokens/new generiert werden. Die Berechtigung „repo“ ist erforderlich, wenn sync_to_github oder code_review_allow_private_clone aktiviert ist"
     code_review_sync_to_github: "ERFORDERT: code_review_github_token. Sollen Kommentare hier an github gesendet werden?"
     code_review_catch_up_commits: "Wenn ein neues Repo hinzugefügt wird, wird diese Anzahl von Themen für alte Commits erstellt"

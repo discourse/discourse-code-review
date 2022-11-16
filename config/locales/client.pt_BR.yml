@@ -17,6 +17,9 @@ pt_BR:
       code_review:
         commit_approved:
           single: 'Aprovou "%{topicTitle}"'
+          multiple:
+            one: "%{count} confirmação foi aprovada"
+            other: "%{count} confirmações foram aprovadas"
           title: "confirmação aprovada"
     code_review:
       title: "Revisão de código"
@@ -33,7 +36,9 @@ pt_BR:
         title: "Pular confirmação"
         label: "Pular"
       approval_given: "Aprovação concedida"
+      approval_given_empty_state_title: "Você ainda não tem confirmações aprovadas"
       approval_pending: "Aprovação pendente"
+      approval_pending_empty_state_title: "Você não tem confirmações aguardando aprovação"
       github_webhooks: "Webhooks do Github"
       no_organizations_configured: "Você precisa configurar pelo menos uma organização com a configuração do site de <code>organizações do github para revisão de código</code> antes de configurar webhooks."
       webhooks_load_error: "Houve um erro ao carregar dados do webhook, os webhooks não podem ser configurados até resolver isso."
