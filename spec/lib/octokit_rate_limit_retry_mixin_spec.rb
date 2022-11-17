@@ -15,7 +15,7 @@ describe OctokitRateLimitRetryMixin do
         .to_return(status: 200, body: "", headers: {
           "X-RateLimit-Limit" => 1000,
           "X-RateLimit-Remaining" => 0,
-          "X-RateLimit-Reset" => (now + 90.minutes).to_i,
+          "X-RateLimit-Reset" => 90.minutes.from_now.to_i,
           "X-RateLimit-Resource" => "core",
           "X-RateLimit-Used" => 0,
         })
