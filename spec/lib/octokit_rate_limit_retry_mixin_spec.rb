@@ -8,8 +8,6 @@ describe OctokitRateLimitRetryMixin do
       include OctokitRateLimitRetryMixin
     end
 
-    let(:now) { Time.zone.now }
-
     let(:exception) { Jobs::HandledExceptionWrapper.new(Octokit::TooManyRequests.new) }
 
     before do
@@ -17,27 +15,21 @@ describe OctokitRateLimitRetryMixin do
         .to_return(status: 200, body: "", headers: {
           "X-RateLimit-Limit" => 1000,
           "X-RateLimit-Remaining" => 0,
-          "X-RateLimit-Reset" => (now + 60.minutes).to_i,
+          "X-RateLimit-Reset" => 90.minutes.from_now.to_i,
           "X-RateLimit-Resource" => "core",
           "X-RateLimit-Used" => 0,
         })
     end
 
     it 'retries after rate limit expires' do
-      freeze_time now
-
       expect(TestJob.sidekiq_retry_in_block.call(0, exception)).to be >= 3600
     end
 
     it 'retries after rate limit expires again' do
-      freeze_time now
-
       expect(TestJob.sidekiq_retry_in_block.call(1, exception)).to be >= 3600
     end
 
     it 'retries once for other errors' do
-      freeze_time now
-
       expect(TestJob.sidekiq_retry_in_block.call(0, nil)).to be >= 30
       expect(TestJob.sidekiq_retry_in_block.call(0, nil)).to be <= 90
       expect(TestJob.sidekiq_retry_in_block.call(1, nil)).to eq(:discard)
