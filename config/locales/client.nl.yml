@@ -5,3 +5,44 @@
 # https://translate.discourse.org/
 
 nl:
+  js:
+    action_codes:
+      approved: "Goedgekeurd"
+      followup: "Opvolgen"
+      followed_up: "Opgevolgd"
+      merged: "Samengevoegd"
+      renamed: "Hernoemd"
+      pr_merge_info: "Samenvoegingsinfo pullverzoeken"
+    notifications:
+      code_review:
+        commit_approved:
+          single: '"%{topicTitle}" goedgekeurd'
+          multiple:
+            one: "%{count} commit is goedgekeurd"
+            other: "%{count} commits zijn goedgekeurd"
+          title: "commit goedgekeurd"
+    code_review:
+      title: "Codebeoordeling"
+      approve:
+        title: "Commit goedkeuren"
+        label: "Goedkeuren"
+      followup:
+        title: "Commit opvolgen"
+        label: "Opvolgen"
+      followed_up:
+        title: "Commit opgevolgd"
+        label: "Opgevolgd"
+      skip:
+        title: "Commit overslaan"
+        label: "Overslaan"
+      approval_given: "Goedkeuring gegeven"
+      approval_given_empty_state_title: "Je hebt nog geen goedgekeurde commits"
+      approval_pending: "In afwachting van goedkeuring"
+      approval_pending_empty_state_title: "Je hebt geen commits die wachten op goedkeuring"
+      github_webhooks: "Github-webhooks"
+      no_organizations_configured: "Je moet minimaal één organisatie configureren in de site-instelling <code>code review github organizations</code> voordat webhooks kunnen worden geconfigureerd."
+      webhooks_load_error: "Er is een fout opgetreden bij het laden van webhookgegevens. Webhooks kunnen pas worden geconfigureerd als dit is opgelost."
+      configure_webhooks: "Webhooks configureren"
+      configure_webhook: "Webhook configureren"
+      notify_on_approval: "Melden bij goedkeuring van codereviews"
+      configure_webhooks_warning: "Door op 'Webhooks configureren' te klikken, wordt de GitHub-API gebruikt om webhooks te maken voor <strong>elke repository in elke organisatie die je hebt geconfigureerd</strong>. De gebeurtenistriggers <code>push</code>, <code>commit_comment</code>, <code>issue_comment</code>, <code>pull_request</code>, <code>pull_request_review</code>en <code>pull_request_comment</code> worden gemaakt. Houd er rekening mee dat je ook de site-instelling <code>code review github webhook secret</code> moet hebben geconfigureerd om dit te laten werken. Zie de <a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">GitHub-webhookdocumentatie</a> voor meer informatie."

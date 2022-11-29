@@ -5,3 +5,32 @@
 # https://translate.discourse.org/
 
 nl:
+  site_settings:
+    code_review_enabled: "Discourse-codereview inschakelen"
+    code_review_allowed_groups: "Groepen die code mogen beoordelen"
+    code_review_github_token: "Te gebruiken token voor Github-API. Deze kan worden gegenereerd via https://github.com/settings/tokens/new. Repositorytoestemming is vereist als sync_to_github of code_review_allow_private_clone is ingeschakeld"
+    code_review_sync_to_github: "VEREIST: code_review_github_token, moeten opmerkingen hier naar Github worden gestuurd?"
+    code_review_catch_up_commits: "Wanneer een nieuwe repository wordt toegevoegd, dit aantal topics maken voor oude commits"
+    code_review_allow_private_clone: "VEREIST: code_review_github_token, kloont de repisotory's als de bijbehorende gebruiker. Deze beveiliging is aanwezig om het klonen van privéreopsitory's op openbare sites uit te schakelen."
+    code_review_allow_manual_followup: "Opvolgknop bij commits toestaan"
+    code_review_pending_tag: "Tag om toe te passen op wachtende commits"
+    code_review_followup_tag: "Tag om toe te passen op opvolgcommits"
+    code_review_approved_tag: "Tag om toe te passen op goedgekeurde commits"
+    code_review_unmerged_tag: "Tag om toe te passen op niet-samengevoegde commits"
+    code_review_commit_tag: "Tag om toe te passen op committopics"
+    code_review_pull_request_tag: "Tag om toe te passen op pullverzoektopics"
+    code_review_github_webhook_secret: "geheime webhooktekenreeks om te gebruiken voor https://sitename/code-review/webhook"
+    code_review_allow_self_approval: "Zelfgoedkeuring van commits toestaan"
+    code_review_skip_duration_minutes: "Overslaanknop slaat commit over voor dit aantal minuten"
+    code_review_auto_assign_on_followup: "Topic automatisch toewijzen aan auteur bij opvolging"
+    code_review_auto_unassign_on_approve: "Toewijzing van topic automatisch ongedaan maken bij goedkeuring"
+    code_review_auto_approve_followed_up_commits: "Committs waarnaar wordt verwezen vanuit de huidige commit automatisch goedkeuren"
+    code_review_github_organizations: "Github-organisaties (gescheiden door komma's) die repository's bevatten die hier gesynchroniseerd moeten worden"
+    code_review_approve_approved_prs: "Commits in goedgekeurde pullverzoeken automatisch goedkeuren"
+    code_review_default_mute_new_categories: "Dempen voor alle gebruikerscategorieën die door de plug-in zijn gemaakt"
+    code_review_default_parent_category: "Standaard bovenliggende categorie voor categorieën die door de plug-in zijn gemaakt"
+  discourse_code_review:
+    category_description: |
+      Deze categorie is gemaakt om codereviews voor %{repo_name}te bevatten. Voor elke commit of elk pullverzoek worden topics gemaakt.
+    bad_github_permissions_error: "Er is een probleem opgetreden bij het ophalen van webhookgegevens van GitHub. Controleer of je token geconfigureerd in de site-instelling code_review_github_token het bereik 'repo' heeft ingeschakeld. Zie https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps voor meer informatie."
+    bad_github_credentials_error: "Er was een probleem met je GitHub-aanmeldgegevens. Controleer je site-instelling code_review_github_token en probeer het opnieuw."
