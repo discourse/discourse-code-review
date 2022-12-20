@@ -5,7 +5,7 @@ module Jobs
     every 1.hour
 
     def execute(args = {})
-      DiscourseCodeReview::GithubRepoCategory.pluck(:name, :repo_id).each do |repo_name, repo_id|
+      DiscourseCodeReview::GithubRepoCategory.not_moved.pluck(:name, :repo_id).each do |repo_name, repo_id|
         ::Jobs.enqueue(
           :code_review_sync_commits,
           repo_name: repo_name,
