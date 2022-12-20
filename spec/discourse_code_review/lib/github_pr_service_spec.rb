@@ -49,6 +49,14 @@ describe DiscourseCodeReview::Source::GithubPRService do
     )
   }
 
+  let!(:external_pr) {
+    DiscourseCodeReview::PullRequest.new(
+      owner: "acme",
+      name: "name",
+      issue_number: 102,
+    )
+  }
+
   let!(:actor) {
     DiscourseCodeReview::Actor.new(
       github_login: "coder1234",
@@ -275,6 +283,76 @@ describe DiscourseCodeReview::Source::GithubPRService do
           .to_a
 
       expect(result).to eq([first_review_thread_comment, second_review_thread_comment])
+    end
+  end
+
+  describe "#associated_pull_requests" do
+    context "when including external repos" do
+      it "does not filter out any pull requests" do
+        DiscourseCodeReview
+          .stubs(:github_organizations)
+          .returns(["owner"])
+
+        pr_querier =
+          MockPRQuerier.new(
+            associated_pull_requests: {
+              [
+                "discourse",
+                "discourse-code-review",
+                "2914603cc78157be832a57d49b182d89e7e5ed1a"
+              ] => [
+                pr,
+                external_pr
+              ]
+            }
+          )
+
+        result =
+          DiscourseCodeReview::Source::GithubPRService
+            .new(nil, pr_querier)
+            .associated_pull_requests(
+              "discourse/discourse-code-review",
+              "2914603cc78157be832a57d49b182d89e7e5ed1a",
+              include_external: true
+            )
+            .to_a
+
+        expect(result).to eq([pr, external_pr])
+      end
+    end
+
+    context "when not including external repos" do
+      it "filters out any external pull requests" do
+        DiscourseCodeReview
+          .stubs(:github_organizations)
+          .returns(["owner"])
+
+        pr_querier =
+          MockPRQuerier.new(
+            associated_pull_requests: {
+              [
+                "discourse",
+                "discourse-code-review",
+                "2914603cc78157be832a57d49b182d89e7e5ed1a"
+              ] => [
+                pr,
+                external_pr
+              ]
+            }
+          )
+
+        result =
+          DiscourseCodeReview::Source::GithubPRService
+            .new(nil, pr_querier)
+            .associated_pull_requests(
+              "discourse/discourse-code-review",
+              "2914603cc78157be832a57d49b182d89e7e5ed1a",
+              include_external: false
+            )
+            .to_a
+
+        expect(result).to eq([pr])
+      end
     end
   end
 end
