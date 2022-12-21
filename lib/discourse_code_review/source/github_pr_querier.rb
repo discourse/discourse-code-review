@@ -525,7 +525,7 @@ module DiscourseCodeReview
                 resource(url: #{uri.to_json}) {
                   ... on Commit {
                     associatedPullRequests(first: 100, after: #{cursor.to_json}) {
-                      nodes { number },
+                      nodes { number, repository { nameWithOwner } },
                       pageInfo { endCursor, hasNextPage }
                     }
                   }
@@ -542,6 +542,8 @@ module DiscourseCodeReview
         end
 
       prs.lazy.map { |pr|
+        owner, name = pr[:repository][:nameWithOwner].split("/")
+
         PullRequest.new(
           owner: owner,
           name: name,

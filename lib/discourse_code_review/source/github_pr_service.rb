@@ -151,10 +151,16 @@ module DiscourseCodeReview
       pr_querier.pull_requests(owner, name)
     end
 
-    def associated_pull_requests(repo_name, commit_sha)
+    def associated_pull_requests(repo_name, commit_sha, include_external: false)
       owner, name = repo_name.split('/', 2)
 
-      pr_querier.associated_pull_requests(owner, name, commit_sha)
+      prs = pr_querier.associated_pull_requests(owner, name, commit_sha)
+
+      unless include_external
+        return prs.reject { |pr| external?(pr) }
+      end
+
+      prs
     end
 
     def pull_request_data(pr)
@@ -201,5 +207,9 @@ module DiscourseCodeReview
 
     attr_reader :pr_querier
     attr_reader :client
+
+    def external?(pr)
+      DiscourseCodeReview.github_organizations.exclude?(pr.owner)
+    end
   end
 end
