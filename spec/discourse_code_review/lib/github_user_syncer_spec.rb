@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require "rails_helper"
 
 describe DiscourseCodeReview::GithubUserSyncer do
   describe "#ensure_user" do

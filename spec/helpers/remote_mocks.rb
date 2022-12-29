@@ -15,9 +15,7 @@ module RemoteMocks
     end
 
     def cleanup!
-      repos.each do |path|
-        FileUtils.rm_rf(path)
-      end
+      repos.each { |path| FileUtils.rm_rf(path) }
     end
   end
 end

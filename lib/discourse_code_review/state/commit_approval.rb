@@ -7,23 +7,22 @@ module DiscourseCodeReview::State::CommitApproval
   class << self
     def skip(topic, user)
       if SiteSetting.code_review_skip_duration_minutes > 0
-        DiscourseCodeReview::SkippedCodeReview.upsert({
+        DiscourseCodeReview::SkippedCodeReview.upsert(
+          {
             topic_id: topic.id,
             user_id: user.id,
             expires_at: SiteSetting.code_review_skip_duration_minutes.minutes.from_now,
             created_at: Time.zone.now,
             updated_at: Time.zone.now,
           },
-          unique_by: [:topic_id, :user_id]
+          unique_by: %i[topic_id user_id],
         )
       end
     end
 
     def approve(topic, approvers, pr: nil, merged_by: nil)
       last_post = nil
-      approvers.each do |approver|
-        last_post = ensure_approved_post(topic, approver)
-      end
+      approvers.each { |approver| last_post = ensure_approved_post(topic, approver) }
 
       unless approvers.empty?
         transition_to_approved(topic) do
@@ -35,19 +34,14 @@ module DiscourseCodeReview::State::CommitApproval
         end
       end
 
-      if pr
-        ensure_pr_merge_info_post(topic, pr, approvers, merged_by)
-      end
+      ensure_pr_merge_info_post(topic, pr, approvers, merged_by) if pr
     end
 
     def followup(topic, actor)
       tags = topic.tags.pluck(:name)
 
       if !tags.include?(SiteSetting.code_review_followup_tag)
-        tags -= [
-          SiteSetting.code_review_approved_tag,
-          SiteSetting.code_review_pending_tag
-        ]
+        tags -= [SiteSetting.code_review_approved_tag, SiteSetting.code_review_pending_tag]
 
         tags << SiteSetting.code_review_followup_tag
 
@@ -58,7 +52,7 @@ module DiscourseCodeReview::State::CommitApproval
           nil,
           bump: false,
           post_type: Post.types[:small_action],
-          action_code: "followup"
+          action_code: "followup",
         )
 
         if SiteSetting.code_review_auto_assign_on_followup && topic.user.can_review_code?
@@ -74,7 +68,7 @@ module DiscourseCodeReview::State::CommitApproval
           " [#{follower_topic.title}](#{follower_topic.url})",
           bump: false,
           post_type: Post.types[:small_action],
-          action_code: "followed_up"
+          action_code: "followed_up",
         )
 
       transition_to_approved(followee_topic) do
@@ -96,12 +90,7 @@ module DiscourseCodeReview::State::CommitApproval
     def ensure_approved_post(topic, approver)
       DistributedMutex.synchronize("code-review:ensure-approved-post:#{topic.id}") do
         ActiveRecord::Base.transaction(requires_new: true) do
-          post =
-            Post.where(
-              topic_id: topic.id,
-              user_id: approver.id,
-              action_code: "approved"
-            ).first
+          post = Post.where(topic_id: topic.id, user_id: approver.id, action_code: "approved").first
 
           unless post
             old_highest_post_number = topic.highest_post_number
@@ -111,14 +100,10 @@ module DiscourseCodeReview::State::CommitApproval
                 nil,
                 bump: false,
                 post_type: Post.types[:small_action],
-                action_code: "approved"
+                action_code: "approved",
               )
 
-            PostTiming.pretend_read(
-              topic.id,
-              old_highest_post_number,
-              post.post_number
-            )
+            PostTiming.pretend_read(topic.id, old_highest_post_number, post.post_number)
           end
 
           post
@@ -132,10 +117,7 @@ module DiscourseCodeReview::State::CommitApproval
       DistributedMutex.synchronize("code-review:ensure-approved-tag:#{topic.id}") do
         tags = topic.tags.pluck(:name)
         if !tags.include?(SiteSetting.code_review_approved_tag)
-          tags -= [
-            SiteSetting.code_review_followup_tag,
-            SiteSetting.code_review_pending_tag
-          ]
+          tags -= [SiteSetting.code_review_followup_tag, SiteSetting.code_review_pending_tag]
 
           tags << SiteSetting.code_review_approved_tag
 
@@ -148,23 +130,19 @@ module DiscourseCodeReview::State::CommitApproval
     end
 
     def send_approved_notification(topic, post)
-      if !topic.user
-        return
-      end
+      return if !topic.user
 
       notify = topic.user.custom_fields[DiscourseCodeReview::NOTIFY_REVIEW_CUSTOM_FIELD]
 
       # can be nil as well
-      if notify == false
-        return
-      end
+      return if notify == false
 
       Notification.consolidate_or_create!(
         notification_type: Notification.types[:code_review_commit_approved],
         topic_id: topic.id,
         user: topic.user,
         post_number: post.post_number,
-        data: { num_approved_commits: 1 }.to_json
+        data: { num_approved_commits: 1 }.to_json,
       )
     end
 
@@ -175,11 +153,7 @@ module DiscourseCodeReview::State::CommitApproval
       raw_parts = ["This commit appears in [##{pr.issue_number}](#{pr_url}) which was"]
 
       unless approvers.empty?
-        approvers_string =
-          approvers
-            .map(&:username)
-            .uniq
-            .to_sentence
+        approvers_string = approvers.map(&:username).uniq.to_sentence
 
         raw_parts << "approved by #{approvers_string}. It was"
       end
@@ -187,10 +161,7 @@ module DiscourseCodeReview::State::CommitApproval
       raw_parts << "merged by #{merged_by.username}."
 
       custom_fields = {
-        PR_MERGE_INFO_DATA => {
-          'merged_by': merged_by.id,
-          'approvers': approvers.map(&:id),
-        }.to_json
+        PR_MERGE_INFO_DATA => { merged_by: merged_by.id, approvers: approvers.map(&:id) }.to_json,
       }
 
       # TODO:
@@ -198,25 +169,17 @@ module DiscourseCodeReview::State::CommitApproval
       #   change before we use it.
       old_highest_post_number = topic.highest_post_number
 
-      DiscourseCodeReview::State::Helpers
-        .ensure_post_with_nonce(
-          action_code: "pr_merge_info",
-          bump: false,
-          custom_fields: custom_fields,
-          nonce_name: PR_MERGE_INFO_PR,
-          nonce_value: pr_string,
-          post_type: Post.types[:small_action],
-          raw: raw_parts.join(" "),
-          topic_id: topic.id,
-          user: Discourse.system_user,
-        ) do |post|
-          PostTiming.pretend_read(
-            topic.id,
-            old_highest_post_number,
-            post.post_number
-          )
-        end
+      DiscourseCodeReview::State::Helpers.ensure_post_with_nonce(
+        action_code: "pr_merge_info",
+        bump: false,
+        custom_fields: custom_fields,
+        nonce_name: PR_MERGE_INFO_PR,
+        nonce_value: pr_string,
+        post_type: Post.types[:small_action],
+        raw: raw_parts.join(" "),
+        topic_id: topic.id,
+        user: Discourse.system_user,
+      ) { |post| PostTiming.pretend_read(topic.id, old_highest_post_number, post.post_number) }
     end
-
   end
 end

@@ -10,6 +10,6 @@ class AddSkippedCodeReviews < ActiveRecord::Migration[6.0]
       t.timestamps null: false
     end
 
-    add_index :skipped_code_reviews, [:topic_id, :user_id], unique: true
+    add_index :skipped_code_reviews, %i[topic_id user_id], unique: true
   end
 end

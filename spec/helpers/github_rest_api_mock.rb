@@ -11,9 +11,7 @@ module GithubRestAPIMock
 
     def comments
       @comments ||=
-        Hash.new { |comments, owner_repo| comments[owner_repo] =
-          Hash.new { |h, sha| h[sha] = [] }
-        }
+        Hash.new { |comments, owner_repo| comments[owner_repo] = Hash.new { |h, sha| h[sha] = [] } }
     end
 
     def declare_repo!(owner:, repo:, default_branch:)
@@ -29,7 +27,9 @@ module GithubRestAPIMock
         _, owner, repo = match.to_a
 
         {
-          headers: { "Content-Type": 'application/json' },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: infos.fetch([owner, repo]).to_json,
         }
       end
@@ -38,7 +38,9 @@ module GithubRestAPIMock
         _, owner, repo, sha = match.to_a
 
         {
-          headers: { "Content-Type": 'application/json' },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: comments[[owner, repo]][sha].to_json,
         }
       end
@@ -49,19 +51,17 @@ module GithubRestAPIMock
     def stub_request(method, regex, &blk)
       WebMock
         .stub_request(:get, regex)
-        .to_return { |request|
+        .to_return do |request|
           matches =
             WebMock::Util::URI
               .variations_of_uri_as_strings(request.uri)
-              .flat_map { |uri|
-                [regex.match(uri)].compact
-              }
+              .flat_map { |uri| [regex.match(uri)].compact }
 
           raise unless matches.size == 1
           match = matches.first
 
           blk.call(match)
-        }
+        end
     end
   end
 end

@@ -18,34 +18,20 @@ module DiscourseCodeReview
 
         repo_name = State::GithubRepoCategories.get_repo_name_from_topic(topic)
 
-        discussion_topic =
-          Topic.find(
-            Importer.sync_commit_from_repo(repo_name, commit_sha)
-          )
+        discussion_topic = Topic.find(Importer.sync_commit_from_repo(repo_name, commit_sha))
 
         body =
           "A commit that appears in this pull request is being discussed [here](#{discussion_topic.url})."
 
-        ensure_pr_post(
-          author: Discourse.system_user,
-          body: body,
-          post_type: :regular
-        )
+        ensure_pr_post(author: Discourse.system_user, body: body, post_type: :regular)
       when :issue_comment
-        ensure_pr_post(
-          body: event.body,
-          post_type: :regular
-        )
+        ensure_pr_post(body: event.body, post_type: :regular)
       when :merged
-        ensure_pr_post(
-          post_type: :small_action,
-          action_code: 'merged'
-        )
+        ensure_pr_post(post_type: :small_action, action_code: "merged")
       when :review_thread_started
         body = []
 
-        if event.context.present?
-          body << <<~MD
+        body << <<~MD if event.context.present?
             [quote]
             #{event.context.path}
 
@@ -56,30 +42,26 @@ module DiscourseCodeReview
             [/quote]
 
           MD
-        end
 
         body << event.body
 
-        ensure_pr_post(
-          body: body.join,
-          post_type: :regular,
-          thread_id: event.thread.github_id
-        )
+        ensure_pr_post(body: body.join, post_type: :regular, thread_id: event.thread.github_id)
       when :review_comment
         ensure_pr_post(
           body: event.body,
           reply_to_github_id: event.reply_to_github_id,
           post_type: :regular,
-          thread_id: event.thread.github_id
+          thread_id: event.thread.github_id,
         )
       when :renamed_title
         body =
           "The title of this pull request changed from \"#{event.previous_title}\" to \"#{event.new_title}"
 
-        ensure_pr_post(body: body, post_type: :small_action, action_code: 'renamed') do |post|
+        ensure_pr_post(body: body, post_type: :small_action, action_code: "renamed") do |post|
           topic = post.topic
 
-          issue_number = topic.custom_fields[DiscourseCodeReview::GithubPRSyncer::GITHUB_ISSUE_NUMBER]
+          issue_number =
+            topic.custom_fields[DiscourseCodeReview::GithubPRSyncer::GITHUB_ISSUE_NUMBER]
 
           topic.title = "#{event.new_title} (PR ##{issue_number})"
           topic.save!(validate: false)
@@ -107,7 +89,14 @@ module DiscourseCodeReview
       )
     end
 
-    def ensure_pr_post(post_type:, body: nil, action_code: nil, reply_to_github_id: nil, author: @author, thread_id: nil)
+    def ensure_pr_post(
+      post_type:,
+      body: nil,
+      action_code: nil,
+      reply_to_github_id: nil,
+      author: @author,
+      thread_id: nil
+    )
       reply_to_post_number =
         if reply_to_github_id
           State::Helpers.posts_with_custom_field(
@@ -120,9 +109,7 @@ module DiscourseCodeReview
       custom_fields = {}
 
       if thread_id.present?
-        custom_fields[
-          DiscourseCodeReview::GithubPRSyncer::GITHUB_THREAD_ID
-        ] = thread_id
+        custom_fields[DiscourseCodeReview::GithubPRSyncer::GITHUB_THREAD_ID] = thread_id
       end
 
       post =

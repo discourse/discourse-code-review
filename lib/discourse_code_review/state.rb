@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-module DiscourseCodeReview::State; end
+module DiscourseCodeReview::State
+end
 
 # Some things are simple, because they only exist to manipulate data in the DB.
 #

@@ -18,9 +18,7 @@ class GraphQLClient
 
       loop do
         results, cursor, has_next_page =
-          query
-            .call(execute_block, cursor)
-            .values_at(:items, :cursor, :has_next_page)
+          query.call(execute_block, cursor).values_at(:items, :cursor, :has_next_page)
 
         results.each(&blk)
 

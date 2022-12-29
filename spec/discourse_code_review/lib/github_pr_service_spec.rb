@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require "rails_helper"
 
 class MockPRQuerier
   def initialize(**opts)
@@ -41,100 +41,80 @@ class MockPRQuerier
 end
 
 describe DiscourseCodeReview::Source::GithubPRService do
-  let!(:pr) {
-    DiscourseCodeReview::PullRequest.new(
-      owner: "owner",
-      name: "name",
-      issue_number: 101,
-    )
-  }
+  let!(:pr) do
+    DiscourseCodeReview::PullRequest.new(owner: "owner", name: "name", issue_number: 101)
+  end
 
-  let!(:external_pr) {
-    DiscourseCodeReview::PullRequest.new(
-      owner: "acme",
-      name: "name",
-      issue_number: 102,
-    )
-  }
+  let!(:external_pr) do
+    DiscourseCodeReview::PullRequest.new(owner: "acme", name: "name", issue_number: 102)
+  end
 
-  let!(:actor) {
-    DiscourseCodeReview::Actor.new(
-      github_login: "coder1234",
-    )
-  }
+  let!(:actor) { DiscourseCodeReview::Actor.new(github_login: "coder1234") }
 
-  let!(:issue_comment1) {
+  let!(:issue_comment1) do
     event_info =
       DiscourseCodeReview::PullRequestEventInfo.new(
         github_id: "some github id",
         created_at: Time.parse("2000-01-01 00:00:00 UTC"),
-        actor: actor
+        actor: actor,
       )
 
     event =
-      DiscourseCodeReview::PullRequestEvent.create(
-        :issue_comment,
-        body: "some legitimate comment"
-      )
+      DiscourseCodeReview::PullRequestEvent.create(:issue_comment, body: "some legitimate comment")
 
     [event_info, event]
-  }
+  end
 
-  let!(:issue_comment2) {
+  let!(:issue_comment2) do
     event_info =
       DiscourseCodeReview::PullRequestEventInfo.new(
         github_id: "some github id",
         created_at: Time.parse("2000-01-01 01:00:00 UTC"),
-        actor: actor
+        actor: actor,
       )
 
     event =
       DiscourseCodeReview::PullRequestEvent.create(
         :issue_comment,
-        body: "another legitimate comment"
+        body: "another legitimate comment",
       )
 
     [event_info, event]
-  }
+  end
 
-  let!(:commit_thread) {
+  let!(:commit_thread) do
     DiscourseCodeReview::CommitThread.new(
       github_id: "commit thread github id",
       actor: actor,
       created_at: Time.parse("2000-01-01 02:00:00 UTC"),
-      commit_sha: "deadbeef"
+      commit_sha: "deadbeef",
     )
-  }
+  end
 
-  let!(:commit_thread_event) {
+  let!(:commit_thread_event) do
     event_info =
       DiscourseCodeReview::PullRequestEventInfo.new(
         github_id: "commit thread github id",
         created_at: Time.parse("2000-01-01 02:00:00 UTC"),
-        actor: actor
+        actor: actor,
       )
 
     event =
-      DiscourseCodeReview::PullRequestEvent.create(
-        :commit_thread_started,
-        commit_sha: "deadbeef"
-      )
+      DiscourseCodeReview::PullRequestEvent.create(:commit_thread_started, commit_sha: "deadbeef")
 
     [event_info, event]
-  }
+  end
 
-  let!(:review_thread) {
-    DiscourseCodeReview::CommentThread.new(
-      github_id: "review thread github id",
-    )
-  }
+  let!(:review_thread) do
+    DiscourseCodeReview::CommentThread.new(github_id: "review thread github id")
+  end
 
-  let!(:first_review_thread_comment) {
+  let!(:first_review_thread_comment) do
     event_info =
       DiscourseCodeReview::PullRequestEventInfo.new(
         github_id: "first review thread comment github id",
         created_at: Time.parse("2000-01-01 03:00:00 UTC"),
-        actor: actor
+        actor: actor,
       )
 
     event =
@@ -142,18 +122,18 @@ describe DiscourseCodeReview::Source::GithubPRService do
         :review_thread_started,
         body: "yet another totally legitimate comment",
         context: nil,
-        thread: review_thread
+        thread: review_thread,
       )
 
     [event_info, event]
-  }
+  end
 
-  let!(:second_review_thread_comment) {
+  let!(:second_review_thread_comment) do
     event_info =
       DiscourseCodeReview::PullRequestEventInfo.new(
         github_id: "second review thread comment github id",
         created_at: Time.parse("2000-01-01 04:00:00 UTC"),
-        actor: actor
+        actor: actor,
       )
 
     event =
@@ -161,20 +141,15 @@ describe DiscourseCodeReview::Source::GithubPRService do
         :review_comment,
         body: "and now for something completely different",
         reply_to_github_id: first_review_thread_comment[0].github_id,
-        thread: review_thread
+        thread: review_thread,
       )
 
     [event_info, event]
-  }
+  end
 
   describe "#pull_request_events" do
     it "preserves timeline events" do
-      pr_querier =
-        MockPRQuerier.new(
-          timeline: {
-            pr => [issue_comment1]
-          }
-        )
+      pr_querier = MockPRQuerier.new(timeline: { pr => [issue_comment1] })
 
       result =
         DiscourseCodeReview::Source::GithubPRService
@@ -186,15 +161,7 @@ describe DiscourseCodeReview::Source::GithubPRService do
     end
 
     it "preserves timeline event order" do
-      pr_querier =
-        MockPRQuerier.new(
-          timeline: {
-            pr => [
-              issue_comment1,
-              issue_comment2
-            ]
-          }
-        )
+      pr_querier = MockPRQuerier.new(timeline: { pr => [issue_comment1, issue_comment2] })
 
       result =
         DiscourseCodeReview::Source::GithubPRService
@@ -206,12 +173,7 @@ describe DiscourseCodeReview::Source::GithubPRService do
     end
 
     it "turns commit threads into events" do
-      pr_querier =
-        MockPRQuerier.new(
-          commit_threads: {
-            pr => [commit_thread]
-          }
-        )
+      pr_querier = MockPRQuerier.new(commit_threads: { pr => [commit_thread] })
 
       result =
         DiscourseCodeReview::Source::GithubPRService
@@ -223,15 +185,7 @@ describe DiscourseCodeReview::Source::GithubPRService do
     end
 
     it "de-duplicates commit threads" do
-      pr_querier =
-        MockPRQuerier.new(
-          commit_threads: {
-            pr => [
-              commit_thread,
-              commit_thread
-            ]
-          }
-        )
+      pr_querier = MockPRQuerier.new(commit_threads: { pr => [commit_thread, commit_thread] })
 
       result =
         DiscourseCodeReview::Source::GithubPRService
@@ -246,11 +200,11 @@ describe DiscourseCodeReview::Source::GithubPRService do
       pr_querier =
         MockPRQuerier.new(
           review_threads: {
-            pr => [review_thread]
+            pr => [review_thread],
           },
           first_review_thread_comment: {
-            review_thread => first_review_thread_comment
-          }
+            review_thread => first_review_thread_comment,
+          },
         )
 
       result =
@@ -266,14 +220,14 @@ describe DiscourseCodeReview::Source::GithubPRService do
       pr_querier =
         MockPRQuerier.new(
           review_threads: {
-            pr => [review_thread]
+            pr => [review_thread],
           },
           first_review_thread_comment: {
-            review_thread => first_review_thread_comment
+            review_thread => first_review_thread_comment,
           },
           subsequent_review_thread_comments: {
-            review_thread => [second_review_thread_comment]
-          }
+            review_thread => [second_review_thread_comment],
+          },
         )
 
       result =
@@ -289,22 +243,16 @@ describe DiscourseCodeReview::Source::GithubPRService do
   describe "#associated_pull_requests" do
     context "when including external repos" do
       it "does not filter out any pull requests" do
-        DiscourseCodeReview
-          .stubs(:github_organizations)
-          .returns(["owner"])
+        DiscourseCodeReview.stubs(:github_organizations).returns(["owner"])
 
         pr_querier =
           MockPRQuerier.new(
             associated_pull_requests: {
-              [
-                "discourse",
-                "discourse-code-review",
-                "2914603cc78157be832a57d49b182d89e7e5ed1a"
-              ] => [
+              %w[discourse discourse-code-review 2914603cc78157be832a57d49b182d89e7e5ed1a] => [
                 pr,
-                external_pr
-              ]
-            }
+                external_pr,
+              ],
+            },
           )
 
         result =
@@ -313,7 +261,7 @@ describe DiscourseCodeReview::Source::GithubPRService do
             .associated_pull_requests(
               "discourse/discourse-code-review",
               "2914603cc78157be832a57d49b182d89e7e5ed1a",
-              include_external: true
+              include_external: true,
             )
             .to_a
 
@@ -323,22 +271,16 @@ describe DiscourseCodeReview::Source::GithubPRService do
 
     context "when not including external repos" do
       it "filters out any external pull requests" do
-        DiscourseCodeReview
-          .stubs(:github_organizations)
-          .returns(["owner"])
+        DiscourseCodeReview.stubs(:github_organizations).returns(["owner"])
 
         pr_querier =
           MockPRQuerier.new(
             associated_pull_requests: {
-              [
-                "discourse",
-                "discourse-code-review",
-                "2914603cc78157be832a57d49b182d89e7e5ed1a"
-              ] => [
+              %w[discourse discourse-code-review 2914603cc78157be832a57d49b182d89e7e5ed1a] => [
                 pr,
-                external_pr
-              ]
-            }
+                external_pr,
+              ],
+            },
           )
 
         result =
@@ -347,7 +289,7 @@ describe DiscourseCodeReview::Source::GithubPRService do
             .associated_pull_requests(
               "discourse/discourse-code-review",
               "2914603cc78157be832a57d49b182d89e7e5ed1a",
-              include_external: false
+              include_external: false,
             )
             .to_a
 

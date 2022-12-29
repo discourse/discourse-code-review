@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
 module DiscourseCodeReview
-  ActorWithId =
-    TypedData::TypedStruct.new(
-      login: String,
-      id: TypedData::OrNil[Integer],
-    )
+  ActorWithId = TypedData::TypedStruct.new(login: String, id: TypedData::OrNil[Integer])
 
   CommitAuthorInfo =
     TypedData::TypedStruct.new(
@@ -36,10 +32,14 @@ module DiscourseCodeReview
     end
 
     def commits_authors(owner, name, refs)
-      query = "
+      query =
+        "
         query {
           repository(owner: #{owner.to_json}, name: #{name.to_json}) {
-            #{refs.each_with_index.map do |ref, i|
+            #{
+          refs
+            .each_with_index
+            .map do |ref, i|
               "
             commit_#{i}: object(expression: #{ref.to_json}) {
               ... on Commit {
@@ -59,7 +59,10 @@ module DiscourseCodeReview
               }
             },
             ".lstrip
-            end.join.rstrip}
+            end
+            .join
+            .rstrip
+        }
           }
         }
       "
@@ -85,12 +88,7 @@ module DiscourseCodeReview
     private
 
     def build_actor_with_id(actor)
-      if actor
-        ActorWithId.new(
-          login: actor[:login],
-          id: decode_user_id(actor[:id]),
-        )
-      end
+      ActorWithId.new(login: actor[:login], id: decode_user_id(actor[:id])) if actor
     end
 
     # TODO:

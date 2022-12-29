@@ -13,10 +13,6 @@ class ParentCategoryValidator
   end
 
   def error_message
-    if @category
-      I18n.t("category.errors.depth")
-    else
-      I18n.t("category.errors.not_found")
-    end
+    @category ? I18n.t("category.errors.depth") : I18n.t("category.errors.not_found")
   end
 end

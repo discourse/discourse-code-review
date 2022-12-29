@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require "rails_helper"
 
 describe "tasks/code_review_sha_backfill" do
   before do
@@ -32,33 +32,34 @@ some code
     let(:post) { Fabricate(:post, topic: topic, raw: raw) }
 
     before do
-      topic.custom_fields[DiscourseCodeReview::COMMIT_HASH] = 'c187ede3c67f23478bc2d3c20187bd98ac025b9e'
+      topic.custom_fields[
+        DiscourseCodeReview::COMMIT_HASH
+      ] = "c187ede3c67f23478bc2d3c20187bd98ac025b9e"
       topic.save_custom_fields
-      DiscourseCodeReview::CommitTopic.create!(topic_id: topic.id, sha: 'c187ede3c67f23478bc2d3c20187bd98ac025b9e')
+      DiscourseCodeReview::CommitTopic.create!(
+        topic_id: topic.id,
+        sha: "c187ede3c67f23478bc2d3c20187bd98ac025b9e",
+      )
       post.rebake!
-      Rake::Task['code_review_full_sha_backfill'].reenable
+      Rake::Task["code_review_full_sha_backfill"].reenable
     end
 
     it "updates the post raw with the post revisor to have the full sha" do
       original_raw = post.raw
-      capture_stdout do
-        Rake::Task['code_review_full_sha_backfill'].invoke
-      end
+      capture_stdout { Rake::Task["code_review_full_sha_backfill"].invoke }
       post.reload
 
-      expect(post.raw.chomp).to eq(original_raw.gsub("sha: c187ede3", "sha: c187ede3c67f23478bc2d3c20187bd98ac025b9e").chomp)
+      expect(post.raw.chomp).to eq(
+        original_raw.gsub("sha: c187ede3", "sha: c187ede3c67f23478bc2d3c20187bd98ac025b9e").chomp,
+      )
     end
 
     it "is idempotent based on raw not changing and the query not getting longer shas" do
-      capture_stdout do
-        Rake::Task['code_review_full_sha_backfill'].invoke
-      end
+      capture_stdout { Rake::Task["code_review_full_sha_backfill"].invoke }
       post_baked_at = post.reload.baked_at
-      Rake::Task['code_review_full_sha_backfill'].reenable
+      Rake::Task["code_review_full_sha_backfill"].reenable
 
-      capture_stdout do
-        Rake::Task['code_review_full_sha_backfill'].invoke
-      end
+      capture_stdout { Rake::Task["code_review_full_sha_backfill"].invoke }
       expect(post.reload.baked_at).to eq_time(post_baked_at)
     end
   end

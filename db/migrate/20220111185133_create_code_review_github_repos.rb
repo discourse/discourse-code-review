@@ -12,9 +12,7 @@ class CreateCodeReviewGithubRepos < ActiveRecord::Migration[6.1]
     add_index :code_review_github_repos, :repo_id, unique: true
     add_index :code_review_github_repos, :name, unique: true
 
-    reversible do |dir|
-      dir.up do
-        execute <<~SQL
+    reversible { |dir| dir.up { execute <<~SQL } }
           INSERT INTO code_review_github_repos (category_id, repo_id, name, created_at, updated_at)
           SELECT
             categories.id,
@@ -40,7 +38,5 @@ class CreateCodeReviewGithubRepos < ActiveRecord::Migration[6.1]
           WHERE repo_ids.value IS NOT NULL
           OR names.value IS NOT NULL
         SQL
-      end
-    end
   end
 end

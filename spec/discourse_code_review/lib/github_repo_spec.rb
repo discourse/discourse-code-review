@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require "rails_helper"
 
 module DiscourseCodeReview
   describe GithubRepo do
@@ -23,26 +23,24 @@ module DiscourseCodeReview
 
         DiscourseCodeReview::Source::GitRepo.new(origin_path, checkout_path)
 
-        Dir.chdir(checkout_path) do
-          example.run
-        end
+        Dir.chdir(checkout_path) { example.run }
       end
     end
 
     context "with a merge commit" do
       before do
         Dir.chdir(origin_path) do
-          File.write('a', "hello worlds\n")
+          File.write("a", "hello worlds\n")
           `git add a`
           `git commit -am 'first commit'`
 
           `git checkout -q -b test`
-          File.write('b', 'test')
+          File.write("b", "test")
           `git add b`
           `git commit -am testing`
           `git checkout -q main`
 
-          File.write('a', "hello world\n")
+          File.write("a", "hello world\n")
           `git commit -am 'second commit'`
 
           `git merge test`
@@ -50,7 +48,7 @@ module DiscourseCodeReview
       end
 
       it "does not explode" do
-        repo = GithubRepo.new('fake_repo/fake_repo', nil, nil, repo_id: 24)
+        repo = GithubRepo.new("fake_repo/fake_repo", nil, nil, repo_id: 24)
         repo.stubs(:default_branch).returns("origin/main")
         repo.path = checkout_path
         repo.last_commit = nil
@@ -64,16 +62,16 @@ module DiscourseCodeReview
     context "with a commit with a long diff" do
       before do
         Dir.chdir(origin_path) do
-          File.write('a', "Hello, world!\n" * 1000)
+          File.write("a", "Hello, world!\n" * 1000)
           `git add a`
           `git commit -am 'first commit'`
-          File.write('a', 'hello2')
+          File.write("a", "hello2")
           `git commit -am 'second commit\n\nline 2'`
         end
       end
 
       it "truncates the diff" do
-        repo = GithubRepo.new('fake_repo/fake_repo', nil, nil, repo_id: 24)
+        repo = GithubRepo.new("fake_repo/fake_repo", nil, nil, repo_id: 24)
         repo.stubs(:default_branch).returns("origin/main")
         repo.path = checkout_path
         repo.last_commit = nil
@@ -94,18 +92,18 @@ module DiscourseCodeReview
       sha = nil
 
       Dir.chdir(origin_path) do
-        File.write('a', 'hello')
+        File.write("a", "hello")
         `git add a`
         `git commit -am 'first commit'`
-        File.write('a', 'hello2')
+        File.write("a", "hello2")
         `git commit -am 'second commit'`
-        File.write('a', 'hello3')
+        File.write("a", "hello3")
         `git commit -am 'third commit'`
 
         sha = `git rev-parse HEAD`.strip
       end
 
-      repo = GithubRepo.new('fake_repo/fake_repo', nil, nil, repo_id: 24)
+      repo = GithubRepo.new("fake_repo/fake_repo", nil, nil, repo_id: 24)
       repo.stubs(:default_branch).returns("origin/main")
       repo.path = checkout_path
 
@@ -118,16 +116,16 @@ module DiscourseCodeReview
       sha = nil
 
       Dir.chdir(origin_path) do
-        File.write('a', 'hello')
+        File.write("a", "hello")
         `git add a`
         `git commit -am 'first commit'`
-        File.write('a', 'hello2')
+        File.write("a", "hello2")
         `git commit -am 'second commit'`
 
         sha = `git rev-parse HEAD`.strip
       end
 
-      repo = GithubRepo.new('fake_repo/fake_repo', nil, nil, repo_id: 24)
+      repo = GithubRepo.new("fake_repo/fake_repo", nil, nil, repo_id: 24)
       repo.stubs(:default_branch).returns("origin/main")
       repo.path = checkout_path
 
