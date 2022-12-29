@@ -7,17 +7,19 @@ module Jobs
     def execute(args)
       repo_name, commit_sha, repo_id = args.values_at(:repo_name, :commit_sha, :repo_id)
 
-      unless repo_name.kind_of?(String)
-        raise Discourse::InvalidParameters.new(:repo_name)
-      end
+      raise Discourse::InvalidParameters.new(:repo_name) unless repo_name.kind_of?(String)
 
-      unless commit_sha.kind_of?(String)
-        raise Discourse::InvalidParameters.new(:commit_sha)
-      end
+      raise Discourse::InvalidParameters.new(:commit_sha) unless commit_sha.kind_of?(String)
 
       client = DiscourseCodeReview.octokit_client
       github_commit_querier = DiscourseCodeReview.github_commit_querier
-      repo = DiscourseCodeReview::GithubRepo.new(repo_name, client, github_commit_querier, repo_id: repo_id)
+      repo =
+        DiscourseCodeReview::GithubRepo.new(
+          repo_name,
+          client,
+          github_commit_querier,
+          repo_id: repo_id,
+        )
 
       importer = DiscourseCodeReview::Importer.new(repo)
       importer.sync_commit_sha(commit_sha)

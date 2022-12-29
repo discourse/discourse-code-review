@@ -4,7 +4,7 @@ require "rails_helper"
 
 describe ListController do
   before do
-    user = Fabricate(:user, username: 't.testeur')
+    user = Fabricate(:user, username: "t.testeur")
     sign_in(user)
   end
 

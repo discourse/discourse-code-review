@@ -12,26 +12,15 @@ module DiscourseCodeReview
     end
 
     def sync_pull_request(repo_name, issue_number, repo_id: nil)
-      owner, name = repo_name.split('/', 2)
+      owner, name = repo_name.split("/", 2)
 
-      pr =
-        PullRequest.new(
-          owner: owner,
-          name: name,
-          issue_number: issue_number
-        )
+      pr = PullRequest.new(owner: owner, name: name, issue_number: issue_number)
 
       pr_data = pr_service.pull_request_data(pr)
 
-      category =
-        State::GithubRepoCategories
-          .ensure_category(
-            repo_name: repo_name,
-            repo_id: repo_id
-          )
+      category = State::GithubRepoCategories.ensure_category(repo_name: repo_name, repo_id: repo_id)
 
-      url =
-        "https://github.com/#{repo_name}/pull/#{issue_number}"
+      url = "https://github.com/#{repo_name}/pull/#{issue_number}"
 
       topic =
         ensure_pr_topic(
@@ -42,39 +31,38 @@ module DiscourseCodeReview
           title: pr_data.title,
           body: pr_data.body,
           url: url,
-          issue_number: issue_number
+          issue_number: issue_number,
         )
 
-      pr_service.pull_request_events(pr).each do |event_info, event|
-        poster =
-          GithubPRPoster.new(
-            topic: topic,
-            author: ensure_actor(event_info.actor),
-            github_id: event_info.github_id,
-            created_at: event_info.created_at
-          )
+      pr_service
+        .pull_request_events(pr)
+        .each do |event_info, event|
+          poster =
+            GithubPRPoster.new(
+              topic: topic,
+              author: ensure_actor(event_info.actor),
+              github_id: event_info.github_id,
+              created_at: event_info.created_at,
+            )
 
-        poster.post_event(event)
-      end
-    end
-
-    def sync_repo(repo_name)
-      pr_service.pull_requests(repo_name).each do |pr|
-        sync_pull_request(repo_name, pr.issue_number)
-      end
-    end
-
-    def sync_all
-      State::GithubRepoCategories
-        .each_repo_name do |name|
-          sync_repo(name)
+          poster.post_event(event)
         end
     end
 
+    def sync_repo(repo_name)
+      pr_service
+        .pull_requests(repo_name)
+        .each { |pr| sync_pull_request(repo_name, pr.issue_number) }
+    end
+
+    def sync_all
+      State::GithubRepoCategories.each_repo_name { |name| sync_repo(name) }
+    end
+
     def sync_associated_pull_requests(repo_name, git_commit, repo_id: nil)
-      pr_service.associated_pull_requests(repo_name, git_commit).each do |pr|
-        sync_pull_request(repo_name, pr.issue_number, repo_id: repo_id)
-      end
+      pr_service
+        .associated_pull_requests(repo_name, git_commit)
+        .each { |pr| sync_pull_request(repo_name, pr.issue_number, repo_id: repo_id) }
     end
 
     def apply_github_approves(repo_name, commit_hash)
@@ -84,31 +72,40 @@ module DiscourseCodeReview
           .where(code_review_commit_topics: { sha: commit_hash })
           .first
 
-      Rails.logger.warn("[DiscourseCodeReview::GithubPRSyncer#apply_github_approves] [commit_hash = #{commit_hash}] topic.id = #{topic&.id}") if SiteSetting.code_review_debug
+      if SiteSetting.code_review_debug
+        Rails.logger.warn(
+          "[DiscourseCodeReview::GithubPRSyncer#apply_github_approves] [commit_hash = #{commit_hash}] topic.id = #{topic&.id}",
+        )
+      end
       if topic
-        pr_service.associated_pull_requests(repo_name, commit_hash).each do |pr|
-          merge_info = pr_service.merge_info(pr)
-          Rails.logger.warn("[DiscourseCodeReview::GithubPRSyncer#apply_github_approves] [commit_hash = #{commit_hash}] pr = #{pr.to_json}, merge_info = #{merge_info}") if SiteSetting.code_review_debug
-          if merge_info[:merged_by]
-            merged_by = ensure_actor(merge_info[:merged_by])
+        pr_service
+          .associated_pull_requests(repo_name, commit_hash)
+          .each do |pr|
+            merge_info = pr_service.merge_info(pr)
+            if SiteSetting.code_review_debug
+              Rails.logger.warn(
+                "[DiscourseCodeReview::GithubPRSyncer#apply_github_approves] [commit_hash = #{commit_hash}] pr = #{pr.to_json}, merge_info = #{merge_info}",
+              )
+            end
+            if merge_info[:merged_by]
+              merged_by = ensure_actor(merge_info[:merged_by])
 
-            approvers =
-              merge_info[:approvers]
-                .map(&method(:ensure_actor))
-                .select(&:can_review_code?)
-                .select { |user|
-                  SiteSetting.code_review_allow_self_approval || topic.user_id != user.id
-                }
+              approvers =
+                merge_info[:approvers]
+                  .map(&method(:ensure_actor))
+                  .select(&:can_review_code?)
+                  .select do |user|
+                    SiteSetting.code_review_allow_self_approval || topic.user_id != user.id
+                  end
 
-            Rails.logger.warn("[DiscourseCodeReview::GithubPRSyncer#apply_github_approves] [commit_hash = #{commit_hash}] approvers = #{approvers}") if SiteSetting.code_review_debug
-            State::CommitApproval.approve(
-              topic,
-              approvers,
-              pr: pr,
-              merged_by: merged_by
-            )
+              if SiteSetting.code_review_debug
+                Rails.logger.warn(
+                  "[DiscourseCodeReview::GithubPRSyncer#apply_github_approves] [commit_hash = #{commit_hash}] approvers = #{approvers}",
+                )
+              end
+              State::CommitApproval.approve(topic, approvers, pr: pr, merged_by: merged_by)
+            end
           end
-        end
       end
     end
 
@@ -120,14 +117,11 @@ module DiscourseCodeReview
         topic.regular?,
         post.post_number > 1,
         post.post_type == Post.types[:regular],
-        post.custom_fields[GITHUB_NODE_ID].nil?
+        post.custom_fields[GITHUB_NODE_ID].nil?,
       ]
 
       if conditions.all?
-        repo_name =
-          topic.category.custom_fields[
-            State::GithubRepoCategories::GITHUB_REPO_NAME
-          ]
+        repo_name = topic.category.custom_fields[State::GithubRepoCategories::GITHUB_REPO_NAME]
 
         issue_number = topic.custom_fields[GITHUB_ISSUE_NUMBER]
 
@@ -136,21 +130,16 @@ module DiscourseCodeReview
           reply_to_number = post.reply_to_post_number
 
           reply_to =
-            if reply_to_number.present?
-              topic.posts.where(post_number: reply_to_number).first
-            end
+            (topic.posts.where(post_number: reply_to_number).first if reply_to_number.present?)
 
-          thread_id =
-            if reply_to.present?
-              reply_to.custom_fields[GITHUB_THREAD_ID]
-            end
+          thread_id = (reply_to.custom_fields[GITHUB_THREAD_ID] if reply_to.present?)
 
           post_user_name = user.name || user.username
 
           github_post_contents = [
             "[#{post_user_name} posted](#{post.full_url}):",
-            '',
-            post.raw
+            "",
+            post.raw,
           ].join("\n")
 
           response =
@@ -159,14 +148,10 @@ module DiscourseCodeReview
                 repo_name,
                 issue_number,
                 github_post_contents,
-                thread_id
+                thread_id,
               )
             else
-              @pr_service.create_issue_comment(
-                repo_name,
-                issue_number,
-                github_post_contents
-              )
+              @pr_service.create_issue_comment(repo_name, issue_number, github_post_contents)
             end
 
           post.custom_fields[GITHUB_NODE_ID] = response[:node_id]
@@ -182,13 +167,19 @@ module DiscourseCodeReview
 
     def ensure_actor(actor)
       github_login = actor.github_login
-      user_syncer.ensure_user(
-        name: github_login,
-        github_login: github_login
-      )
+      user_syncer.ensure_user(name: github_login, github_login: github_login)
     end
 
-    def ensure_pr_topic(category:, author:, github_id:, created_at:, title:, body:, url:, issue_number:)
+    def ensure_pr_topic(
+      category:,
+      author:,
+      github_id:,
+      created_at:,
+      title:,
+      body:,
+      url:,
+      issue_number:
+    )
       topic_title = "#{title} (PR ##{issue_number})"
       raw = "#{body}\n\n[GitHub](#{url})"
       custom_fields = { GITHUB_ISSUE_NUMBER => issue_number.to_s }

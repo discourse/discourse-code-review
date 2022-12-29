@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../helpers/integration'
+require "rails_helper"
+require_relative "../helpers/integration"
 
 describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
   context "with a fake github repo" do
@@ -37,16 +37,17 @@ describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
         owner: "10xninjarockstar",
         repo: "ultimatetodolist",
         commit: commit,
-        comment: {}
+        comment: {
+        },
       )
     end
 
     it "creates a commit topic and a category topic, with a full sha in the first post" do
       expect {
-        described_class.new.execute(repo_name: '10xninjarockstar/ultimatetodolist', repo_id: 24)
+        described_class.new.execute(repo_name: "10xninjarockstar/ultimatetodolist", repo_id: 24)
       }.to change { Topic.count }.by(2)
 
-      topics = Topic.order('id desc').limit(2)
+      topics = Topic.order("id desc").limit(2)
 
       commit_post = topics.first.first_post
 
@@ -57,24 +58,32 @@ describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
     it "skips if last local and remote commit SHAs match" do
       PluginStore.set(
         DiscourseCodeReview::PluginName,
-        DiscourseCodeReview::GithubRepo::LAST_COMMIT + '10xninjarockstar/ultimatetodolist',
-        'abcdef'
+        DiscourseCodeReview::GithubRepo::LAST_COMMIT + "10xninjarockstar/ultimatetodolist",
+        "abcdef",
       )
 
       expect {
-        described_class.new.execute(repo_name: '10xninjarockstar/ultimatetodolist', repo_id: 24, skip_if_up_to_date: true)
+        described_class.new.execute(
+          repo_name: "10xninjarockstar/ultimatetodolist",
+          repo_id: 24,
+          skip_if_up_to_date: true,
+        )
       }.not_to change { Topic.count }
     end
 
     it "does not skips if last local and remote commit SHAs mismatch" do
       PluginStore.set(
         DiscourseCodeReview::PluginName,
-        DiscourseCodeReview::GithubRepo::LAST_COMMIT + '10xninjarockstar/ultimatetodolist',
-        'abcdeg'
+        DiscourseCodeReview::GithubRepo::LAST_COMMIT + "10xninjarockstar/ultimatetodolist",
+        "abcdeg",
       )
 
       expect {
-        described_class.new.execute(repo_name: '10xninjarockstar/ultimatetodolist', repo_id: 24, skip_if_up_to_date: true)
+        described_class.new.execute(
+          repo_name: "10xninjarockstar/ultimatetodolist",
+          repo_id: 24,
+          skip_if_up_to_date: true,
+        )
       }.to change { Topic.count }.by(2)
     end
   end

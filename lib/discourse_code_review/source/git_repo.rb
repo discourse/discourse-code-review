@@ -19,13 +19,7 @@ module DiscourseCodeReview::Source
       begin
         @repo = Rugged::Repository.new(location)
       rescue Rugged::RepositoryError, Rugged::OSError
-        @repo =
-          Rugged::Repository.clone_at(
-            url,
-            location,
-            bare: true,
-            credentials: @credentials,
-          )
+        @repo = Rugged::Repository.clone_at(url, location, bare: true, credentials: @credentials)
       end
     end
 
@@ -42,10 +36,7 @@ module DiscourseCodeReview::Source
     end
 
     def trailers(ref)
-      @repo
-        .rev_parse(ref)
-        .trailers
-        .map { |trailer| trailer.map(&method(:sanitize_string)) }
+      @repo.rev_parse(ref).trailers.map { |trailer| trailer.map(&method(:sanitize_string)) }
     end
 
     def rev_parse(ref)
@@ -54,11 +45,7 @@ module DiscourseCodeReview::Source
 
     def diff_excerpt(ref, path, position)
       lines =
-        @repo
-          .diff("#{ref}^", ref, paths: [path])
-          .patch
-          .force_encoding(Encoding::UTF_8)
-          .split("\n")
+        @repo.diff("#{ref}^", ref, paths: [path]).patch.force_encoding(Encoding::UTF_8).split("\n")
 
       # -1 since lines use 1-based indexing
       # 5 lines in the preamble
@@ -87,9 +74,7 @@ module DiscourseCodeReview::Source
     end
 
     def fetch
-      @repo.remotes.each do |remote|
-        @repo.fetch(remote, credentials: @credentials)
-      end
+      @repo.remotes.each { |remote| @repo.fetch(remote, credentials: @credentials) }
     end
 
     def commit(ref)
@@ -117,10 +102,7 @@ module DiscourseCodeReview::Source
     end
 
     def sanitize_commit(commit)
-      diff =
-        if commit.parents.size == 1
-          sanitize_string(commit.parents[0].diff(commit).patch)
-        end
+      diff = (sanitize_string(commit.parents[0].diff(commit).patch) if commit.parents.size == 1)
 
       Commit.new(
         oid: sanitize_string(commit.oid),

@@ -4,7 +4,8 @@
 #
 # They belong here.
 
-module DiscourseCodeReview::Source; end
+module DiscourseCodeReview::Source
+end
 
 require File.expand_path("../source/git_repo", __FILE__)
 require File.expand_path("../source/github_pr_service", __FILE__)

@@ -9,7 +9,7 @@ module DiscourseCodeReview
     skip_before_action :ensure_logged_in, only: :webhook
     skip_before_action :ensure_can_review_code, only: :webhook
     skip_before_action :redirect_to_login_if_required, only: :webhook
-    skip_before_action :check_xhr, only: [:webhook, :redirect]
+    skip_before_action :check_xhr, only: %i[webhook redirect]
 
     def webhook
       return render json: { disabled: true } unless SiteSetting.code_review_enabled
@@ -21,13 +21,18 @@ module DiscourseCodeReview
 
       request.body.rewind
       body = request.body.read
-      signature = OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), SiteSetting.code_review_github_webhook_secret, body)
+      signature =
+        OpenSSL::HMAC.hexdigest(
+          OpenSSL::Digest.new("sha1"),
+          SiteSetting.code_review_github_webhook_secret,
+          body,
+        )
 
-      if !Rack::Utils.secure_compare("sha1=#{signature}", request.env['HTTP_X_HUB_SIGNATURE'])
+      if !Rack::Utils.secure_compare("sha1=#{signature}", request.env["HTTP_X_HUB_SIGNATURE"])
         raise Discourse::InvalidAccess
       end
 
-      type = request.env['HTTP_X_GITHUB_EVENT']
+      type = request.env["HTTP_X_GITHUB_EVENT"]
 
       # unique hash for webhook
       # delivery = request.env['HTTP_X_GITHUB_DELIVERY']
@@ -51,26 +56,39 @@ module DiscourseCodeReview
           :code_review_sync_commit_comments,
           repo_name: repo_name,
           commit_sha: commit_sha,
-          repo_id: repo_id
+          repo_id: repo_id,
         )
       end
 
       if type == "push"
-        Rails.logger.warn("[DiscourseCodeReview::CodeReviewController#webhook] Enuqueuing code_review_sync_commits with repo_name = #{repo_name}, repo_id = #{repo_id}") if SiteSetting.code_review_debug
-        ::Jobs.enqueue_in(30.seconds, :code_review_sync_commits, repo_name: repo_name, repo_id: repo_id)
+        if SiteSetting.code_review_debug
+          Rails.logger.warn(
+            "[DiscourseCodeReview::CodeReviewController#webhook] Enuqueuing code_review_sync_commits with repo_name = #{repo_name}, repo_id = #{repo_id}",
+          )
+        end
+        ::Jobs.enqueue_in(
+          30.seconds,
+          :code_review_sync_commits,
+          repo_name: repo_name,
+          repo_id: repo_id,
+        )
       end
 
-      if ["pull_request", "issue_comment", "pull_request_review", "pull_request_review_comment"].include? type
+      if %w[
+           pull_request
+           issue_comment
+           pull_request_review
+           pull_request_review_comment
+         ].include? type
         issue_number =
-          params['number'] ||
-          (params['issue'] && params['issue']['number']) ||
-          (params['pull_request'] && params['pull_request']['number'])
+          params["number"] || (params["issue"] && params["issue"]["number"]) ||
+            (params["pull_request"] && params["pull_request"]["number"])
 
         ::Jobs.enqueue(
           :code_review_sync_pull_request,
           repo_name: repo_name,
           issue_number: issue_number,
-          repo_id: repo_id
+          repo_id: repo_id,
         )
       end
 
@@ -80,43 +98,30 @@ module DiscourseCodeReview
     def skip
       topic = Topic.find_by(id: params[:topic_id])
 
-      State::CommitApproval.skip(
-        topic,
-        current_user
-      )
+      State::CommitApproval.skip(topic, current_user)
 
       render_next_topic(topic.category_id)
     end
 
     def followup
-      if !SiteSetting.code_review_allow_manual_followup
-        raise Discourse::InvalidAccess
-      end
+      raise Discourse::InvalidAccess if !SiteSetting.code_review_allow_manual_followup
 
       topic = Topic.find_by(id: params[:topic_id])
 
-      State::CommitApproval.followup(
-        topic,
-        current_user
-      )
+      State::CommitApproval.followup(topic, current_user)
 
       render_next_topic(topic.category_id)
     end
 
     def followed_up
-      if !SiteSetting.code_review_allow_manual_followup
-        raise Discourse::InvalidAccess
-      end
+      raise Discourse::InvalidAccess if !SiteSetting.code_review_allow_manual_followup
 
       topic = Topic.find_by(id: params[:topic_id])
 
       tags = topic.tags.pluck(:name)
 
       if tags.include?(SiteSetting.code_review_followup_tag)
-        tags -= [
-          SiteSetting.code_review_approved_tag,
-          SiteSetting.code_review_followup_tag
-        ]
+        tags -= [SiteSetting.code_review_approved_tag, SiteSetting.code_review_followup_tag]
 
         tags << SiteSetting.code_review_pending_tag
 
@@ -127,7 +132,7 @@ module DiscourseCodeReview
           nil,
           bump: false,
           post_type: Post.types[:small_action],
-          action_code: "followed_up"
+          action_code: "followed_up",
         )
 
         DiscourseEvent.trigger(:unassign_topic, topic, current_user)
@@ -143,10 +148,7 @@ module DiscourseCodeReview
         raise Discourse::InvalidAccess
       end
 
-      State::CommitApproval.approve(
-        topic,
-        [current_user]
-      )
+      State::CommitApproval.approve(topic, [current_user])
 
       render_next_topic(topic.category_id)
     end
@@ -158,7 +160,11 @@ module DiscourseCodeReview
         topic =
           Topic
             .joins(:code_review_commit_topic)
-            .where("LEFT(LOWER(code_review_commit_topics.sha), :len) = LOWER(:sha1)", len: sha1.size, sha1: sha1)
+            .where(
+              "LEFT(LOWER(code_review_commit_topics.sha), :len) = LOWER(:sha1)",
+              len: sha1.size,
+              sha1: sha1,
+            )
             .order("created_at DESC")
             .first
       end
@@ -172,7 +178,6 @@ module DiscourseCodeReview
     protected
 
     def render_next_topic(category_id)
-
       category_filter_sql = <<~SQL
         category_id NOT IN (
           SELECT category_id
@@ -189,35 +194,36 @@ module DiscourseCodeReview
           [
             "LEFT OUTER JOIN skipped_code_reviews cr ON cr.topic_id = topics.id AND cr.user_id = ? and cr.expires_at > ?",
             current_user.id,
-            Time.zone.now
-          ]
+            Time.zone.now,
+          ],
         )
 
-      next_topic = Topic
-        .joins(:tags)
-        .joins("LEFT OUTER JOIN topic_users ON (topics.id = topic_users.topic_id AND topic_users.user_id = #{current_user.id})")
-        .joins(sanitized_join)
-        .where('tags.name = ?', SiteSetting.code_review_pending_tag)
-        .where('topics.user_id <> ?', current_user.id)
-        .where(
-          category_filter_sql,
-          user_id: current_user.id,
-          notification_level: CategoryUser.notification_levels[:muted],
-          requested_category_id: category_id
-        )
-        .order(
-          'case when cr.expires_at IS NULL then 0 else 1 end asc',
-          'case when last_read_post_number IS NULL then 0 else 1 end asc',
-          "case when category_id = #{category_id.to_i} then 0 else 1 end asc",
-          'bumped_at desc'
-        )
-        .first
+      next_topic =
+        Topic
+          .joins(:tags)
+          .joins(
+            "LEFT OUTER JOIN topic_users ON (topics.id = topic_users.topic_id AND topic_users.user_id = #{current_user.id})",
+          )
+          .joins(sanitized_join)
+          .where("tags.name = ?", SiteSetting.code_review_pending_tag)
+          .where("topics.user_id <> ?", current_user.id)
+          .where(
+            category_filter_sql,
+            user_id: current_user.id,
+            notification_level: CategoryUser.notification_levels[:muted],
+            requested_category_id: category_id,
+          )
+          .order(
+            "case when cr.expires_at IS NULL then 0 else 1 end asc",
+            "case when last_read_post_number IS NULL then 0 else 1 end asc",
+            "case when category_id = #{category_id.to_i} then 0 else 1 end asc",
+            "bumped_at desc",
+          )
+          .first
 
       url = next_topic&.relative_url
 
-      render json: {
-        next_topic_url: url
-      }
+      render json: { next_topic_url: url }
     end
 
     def ensure_can_review_code

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require "rails_helper"
 
 module DiscourseCodeReview
   describe Importer do
@@ -14,7 +14,8 @@ module DiscourseCodeReview
     it "creates categories with a description" do
       category = Category.find_by(id: Importer.new(repo).category_id)
 
-      description = I18n.t("discourse_code_review.category_description", repo_name: "discourse/discourse").strip
+      description =
+        I18n.t("discourse_code_review.category_description", repo_name: "discourse/discourse").strip
       expect(category.description).to include(description)
       expect(category.topic.first_post.raw).to include(description)
     end
@@ -33,13 +34,15 @@ module DiscourseCodeReview
 
       category = Category.find_by(id: Importer.new(repo).category_id)
 
-      expect(SiteSetting.default_categories_muted.split("|").map(&:to_i)).not_to include(category.id)
+      expect(SiteSetting.default_categories_muted.split("|").map(&:to_i)).not_to include(
+        category.id,
+      )
       expect(category.parent_category_id).to eq(parent_category.id)
     end
 
     it "can look up a category id consistently" do
       # lets muck stuff up first ... and create a dupe category
-      Category.create!(name: 'discourse', user: Discourse.system_user)
+      Category.create!(name: "discourse", user: Discourse.system_user)
 
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
       id = Importer.new(repo).category_id
@@ -61,7 +64,7 @@ module DiscourseCodeReview
         github_id: "111",
         date: 1.day.ago,
         diff: diff,
-        hash: "a1db15feadc7951d8a2b4ae63384babd6c568ae0"
+        hash: "a1db15feadc7951d8a2b4ae63384babd6c568ae0",
       }
 
       repo.expects(:default_branch_contains?).with(commit[:hash]).returns(true)
@@ -83,7 +86,6 @@ module DiscourseCodeReview
     end
 
     it "can handle complex imports" do
-
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
 
       diff = "```\nwith a diff"
@@ -100,7 +102,7 @@ module DiscourseCodeReview
         github_id: "111",
         date: 1.day.ago,
         diff: diff,
-        hash: SecureRandom.hex
+        hash: SecureRandom.hex,
       }
 
       repo.expects(:default_branch_contains?).with(commit[:hash]).returns(true)
@@ -114,10 +116,19 @@ module DiscourseCodeReview
 
     it "approves followed-up topics" do
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
-      repo.expects(:default_branch_contains?).with('a91843f0dc7b97e700dc85505404eafd62b7f8c5').returns(true)
-      repo.expects(:followees).with('a91843f0dc7b97e700dc85505404eafd62b7f8c5').returns([])
-      repo.expects(:default_branch_contains?).with('ca1208a63669d4d4ad7452367008d40fa090f645').returns(true)
-      repo.expects(:followees).with('ca1208a63669d4d4ad7452367008d40fa090f645').returns(['a91843f0dc7b97e700dc85505404eafd62b7f8c5'])
+      repo
+        .expects(:default_branch_contains?)
+        .with("a91843f0dc7b97e700dc85505404eafd62b7f8c5")
+        .returns(true)
+      repo.expects(:followees).with("a91843f0dc7b97e700dc85505404eafd62b7f8c5").returns([])
+      repo
+        .expects(:default_branch_contains?)
+        .with("ca1208a63669d4d4ad7452367008d40fa090f645")
+        .returns(true)
+      repo
+        .expects(:followees)
+        .with("ca1208a63669d4d4ad7452367008d40fa090f645")
+        .returns(["a91843f0dc7b97e700dc85505404eafd62b7f8c5"])
 
       SiteSetting.code_review_enabled = true
 
@@ -129,7 +140,7 @@ module DiscourseCodeReview
         github_id: "111",
         date: 1.day.ago,
         diff: "```\nwith a diff",
-        hash: "a91843f0dc7b97e700dc85505404eafd62b7f8c5"
+        hash: "a91843f0dc7b97e700dc85505404eafd62b7f8c5",
       }
 
       followee = Topic.find(Importer.new(repo).import_commit(commit))
@@ -144,10 +155,16 @@ module DiscourseCodeReview
 
     it "approves followed-up topics with partial hashes" do
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
-      repo.expects(:default_branch_contains?).with('5ff6c10320cab7ef82ecda40c57cfb9e539b7e72').returns(true)
-      repo.expects(:followees).with('5ff6c10320cab7ef82ecda40c57cfb9e539b7e72').returns([])
-      repo.expects(:default_branch_contains?).with('dbfb2a1e11b6a4f33d35b26885193774e7ab9362').returns(true)
-      repo.expects(:followees).with('dbfb2a1e11b6a4f33d35b26885193774e7ab9362').returns(['5ff6c10'])
+      repo
+        .expects(:default_branch_contains?)
+        .with("5ff6c10320cab7ef82ecda40c57cfb9e539b7e72")
+        .returns(true)
+      repo.expects(:followees).with("5ff6c10320cab7ef82ecda40c57cfb9e539b7e72").returns([])
+      repo
+        .expects(:default_branch_contains?)
+        .with("dbfb2a1e11b6a4f33d35b26885193774e7ab9362")
+        .returns(true)
+      repo.expects(:followees).with("dbfb2a1e11b6a4f33d35b26885193774e7ab9362").returns(["5ff6c10"])
 
       SiteSetting.code_review_enabled = true
 
@@ -159,7 +176,7 @@ module DiscourseCodeReview
         github_id: "111",
         date: 1.day.ago,
         diff: "```\nwith a diff",
-        hash: "5ff6c10320cab7ef82ecda40c57cfb9e539b7e72"
+        hash: "5ff6c10320cab7ef82ecda40c57cfb9e539b7e72",
       }
 
       followee = Topic.find(Importer.new(repo).import_commit(commit))
@@ -174,10 +191,16 @@ module DiscourseCodeReview
 
     it "does not extract followees from revert commits" do
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
-      repo.expects(:default_branch_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
-      repo.expects(:followees).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns([])
-      repo.expects(:default_branch_contains?).with('d2a7f29595786376a3010cb7e320d66f5b8d60ef').returns(true)
-      repo.expects(:followees).with('d2a7f29595786376a3010cb7e320d66f5b8d60ef').returns([])
+      repo
+        .expects(:default_branch_contains?)
+        .with("154f503d2e99f904356b52f2fae9edcc495708fa")
+        .returns(true)
+      repo.expects(:followees).with("154f503d2e99f904356b52f2fae9edcc495708fa").returns([])
+      repo
+        .expects(:default_branch_contains?)
+        .with("d2a7f29595786376a3010cb7e320d66f5b8d60ef")
+        .returns(true)
+      repo.expects(:followees).with("d2a7f29595786376a3010cb7e320d66f5b8d60ef").returns([])
 
       SiteSetting.code_review_enabled = true
 
@@ -189,7 +212,7 @@ module DiscourseCodeReview
         github_id: "111",
         date: 1.day.ago,
         diff: "```\nwith a diff",
-        hash: "154f503d2e99f904356b52f2fae9edcc495708fa"
+        hash: "154f503d2e99f904356b52f2fae9edcc495708fa",
       }
 
       followee = Topic.find(Importer.new(repo).import_commit(commit))
@@ -204,8 +227,11 @@ module DiscourseCodeReview
 
     it "does not parse emojis in commit message" do
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
-      repo.expects(:default_branch_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
-      repo.expects(:followees).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns([])
+      repo
+        .expects(:default_branch_contains?)
+        .with("154f503d2e99f904356b52f2fae9edcc495708fa")
+        .returns(true)
+      repo.expects(:followees).with("154f503d2e99f904356b52f2fae9edcc495708fa").returns([])
 
       commit = {
         subject: "hello world",
@@ -215,7 +241,7 @@ module DiscourseCodeReview
         github_id: "111",
         date: 1.day.ago,
         diff: "```\nwith a diff",
-        hash: "154f503d2e99f904356b52f2fae9edcc495708fa"
+        hash: "154f503d2e99f904356b52f2fae9edcc495708fa",
       }
 
       topic = Topic.find(Importer.new(repo).import_commit(commit))
@@ -225,13 +251,18 @@ module DiscourseCodeReview
 
     it "escapes Git trailers" do
       topic = Fabricate(:topic)
-      topic.custom_fields[DiscourseCodeReview::COMMIT_HASH] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
+      topic.custom_fields[
+        DiscourseCodeReview::COMMIT_HASH
+      ] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
       topic.save
       CommitTopic.create!(topic_id: topic.id, sha: "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb")
 
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
-      repo.expects(:default_branch_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
-      repo.expects(:followees).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns([])
+      repo
+        .expects(:default_branch_contains?)
+        .with("154f503d2e99f904356b52f2fae9edcc495708fa")
+        .returns(true)
+      repo.expects(:followees).with("154f503d2e99f904356b52f2fae9edcc495708fa").returns([])
 
       body = <<~TEXT
       Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce et
@@ -264,7 +295,7 @@ module DiscourseCodeReview
         github_id: "111",
         date: 1.day.ago,
         diff: "```\nwith a diff",
-        hash: "154f503d2e99f904356b52f2fae9edcc495708fa"
+        hash: "154f503d2e99f904356b52f2fae9edcc495708fa",
       }
 
       topic = Topic.find(Importer.new(repo).import_commit(commit))
@@ -304,13 +335,18 @@ module DiscourseCodeReview
 
     it "escapes Git trailers only if present in last paragraph" do
       topic = Fabricate(:topic)
-      topic.custom_fields[DiscourseCodeReview::COMMIT_HASH] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
+      topic.custom_fields[
+        DiscourseCodeReview::COMMIT_HASH
+      ] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
       topic.save
       CommitTopic.create!(topic_id: topic.id, sha: "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb")
 
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
-      repo.expects(:default_branch_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
-      repo.expects(:followees).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns([])
+      repo
+        .expects(:default_branch_contains?)
+        .with("154f503d2e99f904356b52f2fae9edcc495708fa")
+        .returns(true)
+      repo.expects(:followees).with("154f503d2e99f904356b52f2fae9edcc495708fa").returns([])
 
       body = <<~TEXT
       Commit title
@@ -328,7 +364,7 @@ module DiscourseCodeReview
         github_id: "111",
         date: 1.day.ago,
         diff: "```\nwith a diff",
-        hash: "154f503d2e99f904356b52f2fae9edcc495708fa"
+        hash: "154f503d2e99f904356b52f2fae9edcc495708fa",
       }
 
       topic = Topic.find(Importer.new(repo).import_commit(commit))
@@ -349,13 +385,18 @@ module DiscourseCodeReview
 
     it "escapes Git trailers only if it starts at the beginning of the line" do
       topic = Fabricate(:topic)
-      topic.custom_fields[DiscourseCodeReview::COMMIT_HASH] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
+      topic.custom_fields[
+        DiscourseCodeReview::COMMIT_HASH
+      ] = "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb"
       topic.save
       CommitTopic.create!(topic_id: topic.id, sha: "dbbadb5c357bc23daf1fa732f8670e55dc28b7cb")
 
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
-      repo.expects(:default_branch_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
-      repo.expects(:followees).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns([])
+      repo
+        .expects(:default_branch_contains?)
+        .with("154f503d2e99f904356b52f2fae9edcc495708fa")
+        .returns(true)
+      repo.expects(:followees).with("154f503d2e99f904356b52f2fae9edcc495708fa").returns([])
 
       body = <<~TEXT
       Commit title
@@ -371,7 +412,7 @@ module DiscourseCodeReview
         github_id: "111",
         date: 1.day.ago,
         diff: "```\nwith a diff",
-        hash: "154f503d2e99f904356b52f2fae9edcc495708fa"
+        hash: "154f503d2e99f904356b52f2fae9edcc495708fa",
       }
 
       topic = Topic.find(Importer.new(repo).import_commit(commit))
@@ -391,8 +432,11 @@ module DiscourseCodeReview
 
     it "escapes correct Git trailers" do
       repo = GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24)
-      repo.expects(:default_branch_contains?).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns(true)
-      repo.expects(:followees).with('154f503d2e99f904356b52f2fae9edcc495708fa').returns([])
+      repo
+        .expects(:default_branch_contains?)
+        .with("154f503d2e99f904356b52f2fae9edcc495708fa")
+        .returns(true)
+      repo.expects(:followees).with("154f503d2e99f904356b52f2fae9edcc495708fa").returns([])
 
       body = <<~TEXT
       Discourse
@@ -408,7 +452,7 @@ module DiscourseCodeReview
         github_id: "111",
         date: 1.day.ago,
         diff: "```\nwith a diff",
-        hash: "154f503d2e99f904356b52f2fae9edcc495708fa"
+        hash: "154f503d2e99f904356b52f2fae9edcc495708fa",
       }
 
       topic = Topic.find(Importer.new(repo).import_commit(commit))

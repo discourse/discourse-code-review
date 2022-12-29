@@ -13,23 +13,20 @@ module TypedData
             value = opts.fetch(attr_name)
 
             unless attr_type === value
-              raise TypeError, "Expected #{attr_name} to be of type #{attr_type}, got #{value.class}"
+              raise TypeError,
+                    "Expected #{attr_name} to be of type #{attr_type}, got #{value.class}"
             end
 
             instance_variable_set(:"@#{attr_name}", value.freeze)
           end
         end
 
-        define_method(:hash) do
-          ordered_attribute_keys.map { |key| send(key) }.hash
-        end
+        define_method(:hash) { ordered_attribute_keys.map { |key| send(key) }.hash }
 
         define_method(:eql?) do |other|
           return false unless self.class == other.class
 
-          ordered_attribute_keys.all? do |key|
-            send(key).eql?(other.send(key))
-          end
+          ordered_attribute_keys.all? { |key| send(key).eql?(other.send(key)) }
         end
 
         alias_method(:==, :eql?)
@@ -50,16 +47,9 @@ module TypedData
 
       alternatives.each do |tag, attributes|
         alternative_klass =
-          TypedStruct.new(base, **attributes) do
-            define_singleton_method(:tag) do
-              tag
-            end
-          end
+          TypedStruct.new(base, **attributes) { define_singleton_method(:tag) { tag } }
 
-        base.const_set(
-          tag.to_s.camelize.to_sym,
-          alternative_klass
-        )
+        base.const_set(tag.to_s.camelize.to_sym, alternative_klass)
       end
 
       base
@@ -74,11 +64,7 @@ module TypedData
 
   module OrNil
     def self.[](klass)
-      Class.new do
-        define_singleton_method(:===) do |other|
-          other.nil? || klass === other
-        end
-      end
+      Class.new { define_singleton_method(:===) { |other| other.nil? || klass === other } }
     end
   end
 end

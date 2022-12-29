@@ -13,19 +13,16 @@ module Enumerators
       enumerators =
         @enumerables
           .map(&:to_enum)
-          .select { |enumerator|
+          .select do |enumerator|
             begin
               enumerator.peek
               true
             rescue StopIteration
               false
             end
-          }
+          end
 
-      queue =
-        PQueue.new(enumerators) do |a, b|
-          @compare.call(a.peek, b.peek)
-        end
+      queue = PQueue.new(enumerators) { |a, b| @compare.call(a.peek, b.peek) }
 
       until queue.empty?
         enumerator = queue.pop

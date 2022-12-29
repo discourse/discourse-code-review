@@ -10,9 +10,7 @@ class CreateCodeReviewCommitTopics < ActiveRecord::Migration[6.1]
 
     add_index :code_review_commit_topics, :sha, unique: true
 
-    reversible do |dir|
-      dir.up do
-        execute <<~SQL
+    reversible { |dir| dir.up { execute <<~SQL } }
           INSERT INTO code_review_commit_topics (topic_id, sha, created_at, updated_at)
           SELECT
             topics.id,
@@ -28,7 +26,5 @@ class CreateCodeReviewCommitTopics < ActiveRecord::Migration[6.1]
           INNER JOIN topics
           ON github_hashes.topic_id = topics.id
         SQL
-      end
-    end
   end
 end
