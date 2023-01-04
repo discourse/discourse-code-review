@@ -8,8 +8,7 @@ module DiscourseCodeReview
     class << self
       def ensure_category(repo_name:, repo_id: nil)
         ActiveRecord::Base.transaction(requires_new: true) do
-          repo_category = GithubRepoCategory.find_by(repo_id: repo_id)
-
+          repo_category = GithubRepoCategory.find_by(repo_id: repo_id) if repo_id.present?
           repo_category ||= GithubRepoCategory.find_by(name: repo_name)
 
           category = repo_category&.category
