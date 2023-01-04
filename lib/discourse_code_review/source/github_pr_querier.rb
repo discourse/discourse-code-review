@@ -125,7 +125,7 @@ module DiscourseCodeReview
 
       comments
         .lazy
-        .each_cons
+        .each_cons(2)
         .map do |previous, comment|
           event_info =
             PullRequestEventInfo.new(
