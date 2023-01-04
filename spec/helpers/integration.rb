@@ -32,7 +32,7 @@ RSpec.configure do |config|
 
     DiscourseCodeReview.stubs(:graphql_client).returns(GraphQLClientMock.new)
 
-    FileUtils.rm_rf("tmp/code-review-repo/")
+    FileUtils.rm_rf("tmp/code-review-repo-#{ENV['TEST_ENV_NUMBER'].presence || '0'}/")
 
     GithubRestAPIMock.setup!
   end
