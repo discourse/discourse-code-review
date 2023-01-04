@@ -184,9 +184,14 @@ module DiscourseCodeReview
     def path
       @path ||=
         begin
-          FileUtils.mkdir_p(Rails.root + "tmp/code-review-repo-#{ENV['TEST_ENV_NUMBER'].presence || '0'}")
+          FileUtils.mkdir_p(
+            Rails.root + "tmp/code-review-repo-#{ENV["TEST_ENV_NUMBER"].presence || "0"}",
+          )
 
-          (Rails.root + "tmp/code-review-repo-#{ENV['TEST_ENV_NUMBER'].presence || '0'}/#{clean_name}").to_s
+          (
+            Rails.root +
+              "tmp/code-review-repo-#{ENV["TEST_ENV_NUMBER"].presence || "0"}/#{clean_name}"
+          ).to_s
         end
     end
 
