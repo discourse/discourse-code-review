@@ -5,3 +5,44 @@
 # https://translate.discourse.org/
 
 tr_TR:
+  js:
+    action_codes:
+      approved: "Onaylandı"
+      followup: "Takip et"
+      followed_up: "Takip Edildi"
+      merged: "Birleştirildi"
+      renamed: "Yeniden adlandırıldı"
+      pr_merge_info: "PR Birleştirme Bilgileri"
+    notifications:
+      code_review:
+        commit_approved:
+          single: '"%{topicTitle}" onaylandı'
+          multiple:
+            one: "%{count} taahhüt onaylandı"
+            other: "%{count} taahhüt onaylandı"
+          title: "taahhüt onaylandı"
+    code_review:
+      title: "Kod İncelemesi"
+      approve:
+        title: "Taahhüdü onayla"
+        label: "Onayla"
+      followup:
+        title: "Taahhüdü takip et"
+        label: "Takip et"
+      followed_up:
+        title: "Taahhüt takip edildi"
+        label: "Takip Edildi"
+      skip:
+        title: "Taahhüdü atla"
+        label: "Atla"
+      approval_given: "Onay Verildi"
+      approval_given_empty_state_title: "Henüz onaylanmış taahhüdünüz yok"
+      approval_pending: "Onay Bekliyor"
+      approval_pending_empty_state_title: "Onay bekleyen taahhüdünüz yok"
+      github_webhooks: "Github Web Kancaları"
+      no_organizations_configured: "Web kancalarının yapılandırılabilmesi için <code>code review github organizations</code> site ayarı ile en az bir kuruluşu yapılandırmanız gerekir."
+      webhooks_load_error: "Web kancası verileri yüklenirken bir hata oluştu, bu sorun çözülene kadar web kancaları yapılandırılamıyor."
+      configure_webhooks: "Web kancalarını yapılandırın"
+      configure_webhook: "Web kancasını yapılandırın"
+      notify_on_approval: "Kod inceleme onaylarını bildirin"
+      configure_webhooks_warning: "\"Web Kancalarını Yapılandır\" seçeneğine tıkladığınızda GitHub API'si kullanılarak</strong>yapılandırdığınız her kuruluştaki her depo için <strong>web kancaları oluşturulur. <code>push</code>, <code>commit_comment</code>, <code>issue_comment</code>, <code>pull_request</code>, <code>pull_request_review</code>ve <code>pull_request_comment</code> olay tetikleyicileri oluşturulur. Bunun çalışması için <code>code review github webhook secret</code> site ayarının da yapılandırılmış olması gerektiğini lütfen unutmayın. Daha fazla bilgi için <a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">GitHub webhook belgelerine</a> göz atın."
