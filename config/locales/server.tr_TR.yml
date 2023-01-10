@@ -5,3 +5,32 @@
 # https://translate.discourse.org/
 
 tr_TR:
+  site_settings:
+    code_review_enabled: "Discourse kod incelemesini etkinleştirin"
+    code_review_allowed_groups: "Kodu incelemesine izin verilen gruplar"
+    code_review_github_token: "Github API için kullanılacak token, https://github.com/settings/tokens/new adresinden oluşturulabilir. sync_to_github veya code_review_allow_private_clone etkinleştirilmişse \"repo\" izni gereklidir"
+    code_review_sync_to_github: "GEREKLİ: code_review_github_token, buradaki yorumlar github'a gönderilmeli mi?"
+    code_review_catch_up_commits: "Yeni bir repo eklendiğinde eski taahhütler için bu sayıda konu oluşturun"
+    code_review_allow_private_clone: "GEREKLİ: code_review_github_token, repoları ilişkili kullanıcı olarak klonlayacak, bu koruma, özel repoların halka açık sitelerde klonlanmasını devre dışı bırakmak için mevcuttur."
+    code_review_allow_manual_followup: "Taahhütler üzerinde takip düğmesine izin ver"
+    code_review_pending_tag: "Bekleyen taahhütlere uygulanacak etiket"
+    code_review_followup_tag: "Taahhütleri takip etmek için uygulanacak etiket"
+    code_review_approved_tag: "Onaylanan taahhütlere uygulanacak etiket"
+    code_review_unmerged_tag: "Birleştirilmemiş taahhütlere uygulanacak etiket"
+    code_review_commit_tag: "Taahhüt konularına uygulanacak etiket"
+    code_review_pull_request_tag: "Çekme talebi konularına uygulanacak etiket"
+    code_review_github_webhook_secret: "https://sitename/code-review/webhook için kullanılacak web kancası gizli dizesi"
+    code_review_allow_self_approval: "Taahhütlerin kendi kendine onaylanmasına izin verin"
+    code_review_skip_duration_minutes: "Atla düğmesi şu kadar dakika boyunca işlemeyi atlayacak"
+    code_review_auto_assign_on_followup: "Takipte konuyu yazara otomatik olarak ata"
+    code_review_auto_unassign_on_approve: "Onaylandığında otomatik olarak konu atamasını kaldır"
+    code_review_auto_approve_followed_up_commits: "Geçerli taahhütten referans alınan taahhütleri otomatik olarak onayla"
+    code_review_github_organizations: "Burada senkronize edilmesi gereken repoları içeren Github organizasyonları (virgülle ayrılır)"
+    code_review_approve_approved_prs: "Onaylanan çekme isteklerinde bulunan taahhütleri otomatik olarak onaylayın"
+    code_review_default_mute_new_categories: "Eklenti tarafından oluşturulan tüm kullanıcı kategorileri için sessize al"
+    code_review_default_parent_category: "Eklenti tarafından oluşturulan kategoriler için varsayılan üst kategori"
+  discourse_code_review:
+    category_description: |
+      Bu kategori %{repo_name} için kod incelemelerini içermek üzere oluşturuldu. Başlıklar her taahhüt veya çekme talebi için oluşturulur.
+    bad_github_permissions_error: "GitHub'dan web kancası verileri alınırken bir sorun oluştu. Lütfen code_review_github_token site ayarında yapılandırılan belirtecinizin \"repo\" kapsamının etkin olup olmadığını kontrol edin. Daha fazla bilgi için https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps adresini ziyaret edin."
+    bad_github_credentials_error: "GitHub kimlik bilgilerinizle ilgili bir sorun oluştu. Lütfen code_review_github_token site ayarınızı kontrol edin ve tekrar deneyin."
