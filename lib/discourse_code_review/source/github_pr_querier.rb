@@ -410,6 +410,10 @@ module DiscourseCodeReview
       events
         .lazy
         .filter_map do |event|
+          # If event matches none of the types in the GraphQL query then it
+          # will return an empty object.
+          next if event.blank?
+
           event_info =
             PullRequestEventInfo.new(
               github_id: event[:id],
