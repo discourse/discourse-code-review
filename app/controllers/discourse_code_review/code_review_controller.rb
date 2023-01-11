@@ -61,11 +61,6 @@ module DiscourseCodeReview
       end
 
       if type == "push"
-        if SiteSetting.code_review_debug
-          Rails.logger.warn(
-            "[DiscourseCodeReview::CodeReviewController#webhook] Enuqueuing code_review_sync_commits with repo_name = #{repo_name}, repo_id = #{repo_id}",
-          )
-        end
         ::Jobs.enqueue_in(
           30.seconds,
           :code_review_sync_commits,
