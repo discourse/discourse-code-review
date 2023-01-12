@@ -40,6 +40,3 @@ plugins:
     type: category
     default: ""
     validator: "ParentCategoryValidator"
-  code_review_debug:
-    default: false
-    hidden: true
