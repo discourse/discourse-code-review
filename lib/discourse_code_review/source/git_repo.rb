@@ -2,7 +2,7 @@
 
 module DiscourseCodeReview::Source
   class GitRepo
-    EMPTY_TREE_SHA = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'
+    EMPTY_TREE_SHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 
     Commit =
       TypedData::TypedStruct.new(
@@ -46,11 +46,12 @@ module DiscourseCodeReview::Source
     end
 
     def diff_excerpt(ref, path, position)
-      diff = begin
-        @repo.diff("#{ref}^", ref, paths: [path])
-      rescue Rugged::InvalidError => ex
-        @repo.diff(EMPTY_TREE_SHA, ref, paths: [path])
-      end
+      diff =
+        begin
+          @repo.diff("#{ref}^", ref, paths: [path])
+        rescue Rugged::InvalidError => ex
+          @repo.diff(EMPTY_TREE_SHA, ref, paths: [path])
+        end
 
       lines = diff.patch.force_encoding(Encoding::UTF_8).split("\n")
 

@@ -157,7 +157,7 @@ module DiscourseCodeReview
       repo.path = checkout_path
       repo.git_repo.fetch
 
-      expect(repo.git_repo.diff_excerpt(sha, 'a', 0)).to eq <<~DIFF.strip
+      expect(repo.git_repo.diff_excerpt(sha, "a", 0)).to eq <<~DIFF.strip
         @@ -0,0 +1 @@
         +hello
         \\ No newline at end of file
