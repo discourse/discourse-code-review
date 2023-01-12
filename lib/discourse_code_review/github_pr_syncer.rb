@@ -71,7 +71,6 @@ module DiscourseCodeReview
           .joins(:code_review_commit_topic)
           .where(code_review_commit_topics: { sha: commit_hash })
           .first
-      end
       if topic
         pr_service
           .associated_pull_requests(repo_name, commit_hash)
