@@ -443,7 +443,7 @@ module DiscourseCodeReview
               raise "Unexpected typename"
             end
 
-          [event_info, event] unless event.nil?
+          [event_info, event]
         end
         .eager
     end
