@@ -70,7 +70,7 @@ module DiscourseCodeReview
           line_content = nil
 
           if hash[:path].present? && hash[:position].present?
-            line_content = @git_repo.diff_excerpt(hash[:commit_id], hash[:path], hash[:position])
+            line_content = git_repo.diff_excerpt(hash[:commit_id], hash[:path], hash[:position])
           end
 
           login = hash[:user][:login] if hash[:user]

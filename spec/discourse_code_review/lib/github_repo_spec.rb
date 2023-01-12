@@ -136,5 +136,32 @@ module DiscourseCodeReview
 
       expect(repo.last_commit).to eq(sha)
     end
+
+    it "can get the diff of the first commit" do
+      sha = nil
+
+      Dir.chdir(origin_path) do
+        File.write("a", "hello")
+        `git add a`
+        `git commit -am 'first commit'`
+        File.write("a", "hello2")
+        `git commit -am 'second commit'`
+        File.write("a", "hello3")
+        `git commit -am 'third commit'`
+
+        sha = `git rev-list --max-parents=0 HEAD`.strip
+      end
+
+      repo = GithubRepo.new("fake_repo/fake_repo", nil, nil, repo_id: 24)
+      repo.stubs(:default_branch).returns("origin/main")
+      repo.path = checkout_path
+      repo.git_repo.fetch
+
+      expect(repo.git_repo.diff_excerpt(sha, "a", 0)).to eq <<~DIFF.strip
+        @@ -0,0 +1 @@
+        +hello
+        \\ No newline at end of file
+      DIFF
+    end
   end
 end
