@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 hu:
+  js:
+    action_codes:
+      approved: "Jóváhagyott"
+    code_review:
+      approve:
+        label: "Jóváhagyás"

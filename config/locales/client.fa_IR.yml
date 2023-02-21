@@ -6,5 +6,9 @@
 
 fa_IR:
   js:
+    action_codes:
+      approved: "پذیرفته شده"
     code_review:
       title: "بررسی کد"
+      approve:
+        label: "تایید"

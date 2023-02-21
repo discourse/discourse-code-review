@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 sw:
+  js:
+    action_codes:
+      approved: "Wamekubaliwa"
+    code_review:
+      approve:
+        label: "Imethibitishwa"

@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 bs_BA:
+  js:
+    action_codes:
+      approved: "Dozvojeno"
+    code_review:
+      approve:
+        label: "Odobri"

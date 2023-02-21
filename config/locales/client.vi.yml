@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 vi:
+  js:
+    action_codes:
+      approved: "Đã phê duyệt"
+    code_review:
+      approve:
+        label: "Duyệt"

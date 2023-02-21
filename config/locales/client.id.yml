@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 id:
+  js:
+    action_codes:
+      approved: "Disetujui"
+    code_review:
+      approve:
+        label: "Terima"

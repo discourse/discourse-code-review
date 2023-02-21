@@ -5,3 +5,7 @@
 # https://translate.discourse.org/
 
 te:
+  js:
+    code_review:
+      approve:
+        label: "అంగీకరించు"

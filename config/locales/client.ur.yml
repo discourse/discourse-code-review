@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 ur:
+  js:
+    action_codes:
+      approved: "منظورشدہ"
+    code_review:
+      approve:
+        label: "منظور"

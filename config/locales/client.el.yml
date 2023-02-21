@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 el:
+  js:
+    action_codes:
+      approved: "Εγκρίθηκε "
+    code_review:
+      approve:
+        label: "Έγκριση"

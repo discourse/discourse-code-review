@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 zh_TW:
+  js:
+    action_codes:
+      approved: "已同意"
+    code_review:
+      approve:
+        label: "批准"

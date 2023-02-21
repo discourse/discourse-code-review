@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 hr:
+  js:
+    action_codes:
+      approved: "Odobrio"
+    code_review:
+      approve:
+        label: "Odobri"

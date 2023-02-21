@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 sr:
+  js:
+    action_codes:
+      approved: "Potvrđenji"
+    code_review:
+      approve:
+        label: "Odobri"
