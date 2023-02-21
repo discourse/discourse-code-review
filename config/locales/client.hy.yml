@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 hy:
+  js:
+    action_codes:
+      approved: "Հաստատված է"
+    code_review:
+      approve:
+        label: "Հաստատել"

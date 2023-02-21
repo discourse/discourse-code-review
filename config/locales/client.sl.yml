@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 sl:
+  js:
+    action_codes:
+      approved: "Potrjeno"
+    code_review:
+      approve:
+        label: "Odobri"

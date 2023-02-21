@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 sk:
+  js:
+    action_codes:
+      approved: "Schválený"
+    code_review:
+      approve:
+        label: "Schváliť"

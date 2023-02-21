@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 ca:
+  js:
+    action_codes:
+      approved: "Aprovat"
+    code_review:
+      approve:
+        label: "Aprova"

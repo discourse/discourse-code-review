@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 th:
+  js:
+    action_codes:
+      approved: "อนุมัติ"
+    code_review:
+      approve:
+        label: "อนุมัติ"

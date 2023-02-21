@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 nb_NO:
+  js:
+    action_codes:
+      approved: "Godkjent"
+    code_review:
+      approve:
+        label: "Godkjenn"

@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 be:
+  js:
+    action_codes:
+      approved: "Адобрана"
+    code_review:
+      approve:
+        label: "ўхваляць"

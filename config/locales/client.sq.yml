@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 sq:
+  js:
+    action_codes:
+      approved: "Aprovuar"
+    code_review:
+      approve:
+        label: "Aprovo"

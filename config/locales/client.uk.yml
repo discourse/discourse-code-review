@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 uk:
+  js:
+    action_codes:
+      approved: "Схвалено"
+    code_review:
+      approve:
+        label: "Схвалити"

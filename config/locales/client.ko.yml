@@ -5,3 +5,9 @@
 # https://translate.discourse.org/
 
 ko:
+  js:
+    action_codes:
+      approved: "승인"
+    code_review:
+      approve:
+        label: "승인"
