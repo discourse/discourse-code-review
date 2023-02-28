@@ -17,6 +17,11 @@ ru:
       code_review:
         commit_approved:
           single: 'Коммит «%{topicTitle}» одобрен'
+          multiple:
+            one: "%{count} коммит был одобрен"
+            few: "%{count} коммита были одобрены"
+            many: "%{count} коммитов были одобрены"
+            other: "%{count} коммита были одобрены"
           title: "Коммит одобрен"
     code_review:
       title: "Проверка кода"
@@ -42,4 +47,4 @@ ru:
       configure_webhooks: "Настройка вебхуков"
       configure_webhook: "Настройка вебхука"
       notify_on_approval: "Уведомление об одобрении кода"
-      configure_webhooks_warning: "Нажав «Настройка вебхуков», вы будете использовать GitHub API для создания веб-хуков для <strong>каждого репозитория в каждой настроенной вами организации</strong>. <code>push</code>, <code>commit_comment</code>, <code>issue_comment</code>, <code>pull_request</code>, <code>pull_request_review</code>и <code>pull_request_comment</code>. Обратите внимание, что для этого у вас также должен быть настроен параметр сайта <code>code review github webhook secret</code>. Дополнительную информацию см. в документации по вебхукам <a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">GitHub</a>."
+      configure_webhooks_warning: "Нажав «Настройка вебхуков», вы будете использовать GitHub API для создания вебхуков для <strong>каждого репозитория в каждой настроенной вами организации</strong>. Будут созданы триггеры событий <code>push</code>, <code>commit_comment</code>, <code>issue_comment</code>, <code>pull_request</code>, <code>pull_request_review</code> и <code>pull_request_comment</code>. У вас также должен быть настроен параметр сайта <code>code review github webhook secret</code>. Дополнительную информацию см. в <a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">документации по вебхукам GitHub</a>."
