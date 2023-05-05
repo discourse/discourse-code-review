@@ -246,7 +246,7 @@ module DiscourseCodeReview
 
       topic = Topic.find(Importer.new(repo).import_commit(commit))
       expect(topic.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
-      expect(topic.posts.pluck_first(:raw)).to include("with an emoji :)")
+      expect(topic.posts.pick(:raw)).to include("with an emoji :)")
     end
 
     it "escapes Git trailers" do
@@ -300,7 +300,7 @@ module DiscourseCodeReview
 
       topic = Topic.find(Importer.new(repo).import_commit(commit))
       expect(topic.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
-      expect(topic.posts.pluck_first(:cooked)).to match_html <<~HTML
+      expect(topic.posts.pick(:cooked)).to match_html <<~HTML
       <div class="excerpt">
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce et<br>
         porttitor nibh, quis pellentesque mauris. Phasellus ornare auctor<br>
@@ -369,7 +369,7 @@ module DiscourseCodeReview
 
       topic = Topic.find(Importer.new(repo).import_commit(commit))
       expect(topic.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
-      expect(topic.posts.pluck_first(:cooked)).to match_html <<~HTML
+      expect(topic.posts.pick(:cooked)).to match_html <<~HTML
         <div class="excerpt">
         <p>Commit title</p>
         <p>example: <a href="https://example.com">https://example.com</a></p>
@@ -417,7 +417,7 @@ module DiscourseCodeReview
 
       topic = Topic.find(Importer.new(repo).import_commit(commit))
       expect(topic.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
-      expect(topic.posts.pluck_first(:cooked)).to match_html <<~HTML
+      expect(topic.posts.pick(:cooked)).to match_html <<~HTML
         <div class="excerpt">
         <p>Commit title</p>
         <p>   example: <a href="https://example.com">https://example.com</a></p>
@@ -457,7 +457,7 @@ module DiscourseCodeReview
 
       topic = Topic.find(Importer.new(repo).import_commit(commit))
       expect(topic.tags.pluck(:name)).not_to include(SiteSetting.code_review_approved_tag)
-      expect(topic.posts.pluck_first(:cooked)).to match_html <<~HTML
+      expect(topic.posts.pick(:cooked)).to match_html <<~HTML
       <div class="excerpt">
         <p>Discourse</p>
         <p><a href="http://discourse.org">http://discourse.org</a></p>

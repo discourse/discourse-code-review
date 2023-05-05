@@ -103,7 +103,7 @@ module DiscourseCodeReview
             topic_id: topic.id,
             name: DiscourseCodeReview::GithubPRSyncer::GITHUB_NODE_ID,
             value: reply_to_github_id,
-          ).pluck_first(:post_number)
+          ).pick(:post_number)
         end
 
       custom_fields = {}
