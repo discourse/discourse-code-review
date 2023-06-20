@@ -8,6 +8,43 @@ pl_PL:
   js:
     action_codes:
       approved: "Zaakceptowany"
+      followup: "Śledź"
+      followed_up: "Śledzony"
+      merged: "Połączony"
+      renamed: "Przemianowany"
+      pr_merge_info: "Informacje o połączeniu PR"
+    notifications:
+      code_review:
+        commit_approved:
+          single: '"%{topicTitle}" zatwierdzony'
+          multiple:
+            one: "%{count} commit został zatwierdzony"
+            few: "%{count} commity zostały zatwierdzone"
+            many: "%{count} commitów zostało zatwierdzonych"
+            other: "%{count} commitów zostało zatwierdzonych"
+          title: "commit zatwierdzony"
     code_review:
+      title: "Przegląd kodu"
       approve:
+        title: "Zatwierdź commit"
         label: "Zatwierdź"
+      followup:
+        title: "Śledź commit"
+        label: "Śledź"
+      followed_up:
+        title: "Rozpoczęto śledzenie commita"
+        label: "Śledzony"
+      skip:
+        title: "Pomiń commit"
+        label: "Pomiń"
+      approval_given: "Zgoda udzielona"
+      approval_given_empty_state_title: "Nie masz jeszcze zatwierdzonych commitów"
+      approval_pending: "Oczekiwanie na zatwierdzenie"
+      approval_pending_empty_state_title: "Nie masz commitów oczekujących na zatwierdzenie"
+      github_webhooks: "Webhooki Githuba"
+      no_organizations_configured: "Zanim będzie można skonfigurować webhooki, musisz skonfigurować co najmniej jedną organizację z ustawieniem <code>code review github organizations</code>."
+      webhooks_load_error: "Podczas ładowania danych webhooka wystąpił błąd. Nie można konfigurować webhooków, dopóki ten problem nie zostanie rozwiązany."
+      configure_webhooks: "Skonfiguruj webhooki"
+      configure_webhook: "Skonfiguruj webhook"
+      notify_on_approval: "Powiadamiaj o zatwierdzeniach przeglądu kodu"
+      configure_webhooks_warning: "Kliknięcie \"Skonfiguruj webhooki\" spowoduje użycie interfejsu API GitHub do utworzenia webhooków dla <strong>każdego repozytorium w każdej organizacji, którą skonfigurowałeś</strong>. Zostaną utworzone wyzwalacze zdarzeń <code>push</code>, <code>commit_comment</code>, <code>issue_comment</code>, <code>pull_request</code>, <code>pull_request_review</code>oraz <code>pull_request_comment</code>. Pamiętaj, że aby to zadziałało, musisz mieć również skonfigurowane ustawienie <code>code review github webhook secret</code>. Aby uzyskać więcej informacji, zapoznaj się z dokumentacją <a href=\"https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks\">GitHub webhook</a> ."
