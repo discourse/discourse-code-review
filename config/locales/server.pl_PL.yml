@@ -5,3 +5,18 @@
 # https://translate.discourse.org/
 
 pl_PL:
+  site_settings:
+    code_review_enabled: "włącz przegląd kodu Discourse"
+    code_review_allowed_groups: "Grupy dopuszczone do przeglądania kodu"
+    code_review_allow_manual_followup: "Zezwalaj na przycisk śledzenia przy commitach"
+    code_review_pending_tag: "Tag do zastosowania do oczekujących commitów"
+    code_review_followup_tag: "Tag do zastosowania do śledzonych commitów"
+    code_review_approved_tag: "Tag do zastosowania do zatwierdzonych commitów"
+    code_review_unmerged_tag: "Znacznik do zastosowania do niezłączonych commitów"
+    code_review_commit_tag: "Tag do zastosowania do tematów commitów"
+    code_review_pull_request_tag: "Tag do zastosowania do tematów pull request"
+    code_review_github_organizations: "Organizacje Github (oddzielone przecinkami) zawierające repozytoria, które należy tutaj zsynchronizować"
+    code_review_approve_approved_prs: "Automatycznie zatwierdzaj commity, które istnieją w zatwierdzonych pull requestach."
+    code_review_default_mute_new_categories: "Wycisz dla wszystkich kategorii użytkowników utworzonych przez wtyczkę"
+  discourse_code_review:
+    bad_github_credentials_error: "Wystąpił problem z Twoimi danymi logowania GitHub. Sprawdź ustawienia witryny code_review_github_token i spróbuj ponownie."
