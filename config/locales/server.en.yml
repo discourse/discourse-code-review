@@ -28,3 +28,6 @@ en:
       This category was created to contain code reviews for %{repo_name}. Topics are created for each commit or pull request.
     bad_github_permissions_error: "There was an issue when fetching webhook data from GitHub. Please check your token configured in the code_review_github_token site setting has the 'repo' scope enabled. See https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps for more details."
     bad_github_credentials_error: "There was an issue with your GitHub credentials. Please check your code_review_github_token site setting and try again."
+  approval_list:
+    user_not_found: "Couldn't find user with username %{username}"
+
