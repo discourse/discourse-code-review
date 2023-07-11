@@ -300,19 +300,35 @@ after_initialize do
   end
 
   add_to_class(:list_controller, :approval_given) do
-    respond_with_list(
-      TopicQuery.new(current_user, tags: [SiteSetting.code_review_approved_tag]).list_topics_by(
-        current_user,
-      ),
-    )
+    author_user = User.find_by_username(params.require(:username))
+    if author_user.blank?
+      render json: {
+               errors: [I18n.t("approval_list.user_not_found", username: params[:username])],
+             },
+             status: 404
+    else
+      respond_with_list(
+        TopicQuery.new(current_user, tags: [SiteSetting.code_review_approved_tag]).list_topics_by(
+          author_user,
+        ),
+      )
+    end
   end
 
   add_to_class(:list_controller, :approval_pending) do
-    respond_with_list(
-      TopicQuery.new(current_user, tags: [SiteSetting.code_review_pending_tag]).list_topics_by(
-        current_user,
-      ),
-    )
+    author_user = User.find_by_username(params.require(:username))
+    if author_user.blank?
+      render json: {
+               errors: [I18n.t("approval_list.user_not_found", username: params[:username])],
+             },
+             status: 404
+    else
+      respond_with_list(
+        TopicQuery.new(current_user, tags: [SiteSetting.code_review_pending_tag]).list_topics_by(
+          author_user,
+        ),
+      )
+    end
   end
 
   Category.class_eval do
