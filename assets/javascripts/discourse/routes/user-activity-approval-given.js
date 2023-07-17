@@ -19,7 +19,16 @@ export default UserTopicListRoute.extend({
   },
 
   emptyState() {
-    const title = I18n.t("code_review.approval_given_empty_state_title");
+    const user = this.modelFor("user");
+    let title;
+
+    if (this.isCurrentUser(user)) {
+      title = I18n.t("code_review.approval_given_empty_state_title");
+    } else {
+      title = I18n.t("code_review.approval_given_empty_state_title_others", {
+        username: user.username,
+      });
+    }
     const body = "";
     return { title, body };
   },
