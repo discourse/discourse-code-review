@@ -8,7 +8,16 @@ fa_IR:
   js:
     action_codes:
       approved: "پذیرفته شده"
+      merged: "ادغام شد"
+      renamed: "تغییر نام داد"
+    notifications:
+      code_review:
+        commit_approved:
+          single: '«%{topicTitle}» تایید شد'
     code_review:
       title: "بررسی کد"
       approve:
         label: "تایید"
+      skip:
+        label: "رد کردن"
+      github_webhooks: "گیت‌هاب وب‌هوک"
