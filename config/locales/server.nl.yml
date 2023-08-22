@@ -34,3 +34,5 @@ nl:
       Deze categorie is gemaakt om codereviews voor %{repo_name}te bevatten. Voor elke commit of elk pullverzoek worden topics gemaakt.
     bad_github_permissions_error: "Er is een probleem opgetreden bij het ophalen van webhookgegevens van GitHub. Controleer of je token geconfigureerd in de site-instelling code_review_github_token het bereik 'repo' heeft ingeschakeld. Zie https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps voor meer informatie."
     bad_github_credentials_error: "Er was een probleem met je GitHub-aanmeldgegevens. Controleer je site-instelling code_review_github_token en probeer het opnieuw."
+  approval_list:
+    user_not_found: "Kan gebruiker met gebruikersnaam %{username} niet vinden"

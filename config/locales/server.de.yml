@@ -34,3 +34,5 @@ de:
       Diese Kategorie wurde für Code-Reviews für %{repo_name} erstellt. Themen werden für jeden Commit oder jedes PR erstellt.
     bad_github_permissions_error: "Es gab ein Problem beim Abrufen von Webhook-Daten von GitHub. Bitte überprüfe, ob für dein Token, das in der Website-Einstellung code_review_github_token konfiguriert ist, der Bereich „repo“ aktiviert ist. Siehe https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps für weitere Details."
     bad_github_credentials_error: "Es gab ein Problem mit deinen GitHub-Anmeldedaten. Bitte überprüfe deine Website-Einstellung code_review_github_token und versuche es erneut."
+  approval_list:
+    user_not_found: "Benutzer mit dem Benutzernamen %{username} konnte nicht gefunden werden"

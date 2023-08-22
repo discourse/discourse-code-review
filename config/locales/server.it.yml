@@ -34,3 +34,5 @@ it:
       Questa categoria è stata creata per contenere le revisioni del codice per %{repo_name}. Gli argomenti vengono creati per ogni commit o richiesta pull.
     bad_github_permissions_error: "Si è verificato un problema durante il recupero dei dati webhook da GitHub. Verifica che il tuo token configurato nell'impostazione del sito code_review_github_token abbia l'ambito \"repo\" abilitato. Per maggiori dettagli, consultare la pagina https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps."
     bad_github_credentials_error: "Si è verificato un problema con le tue credenziali GitHub. Controlla l'impostazione code_review_github_token del tuo sito e riprova."
+  approval_list:
+    user_not_found: "Impossibile trovare un utente con nome utente %{username}"

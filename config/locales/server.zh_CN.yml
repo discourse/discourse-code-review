@@ -34,3 +34,5 @@ zh_CN:
       此类别的创建目的是包含 %{repo_name} 的代码审查。会为每个提交或拉取请求创建话题。
     bad_github_permissions_error: "从 GitHub 获取网络钩子数据时出现问题。请检查您在 code_review_github_token 站点设置中配置的令牌是否启用了“repo”范围。请参阅 https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps，了解详细信息。"
     bad_github_credentials_error: "您的 GitHub 凭据存在问题。请检查您的 code_review_github_token 站点设置，然后重试。"
+  approval_list:
+    user_not_found: "找不到用户名为 %{username} 的用户"
