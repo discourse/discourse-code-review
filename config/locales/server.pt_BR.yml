@@ -34,3 +34,5 @@ pt_BR:
       Esta categoria foi criada para conter revisões de código para %{repo_name}. Tópicos são criados para cada confirmação ou solicitação de recepção.
     bad_github_permissions_error: "Ocorreu um problema ao buscar dados do webhook no GitHub. Verifique se o token configurado na configuração do site code_review_github_token tem o escopo \"repositório\" ativado. Acesse https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps para obter mais informações."
     bad_github_credentials_error: "Ocorreu um problema com as suas credenciais do GitHub. Verifique sua configuração do site code_review_github_token e tente novamente."
+  approval_list:
+    user_not_found: "Não foi possível encontrar usuário(a) com nome de usuário(a) %{username}"

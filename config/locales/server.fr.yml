@@ -34,3 +34,5 @@ fr:
       Cette catégorie a été créée pour contenir les révisions de code pour %{repo_name}. Des sujets sont créés pour chaque commit ou requête « pull ».
     bad_github_permissions_error: "Un problème est survenu lors de la récupération des données du webhook à partir de GitHub. Veuillez vérifier que votre jeton configuré dans le paramètre de site code_review_github_token a l'autorisation « repo » activée. Consultez https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps pour en savoir plus."
     bad_github_credentials_error: "Un problème est survenu avec vos informations d'identification GitHub. Vérifiez votre paramètre de site code_review_github_token et réessayez."
+  approval_list:
+    user_not_found: "Impossible de trouver l'utilisateur dont le nom d'utilisateur est %{username}"

@@ -34,3 +34,5 @@ es:
       Esta categoría se creó para contener revisiones de código para %{repo_name}. Los temas se crean para cada commit o solicitud de extracción.
     bad_github_permissions_error: "Se produjo un problema al obtener datos de webhook de GitHub. Comprueba que tu token configurado en la configuración del sitio code_review_github_token tiene habilitado el ámbito de «repositorio». Consulta https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps para obtener más información."
     bad_github_credentials_error: "Hubo un problema con tus credenciales de GitHub. Comprueba la configuración de tu sitio code_review_github_token e inténtalo de nuevo."
+  approval_list:
+    user_not_found: "No se ha podido encontrar al usuario con nombre de usuario %{username}"

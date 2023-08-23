@@ -34,3 +34,5 @@ ja:
       このカテゴリは、%{repo_name} のコードレビューを含むために作成されました。トピックは、コミットまたはプルリクエストごとに作成されます。
     bad_github_permissions_error: "GitHub から Webhook データを取得する際に問題が発生しました。code_review_github_token サイト設定で構成されているトークンで「repo」スコープが有効になっていることを確認してください。詳細は、https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps をご覧ください。"
     bad_github_credentials_error: "GitHub 資格情報に問題がありました。code_review_github_token サイト設定を確認して、もう一度お試しください。"
+  approval_list:
+    user_not_found: "%{username} というユーザー名のユーザーは見つかりませんでした"

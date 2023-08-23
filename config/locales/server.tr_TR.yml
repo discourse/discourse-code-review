@@ -34,3 +34,5 @@ tr_TR:
       Bu kategori %{repo_name} için kod incelemelerini içermek üzere oluşturuldu. Başlıklar her taahhüt veya çekme talebi için oluşturulur.
     bad_github_permissions_error: "GitHub'dan web kancası verileri alınırken bir sorun oluştu. Lütfen code_review_github_token site ayarında yapılandırılan belirtecinizin \"repo\" kapsamının etkin olup olmadığını kontrol edin. Daha fazla bilgi için https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps adresini ziyaret edin."
     bad_github_credentials_error: "GitHub kimlik bilgilerinizle ilgili bir sorun oluştu. Lütfen code_review_github_token site ayarınızı kontrol edin ve tekrar deneyin."
+  approval_list:
+    user_not_found: "Kullanıcı adı %{username} olan kullanıcı bulunamadı"

@@ -34,3 +34,5 @@ ar:
       تم إنشاء هذه الفئة لتحتوي على مراجعات لرمز المستودع %{repo_name}. يتم إنشاء الموضوعات لكل طلب إرسال أو سحب.
     bad_github_permissions_error: "حدثت مشكلة في أثناء جلب بيانات خطاف الويب من GitHub. يُرجى التحقُّق من تفعيل نطاق \"المستودع\" في الرمز المميَّز الذي تم إعداده في إعداد الموقع code_review_github_token. راجع https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps لمزيدٍ من التفاصيل."
     bad_github_credentials_error: "حدثت مشكلة في بيانات اعتماد GitHub الخاصة بك. يُرجى التحقُّق من إعداد الموقع code_review_github_token الخاص بك وإعادة المحاولة."
+  approval_list:
+    user_not_found: "تعذَّر العثور على مستخدم باسم المستخدم %{username}"
