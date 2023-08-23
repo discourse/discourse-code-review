@@ -320,122 +320,39 @@ module DiscourseCodeReview
     end
 
     def timeline(pr)
-      item_types = %w[
-        CLOSED_EVENT
-        ISSUE_COMMENT
-        MERGED_EVENT
-        PULL_REQUEST_REVIEW
-        RENAMED_TITLE_EVENT
-        REOPENED_EVENT
-      ]
-
-      events =
-        graphql_client.paginated_query do |execute, cursor|
-          query =
-            "
-            query {
-              repository(owner: #{pr.owner.to_json}, name: #{pr.name.to_json}) {
-                pullRequest(number: #{pr.issue_number.to_json}) {
-                  timelineItems(first: 100, itemTypes: [#{item_types.join(",")}], after: #{cursor.to_json}) {
-                    nodes {
-                      ... on ClosedEvent {
-                        __typename,
-                        id,
-                        createdAt,
-                        actor {
-                          login
-                        }
-                      },
-                      ... on IssueComment {
-                        __typename,
-                        id,
-                        createdAt,
-                        actor: author {
-                          login
-                        },
-                        body
-                      },
-                      ... on MergedEvent {
-                        __typename,
-                        id,
-                        createdAt,
-                        actor {
-                          login
-                        }
-                      },
-                      ... on PullRequestReview {
-                        __typename,
-                        id,
-                        createdAt,
-                        actor: author {
-                          login
-                        },
-                        body
-                      }
-                      ... on RenamedTitleEvent {
-                        __typename,
-                        id,
-                        createdAt,
-                        actor {
-                          login
-                        },
-                        previousTitle,
-                        currentTitle
-                      },
-                      ... on ReopenedEvent {
-                        __typename,
-                        id,
-                        createdAt,
-                        actor {
-                          login
-                        }
-                      }
-                    },
-                    pageInfo { endCursor, hasNextPage }
-                  }
-                }
-              }
-            }
-          "
-          response = execute.call(query)
-          data = response[:repository][:pullRequest][:timelineItems]
-
-          {
-            items: data[:nodes],
-            cursor: data[:pageInfo][:endCursor],
-            has_next_page: data[:pageInfo][:hasNextPage],
-          }
-        end
-
-      events
+      timeline_events_for(pr)
         .lazy
-        .filter_map do |event|
+        .filter_map do |raw_event|
           # If event matches none of the types in the GraphQL query then it
           # will return an empty object.
-          next if event.blank?
+          next if raw_event.blank?
 
           event_info =
             PullRequestEventInfo.new(
-              github_id: event[:id],
-              actor: Actor.new(github_login: event[:actor][:login]),
-              created_at: Time.parse(event[:createdAt]),
+              github_id: raw_event[:id],
+              actor: Actor.new(github_login: raw_event[:actor][:login]),
+              created_at: Time.parse(raw_event[:createdAt]),
             )
 
-          event =
-            case event[:__typename]
+          event_data =
+            case raw_event[:__typename]
             when "ClosedEvent"
               PullRequestEvent.create(:closed)
             when "PullRequestReview"
-              PullRequestEvent.create(:issue_comment, body: event[:body]) if event[:body].present?
+              if raw_event[:body].present?
+                PullRequestEvent.create(:issue_comment, body: raw_event[:body])
+              else
+                next
+              end
             when "IssueComment"
-              PullRequestEvent.create(:issue_comment, body: event[:body])
+              PullRequestEvent.create(:issue_comment, body: raw_event[:body])
             when "MergedEvent"
               PullRequestEvent.create(:merged)
             when "RenamedTitleEvent"
               PullRequestEvent.create(
                 :renamed_title,
-                previous_title: event[:previousTitle],
-                new_title: event[:currentTitle],
+                previous_title: raw_event[:previousTitle],
+                new_title: raw_event[:currentTitle],
               )
             when "ReopenedEvent"
               PullRequestEvent.create(:reopened)
@@ -443,7 +360,7 @@ module DiscourseCodeReview
               raise "Unexpected typename"
             end
 
-          [event_info, event]
+          [event_info, event_data]
         end
         .eager
     end
@@ -551,5 +468,93 @@ module DiscourseCodeReview
     private
 
     attr_reader :graphql_client
+
+    def timeline_events_for(pr)
+      item_types = %w[
+        CLOSED_EVENT
+        ISSUE_COMMENT
+        MERGED_EVENT
+        PULL_REQUEST_REVIEW
+        RENAMED_TITLE_EVENT
+        REOPENED_EVENT
+      ]
+
+      graphql_client.paginated_query do |execute, cursor|
+        query =
+          "
+          query {
+            repository(owner: #{pr.owner.to_json}, name: #{pr.name.to_json}) {
+              pullRequest(number: #{pr.issue_number.to_json}) {
+                timelineItems(first: 100, itemTypes: [#{item_types.join(",")}], after: #{cursor.to_json}) {
+                  nodes {
+                    ... on ClosedEvent {
+                      __typename,
+                      id,
+                      createdAt,
+                      actor {
+                        login
+                      }
+                    },
+                    ... on IssueComment {
+                      __typename,
+                      id,
+                      createdAt,
+                      actor: author {
+                        login
+                      },
+                      body
+                    },
+                    ... on MergedEvent {
+                      __typename,
+                      id,
+                      createdAt,
+                      actor {
+                        login
+                      }
+                    },
+                    ... on PullRequestReview {
+                      __typename,
+                      id,
+                      createdAt,
+                      actor: author {
+                        login
+                      },
+                      body
+                    }
+                    ... on RenamedTitleEvent {
+                      __typename,
+                      id,
+                      createdAt,
+                      actor {
+                        login
+                      },
+                      previousTitle,
+                      currentTitle
+                    },
+                    ... on ReopenedEvent {
+                      __typename,
+                      id,
+                      createdAt,
+                      actor {
+                        login
+                      }
+                    }
+                  },
+                  pageInfo { endCursor, hasNextPage }
+                }
+              }
+            }
+          }
+        "
+        response = execute.call(query)
+        data = response[:repository][:pullRequest][:timelineItems]
+
+        {
+          items: data[:nodes],
+          cursor: data[:pageInfo][:endCursor],
+          has_next_page: data[:pageInfo][:hasNextPage],
+        }
+      end
+    end
   end
 end
