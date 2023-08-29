@@ -34,3 +34,5 @@ fi:
       Tämä alue luotiin sisältämään tietosäilön %{repo_name} kooditarkistuksia. Ketjuja luodaan jokaiselle solmulle tai vetopyynnölle.
     bad_github_permissions_error: "Webhook-tietojen hakemisessa GitHubista tapahtui virhe. Tarkista, että code_review_github_token-sivustoasetuksissa määritetyssä tunnuksessa on repo-alue käytössä. Katso lisätietoja osoitteesta https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps."
     bad_github_credentials_error: "GitHub-tunnistetiedoissasi oli ongelma. Tarkista code_review_github_token-sivustoasetus ja yritä uudelleen."
+  approval_list:
+    user_not_found: "Käyttäjää käyttäjänimellä %{username} ei löydy"

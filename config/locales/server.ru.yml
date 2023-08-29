@@ -34,3 +34,5 @@ ru:
       Эта раздел был создан для проверки кода репозитория %{repo_name}. Для каждого коммита или запроса на слияние создаются отдельные темы.
     bad_github_permissions_error: "Возникла проблема при получении данных вебхуком с сайта GitHub. Убедитесь, что для вашего токена, указанного в настройке code_review_github_token, включена область видимости 'repo'. Подробнее см. https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps."
     bad_github_credentials_error: "Возникла проблема с вашими учётными данными GitHub. Пожалуйста, проверьте настройку code_review_github_token и повторите попытку."
+  approval_list:
+    user_not_found: "Не удалось найти пользователя с именем %{username}"
