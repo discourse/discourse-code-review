@@ -10,7 +10,7 @@
 gem "sawyer", "0.9.2"
 gem "octokit", "5.6.1"
 gem "pqueue", "2.1.0"
-gem "rugged", "1.3.1"
+gem "rugged", "1.7.1"
 
 gem "graphql", "2.0.1" if Rails.env.test?
 
