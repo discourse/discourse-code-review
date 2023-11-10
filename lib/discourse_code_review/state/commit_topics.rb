@@ -198,7 +198,7 @@ module DiscourseCodeReview
         first, separator, last = body.rpartition("\n\n")
         return body if first.blank? || last !~ /(?:^\S+: .+\n?$)+/i
 
-        "#{first}#{separator}[code]\n#{last}\n[/code]"
+        "#{first}#{separator}```text\n#{last}\n```"
       end
     end
   end

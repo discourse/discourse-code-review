@@ -110,7 +110,8 @@ module DiscourseCodeReview
 
       post = first_post_of(Importer.new(repo).import_commit(commit))
 
-      expect(post.cooked.scan("code").length).to eq(2)
+      doc = Nokogiri::HTML5.fragment(post.cooked)
+      expect(doc.css("code").size).to eq(1)
       expect(post.excerpt).to eq("this is <a href=\"http://amaz.ing\">amazing</a>")
     end
 
@@ -315,7 +316,7 @@ module DiscourseCodeReview
         feugiat magna at ultricies. Fusce eget blandit magna, sit amet ornare<br>
         orci. Nulla lobortis orci augue. In eu diam sed tortor suscipit mollis.</p>
 
-        <pre><code class="lang-auto">Reported-and-tested-by: A &lt;a@example.com&gt;
+        <pre data-code-wrap="plaintext"><code class="lang-plaintext">Reported-and-tested-by: A &lt;a@example.com&gt;
         Reviewed-by: B &lt;b@example.com&gt;
         Cc: C &lt;c@example.com&gt;
         Cc: D &lt;d@example.com&gt;
@@ -324,7 +325,7 @@ module DiscourseCodeReview
         Commit: dbbadb5c357bc23daf1fa732f8670e55dc28b7cb</code></pre>
       </div>
 
-      <pre><code class="lang-diff">`‍``
+      <pre data-code-wrap="diff"><code class="lang-diff">`‍``
       with a diff
       </code></pre>
 
@@ -375,7 +376,7 @@ module DiscourseCodeReview
         <p>example: <a href="https://example.com">https://example.com</a></p>
         <p>Lorem ipsum</p>
         </div>
-        <pre><code class="lang-diff">`‍``
+        <pre data-code-wrap="diff"><code class="lang-diff">`‍``
         with a diff
         </code></pre>
         <p><a href="https://github.com/discourse/discourse/commit/154f503d2e99f904356b52f2fae9edcc495708fa">GitHub</a><br>
@@ -422,7 +423,7 @@ module DiscourseCodeReview
         <p>Commit title</p>
         <p>   example: <a href="https://example.com">https://example.com</a></p>
         </div>
-        <pre><code class="lang-diff">`‍``
+        <pre data-code-wrap="diff"><code class="lang-diff">`‍``
         with a diff
         </code></pre>
         <p><a href="https://github.com/discourse/discourse/commit/154f503d2e99f904356b52f2fae9edcc495708fa">GitHub</a><br>
@@ -463,7 +464,7 @@ module DiscourseCodeReview
         <p><a href="http://discourse.org">http://discourse.org</a></p>
       </div>
 
-      <pre><code class="lang-diff">`‍``
+      <pre data-code-wrap="diff"><code class="lang-diff">`‍``
         with a diff
       </code></pre>
 
