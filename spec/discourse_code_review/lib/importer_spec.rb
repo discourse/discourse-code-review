@@ -110,7 +110,8 @@ module DiscourseCodeReview
 
       post = first_post_of(Importer.new(repo).import_commit(commit))
 
-      expect(post.cooked.scan("code").length).to eq(2)
+      doc = Nokogiri::HTML5.fragment(post.cooked)
+      expect(doc.css("code").size).to eq(1)
       expect(post.excerpt).to eq("this is <a href=\"http://amaz.ing\">amazing</a>")
     end
 
