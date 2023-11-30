@@ -4,6 +4,8 @@ module Jobs
   class CodeReviewSyncCommits < ::Jobs::Base
     include OctokitRateLimitRetryMixin
 
+    sidekiq_options queue: "low"
+
     def execute(args)
       raise Discourse::InvalidParameters.new(:repo_name) unless args[:repo_name].kind_of?(String)
 
