@@ -4,6 +4,8 @@ module Jobs
   class CodeReviewSyncCommitComments < ::Jobs::Base
     include OctokitRateLimitRetryMixin
 
+    sidekiq_options queue: "low"
+
     def execute(args)
       repo_name, commit_sha, repo_id = args.values_at(:repo_name, :commit_sha, :repo_id)
 

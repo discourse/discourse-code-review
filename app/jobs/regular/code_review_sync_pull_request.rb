@@ -4,6 +4,8 @@ module Jobs
   class CodeReviewSyncPullRequest < ::Jobs::Base
     include OctokitRateLimitRetryMixin
 
+    sidekiq_options queue: "low"
+
     def execute(args)
       repo_name, issue_number, repo_id = args.values_at(:repo_name, :issue_number, :repo_id)
 
