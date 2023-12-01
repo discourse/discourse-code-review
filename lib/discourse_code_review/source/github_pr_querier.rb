@@ -446,7 +446,9 @@ module DiscourseCodeReview
               }
             ",
             )
-          data = response[:resource][:associatedPullRequests]
+          data = response.dig(:resource, :associatedPullRequests)
+
+          next { items: [], has_next_page: false } if data.blank?
 
           {
             items: data[:nodes],

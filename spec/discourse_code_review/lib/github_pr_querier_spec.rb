@@ -10,6 +10,14 @@ describe DiscourseCodeReview::Source::GithubPRQuerier, type: :code_review_integr
 
   let(:pr) { DiscourseCodeReview::PullRequest.new(owner: "owner", name: "name", issue_number: 100) }
 
+  describe "#associated_pull_requests" do
+    it "does not error out when the query finds nothing" do
+      GraphQLClientMock.any_instance.expects(:execute).returns({})
+
+      expect(pr_querier.associated_pull_requests(anything, anything, anything).to_a).to be_empty
+    end
+  end
+
   describe "#timeline" do
     let(:raw_events) do
       [
