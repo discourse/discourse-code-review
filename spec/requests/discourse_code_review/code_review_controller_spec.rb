@@ -278,7 +278,7 @@ describe DiscourseCodeReview::CodeReviewController do
       end
 
       it "notifies the topic author" do
-        author = Fabricate(:user)
+        author = Fabricate(:user, refresh_auto_groups: true)
         commit =
           create_post(
             user: author,
@@ -298,7 +298,7 @@ describe DiscourseCodeReview::CodeReviewController do
       end
 
       it "collapses commit approved notifications" do
-        author = Fabricate(:user)
+        author = Fabricate(:user, refresh_auto_groups: true)
 
         commit1 =
           create_post(
@@ -326,7 +326,7 @@ describe DiscourseCodeReview::CodeReviewController do
       end
 
       it 'doesn\'t disturb tracking users' do
-        author = Fabricate(:user)
+        author = Fabricate(:user, refresh_auto_groups: true)
         commit =
           create_post(
             user: author,
