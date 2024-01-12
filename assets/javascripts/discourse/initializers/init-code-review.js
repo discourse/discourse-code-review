@@ -191,6 +191,16 @@ function initialize(api) {
 
   api.replaceIcon("notification.code_review_commit_approved", "check");
 
+  api.addKeyboardShortcut("y", function () {
+    if (
+      !this.currentUser?.can_review_code ||
+      !allowApprove(this.currentUser, this.currentTopic(), this.siteSettings)
+    ) {
+      return;
+    }
+    actOnCommit(this.currentTopic(), "approve");
+  });
+
   if (api.registerNotificationTypeRenderer) {
     api.registerNotificationTypeRenderer(
       "code_review_commit_approved",
