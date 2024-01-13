@@ -1,11 +1,11 @@
-import { withPluginApi } from "discourse/lib/plugin-api";
+import { computed } from "@ember/object";
+import { htmlSafe } from "@ember/template";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import { withPluginApi } from "discourse/lib/plugin-api";
 import DiscourseURL, { userPath } from "discourse/lib/url";
 import { findAll } from "discourse/models/login-method";
-import { computed } from "@ember/object";
 import I18n from "I18n";
-import { htmlSafe } from "@ember/template";
 
 const PLUGIN_ID = "discourse-code-review";
 

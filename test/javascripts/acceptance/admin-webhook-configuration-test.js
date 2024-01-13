@@ -1,11 +1,11 @@
+import { click, visit } from "@ember/test-helpers";
+import { test } from "qunit";
 import {
   acceptance,
   count,
   exists,
   query,
 } from "discourse/tests/helpers/qunit-helpers";
-import { click, visit } from "@ember/test-helpers";
-import { test } from "qunit";
 
 const restPrefix = "/admin/plugins/code-review";
 

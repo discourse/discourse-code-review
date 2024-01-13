@@ -1,10 +1,10 @@
-import { ajax } from "discourse/lib/ajax";
-import { Promise } from "rsvp";
-import discourseComputed from "discourse-common/utils/decorators";
-import { popupAjaxError } from "discourse/lib/ajax-error";
+import { A } from "@ember/array";
 import Controller from "@ember/controller";
 import EmberObject from "@ember/object";
-import { A } from "@ember/array";
+import { Promise } from "rsvp";
+import { ajax } from "discourse/lib/ajax";
+import { popupAjaxError } from "discourse/lib/ajax-error";
+import discourseComputed from "discourse-common/utils/decorators";
 
 const prefix = "/admin/plugins/code-review";
 
