@@ -11,6 +11,14 @@ module DiscourseCodeReview
     let(:parent_category) { Fabricate(:category) }
     let(:repo) { GithubRepo.new("discourse/discourse", Octokit::Client.new, nil, repo_id: 24) }
 
+    before do
+      User.set_callback(:create, :after, :ensure_in_trust_level_group)
+    end
+
+    after do
+      User.skip_callback(:create, :after, :ensure_in_trust_level_group)
+    end
+
     it "creates categories with a description" do
       category = Category.find_by(id: Importer.new(repo).category_id)
 

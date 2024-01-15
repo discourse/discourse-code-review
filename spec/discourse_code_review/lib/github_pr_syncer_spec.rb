@@ -89,6 +89,14 @@ describe DiscourseCodeReview::GithubPRSyncer do
     )
   end
 
+  before do
+    User.set_callback(:create, :after, :ensure_in_trust_level_group)
+  end
+
+  after do
+    User.skip_callback(:create, :after, :ensure_in_trust_level_group)
+  end
+
   describe "#sync_pull_request" do
     context "when there are no events" do
       let!(:syncer) do
