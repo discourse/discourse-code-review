@@ -99,8 +99,8 @@ describe DiscourseCodeReview::CodeReviewController do
   end
 
   context "when signed in as an admin" do
-    fab!(:signed_in_user) { Fabricate(:admin) }
-    fab!(:another_admin) { Fabricate(:admin) }
+    fab!(:signed_in_user) { Fabricate(:admin, refresh_auto_groups: true) }
+    fab!(:another_admin) { Fabricate(:admin, refresh_auto_groups: true) }
 
     before do
       SiteSetting.code_review_enabled = true
@@ -181,7 +181,7 @@ describe DiscourseCodeReview::CodeReviewController do
       end
 
       it "skips commits from muted categories" do
-        admin2 = Fabricate(:admin)
+        admin2 = Fabricate(:admin, refresh_auto_groups: true)
 
         muted_category = Fabricate(:category)
 
@@ -220,7 +220,7 @@ describe DiscourseCodeReview::CodeReviewController do
           create_post(
             raw: "this is an old commit",
             tags: [SiteSetting.code_review_pending_tag],
-            user: Fabricate(:admin),
+            user: Fabricate(:admin, refresh_auto_groups: true),
           )
 
         commit =
@@ -430,7 +430,7 @@ describe DiscourseCodeReview::CodeReviewController do
     end
 
     describe ".render_next_topic" do
-      let(:other_user) { Fabricate(:admin) }
+      let(:other_user) { Fabricate(:admin, refresh_auto_groups: true) }
 
       it "prefers unread topics over read ones" do
         commit =
