@@ -6,7 +6,6 @@
 # version: 0.1
 # authors: Sam Saffron
 # url: https://github.com/discourse/discourse-code-review
-# transpile_js: true
 
 gem "sawyer", "0.9.2"
 gem "octokit", "5.6.1"
@@ -280,17 +279,10 @@ after_initialize do
   end
 
   add_to_class(:user, :can_review_code?) do
-    @can_review_code ||=
-      begin
-        if admin?
-          :true
-        else
-          allowed_groups = SiteSetting.code_review_allowed_groups.split("|").compact
-          allowed_groups.present? && groups.exists?(id: allowed_groups) ? :true : :false
-        end
-      end
+    return @can_review_code if defined?(@can_review_code)
 
-    @can_review_code == :true
+    allowed_groups = SiteSetting.code_review_allowed_groups.split("|").compact
+    @can_review_code = admin? || (allowed_groups.present? && groups.exists?(id: allowed_groups))
   end
 
   add_to_serializer(:current_user, :can_review_code) { object.can_review_code? }

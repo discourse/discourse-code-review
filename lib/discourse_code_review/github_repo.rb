@@ -48,7 +48,6 @@ module DiscourseCodeReview
 
     def last_commit=(v)
       PluginStore.set(DiscourseCodeReview::PluginName, LAST_COMMIT + @name, v)
-      v
     end
 
     def commit_hash_valid?(hash)
