@@ -40,7 +40,11 @@ describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
         comment: {
         },
       )
+
+      User.set_callback(:create, :after, :ensure_in_trust_level_group)
     end
+
+    after { User.skip_callback(:create, :after, :ensure_in_trust_level_group) }
 
     it "creates a commit topic and a category topic, with a full sha in the first post" do
       expect {
