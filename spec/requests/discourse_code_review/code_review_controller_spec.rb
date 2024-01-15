@@ -505,7 +505,7 @@ describe DiscourseCodeReview::CodeReviewController do
       default_allowed_group = Group.find_by(name: "staff")
       default_allowed_group.add(signed_in_user)
 
-      author = Fabricate(:admin)
+      author = Fabricate(:admin, refresh_auto_groups: true)
       default_allowed_group.add(author)
       commit =
         create_post(
