@@ -5,6 +5,11 @@
 # https://translate.discourse.org/
 
 es:
+  admin_js:
+    admin:
+      site_settings:
+        categories:
+          discourse_code_review: "Revisión del código de Discourse"
   js:
     action_codes:
       approved: "Aprobado"
