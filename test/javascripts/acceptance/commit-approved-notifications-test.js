@@ -47,7 +47,7 @@ acceptance("Discourse Code Review - Notifications", function (needs) {
 
   test("code review commit approved notifications", async function (assert) {
     await visit("/");
-    await click(".d-header-icons .current-user");
+    await click(".d-header-icons .current-user button");
 
     const notifications = queryAll(
       "#quick-access-all-notifications ul li.notification a"
