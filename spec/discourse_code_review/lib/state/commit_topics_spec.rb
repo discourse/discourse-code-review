@@ -42,7 +42,7 @@ module DiscourseCodeReview
 
     describe "#ensure_commit" do
       fab!(:user) { Fabricate(:user, refresh_auto_groups: true) }
-      fab!(:category) { Fabricate(:category) }
+      fab!(:category)
 
       it "can handle commits without message" do
         commit = {

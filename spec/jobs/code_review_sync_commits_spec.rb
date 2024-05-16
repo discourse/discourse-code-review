@@ -12,8 +12,6 @@ describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
         repo: "ultimatetodolist",
         default_branch: "main",
       ) do |repo|
-        msg = "Initial commit"
-
         Dir.chdir(repo.workdir) do
           File.write("README.md", <<~EOF)
             Just store text files with your todo list items.
@@ -61,7 +59,7 @@ describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
 
     it "skips if last local and remote commit SHAs match" do
       PluginStore.set(
-        DiscourseCodeReview::PluginName,
+        DiscourseCodeReview::PLUGIN_NAME,
         DiscourseCodeReview::GithubRepo::LAST_COMMIT + "10xninjarockstar/ultimatetodolist",
         "abcdef",
       )
@@ -77,7 +75,7 @@ describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do
 
     it "does not skips if last local and remote commit SHAs mismatch" do
       PluginStore.set(
-        DiscourseCodeReview::PluginName,
+        DiscourseCodeReview::PLUGIN_NAME,
         DiscourseCodeReview::GithubRepo::LAST_COMMIT + "10xninjarockstar/ultimatetodolist",
         "abcdeg",
       )

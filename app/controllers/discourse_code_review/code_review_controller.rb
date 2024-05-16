@@ -2,6 +2,8 @@
 
 module DiscourseCodeReview
   class CodeReviewController < ::ApplicationController
+    requires_plugin DiscourseCodeReview::PLUGIN_NAME
+
     before_action :ensure_logged_in
     before_action :ensure_can_review_code
 

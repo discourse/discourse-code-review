@@ -4,7 +4,7 @@ require "rails_helper"
 
 module DiscourseCodeReview
   describe State::CommitApproval do
-    fab!(:topic) { Fabricate(:topic) }
+    fab!(:topic)
     fab!(:pr) do
       DiscourseCodeReview::PullRequest.new(owner: "owner", name: "name", issue_number: 101)
     end

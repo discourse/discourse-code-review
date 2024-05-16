@@ -3,7 +3,10 @@
 require "rails_helper"
 
 describe DiscourseCodeReview::ReposController do
-  before { SiteSetting.code_review_github_webhook_secret = "github webhook secret" }
+  before do
+    SiteSetting.code_review_enabled = true
+    SiteSetting.code_review_github_webhook_secret = "github webhook secret"
+  end
 
   def set_client(client)
     DiscourseCodeReview.stubs(:octokit_bot_client).returns(client)
@@ -47,7 +50,7 @@ describe DiscourseCodeReview::ReposController do
   end
 
   context "when user is admin" do
-    fab!(:admin) { Fabricate(:admin) }
+    fab!(:admin)
 
     before { sign_in(admin) }
 

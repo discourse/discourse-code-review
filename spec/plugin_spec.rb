@@ -197,8 +197,8 @@ describe DiscourseCodeReview do
   end
 
   describe "can_review_code?" do
-    fab!(:group) { Fabricate(:group) }
-    fab!(:user) { Fabricate(:user) }
+    fab!(:group)
+    fab!(:user)
 
     before { SiteSetting.code_review_enabled = true }
 
