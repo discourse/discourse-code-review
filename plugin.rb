@@ -51,7 +51,7 @@ after_initialize do
   end
 
   module ::DiscourseCodeReview
-    PluginName = "discourse-code-review"
+    PLUGIN_NAME = "discourse-code-review"
     NOTIFY_REVIEW_CUSTOM_FIELD = "notify_on_code_reviews"
 
     class APIUserError < StandardError
@@ -169,40 +169,40 @@ after_initialize do
 
   User.register_custom_field_type(DiscourseCodeReview::NOTIFY_REVIEW_CUSTOM_FIELD, :boolean)
 
-  require File.expand_path(
-            "../app/controllers/discourse_code_review/code_review_controller.rb",
-            __FILE__,
-          )
-  require File.expand_path(
-            "../app/controllers/discourse_code_review/organizations_controller.rb",
-            __FILE__,
-          )
-  require File.expand_path("../app/controllers/discourse_code_review/repos_controller.rb", __FILE__)
-  require File.expand_path(
-            "../app/controllers/discourse_code_review/admin_code_review_controller.rb",
-            __FILE__,
-          )
-  require File.expand_path("../app/models/skipped_code_review.rb", __FILE__)
-  require File.expand_path("../app/models/github_repo_category.rb", __FILE__)
-  require File.expand_path("../app/models/commit_topic.rb", __FILE__)
-  require File.expand_path("../app/jobs/regular/code_review_sync_commits", __FILE__)
-  require File.expand_path("../app/jobs/regular/code_review_sync_commit_comments", __FILE__)
-  require File.expand_path("../app/jobs/regular/code_review_sync_pull_request", __FILE__)
-  require File.expand_path("../app/jobs/scheduled/code_review_sync_repos", __FILE__)
-  require File.expand_path("../lib/enumerators", __FILE__)
-  require File.expand_path("../lib/typed_data", __FILE__)
-  require File.expand_path("../lib/graphql_client", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/source.rb", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/state.rb", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/github_pr_poster", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/github_pr_syncer", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/github_user_syncer.rb", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/importer.rb", __FILE__)
-  require File.expand_path("../lib/discourse_code_review/github_repo.rb", __FILE__)
+  require_relative "app/controllers/discourse_code_review/code_review_controller"
+  require_relative "app/controllers/discourse_code_review/organizations_controller"
+  require_relative "app/controllers/discourse_code_review/repos_controller"
+  require_relative "app/controllers/discourse_code_review/admin_code_review_controller"
+  require_relative "app/models/skipped_code_review"
+  require_relative "app/models/github_repo_category"
+  require_relative "app/models/commit_topic"
+  require_relative "app/jobs/regular/code_review_sync_commits"
+  require_relative "app/jobs/regular/code_review_sync_commit_comments"
+  require_relative "app/jobs/regular/code_review_sync_pull_request"
+  require_relative "app/jobs/scheduled/code_review_sync_repos"
+  require_relative "lib/enumerators"
+  require_relative "lib/typed_data"
+  require_relative "lib/graphql_client"
+  require_relative "lib/discourse_code_review/source"
+  require_relative "lib/discourse_code_review/state"
+  require_relative "lib/discourse_code_review/github_pr_poster"
+  require_relative "lib/discourse_code_review/github_pr_syncer"
+  require_relative "lib/discourse_code_review/github_user_syncer"
+  require_relative "lib/discourse_code_review/importer"
+  require_relative "lib/discourse_code_review/github_repo"
+  require_relative "lib/discourse_code_review/list_controller_extension"
+  require_relative "lib/discourse_code_review/category_extension"
+  require_relative "lib/discourse_code_review/topic_extension"
 
   Site.preloaded_category_custom_fields << DiscourseCodeReview::State::GithubRepoCategories::GITHUB_REPO_NAME
 
   add_admin_route "code_review.title", "code-review"
+
+  reloadable_patch do
+    ListController.prepend(DiscourseCodeReview::ListControllerExtension)
+    Category.prepend(DiscourseCodeReview::CategoryExtension)
+    Topic.prepend(DiscourseCodeReview::TopicExtension)
+  end
 
   DiscourseCodeReview::Engine.routes.draw do
     scope "/code-review" do
@@ -287,11 +287,6 @@ after_initialize do
 
   add_to_serializer(:current_user, :can_review_code) { object.can_review_code? }
 
-  require_dependency "list_controller"
-  class ::ListController
-    skip_before_action :ensure_logged_in, only: %i[approval_given approval_pending]
-  end
-
   add_to_class(:list_controller, :approval_given) do
     author_user = User.find_by_username(params.require(:username))
     if author_user.blank?
@@ -322,16 +317,6 @@ after_initialize do
         ),
       )
     end
-  end
-
-  Category.class_eval do
-    has_one :github_repo_category,
-            class_name: "DiscourseCodeReview::GithubRepoCategory",
-            dependent: :destroy
-  end
-
-  Topic.class_eval do
-    has_one :code_review_commit_topic, class_name: "DiscourseCodeReview::CommitTopic"
   end
 
   consolidation_window = 6.hours

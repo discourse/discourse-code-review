@@ -3,11 +3,14 @@
 require "rails_helper"
 
 describe DiscourseCodeReview::CodeReviewController do
-  fab!(:topic) { Fabricate(:topic) }
+  fab!(:topic)
+
   before_all do
     topic.upsert_custom_fields(DiscourseCodeReview::COMMIT_HASH => "6a5aecee1234")
     DiscourseCodeReview::CommitTopic.create!(topic_id: topic.id, sha: "6a5aecee1234")
   end
+
+  before { SiteSetting.code_review_enabled = true }
 
   context "when not staff" do
     it "returns 404 for anonymous users" do
@@ -33,8 +36,7 @@ describe DiscourseCodeReview::CodeReviewController do
 
       post "/code-review/webhook"
 
-      expect(response.status).to eq(200)
-      expect(response.parsed_body).to eq("disabled" => true)
+      expect(response.status).to eq(404)
     end
 
     context "when type is commit_comment" do
