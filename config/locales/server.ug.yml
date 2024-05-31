@@ -4,10 +4,4 @@
 # To work with us on translations, join this project:
 # https://translate.discourse.org/
 
-te:
-  js:
-    action_codes:
-      approved: "ఆమోదించబడింది"
-    code_review:
-      approve:
-        label: "అంగీకరించు"
+ug:
