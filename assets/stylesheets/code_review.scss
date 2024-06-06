@@ -44,3 +44,9 @@ tbody {
     margin-top: 1rem;
   }
 }
+
+.notification[class*="code-review-"] {
+  .item-label  {
+    display: block;
+  }
+}
