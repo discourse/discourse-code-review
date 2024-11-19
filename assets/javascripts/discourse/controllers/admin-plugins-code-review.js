@@ -28,7 +28,7 @@ export default Controller.extend({
       await Promise.all(
         this.organizations.map(this.loadOrganizationRepos.bind(this))
       );
-    } catch (error) {
+    } catch {
       this.set("organizationReposLoadFailed", true);
     } finally {
       this.set("loading", false);
