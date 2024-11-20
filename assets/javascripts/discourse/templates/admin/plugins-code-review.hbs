@@ -9,14 +9,14 @@
     action=(action "configureWebhooks")
     label="code_review.configure_webhooks"
     class="code-review-configure-webhooks-button"
-    disabled=loadError
-    title=configureWebhooksTitle
+    disabled=this.loadError
+    title=this.configureWebhooksTitle
   }}
 {{else}}
   {{html-safe (i18n "code_review.no_organizations_configured")}}
 {{/if}}
 
-{{#conditional-loading-spinner condition=loading}}
+{{#conditional-loading-spinner condition=this.loading}}
   <div class="code-review-webhook-tree">
     {{#each this.organizations as |organization|}}
       <div class="code-review-webhook-org">
