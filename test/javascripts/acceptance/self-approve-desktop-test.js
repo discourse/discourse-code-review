@@ -37,6 +37,6 @@ acceptance("review desktop", function (needs) {
 
     await visit("/t/this-is-a-test-topic/9/1");
 
-    assert.ok(!exists("#topic-footer-button-approve"));
+    assert.notOk(exists("#topic-footer-button-approve"));
   });
 });
