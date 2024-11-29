@@ -1,6 +1,6 @@
 import { A } from "@ember/array";
 import Controller from "@ember/controller";
-import EmberObject from "@ember/object";
+import EmberObject, { action } from "@ember/object";
 import { Promise } from "rsvp";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
@@ -8,9 +8,9 @@ import discourseComputed from "discourse-common/utils/decorators";
 
 const prefix = "/admin/plugins/code-review";
 
-export default Controller.extend({
-  organizations: null,
-  loading: true,
+export default class AdminPluginsCodeReviewController extends Controller {
+  organizations = null;
+  loading = true;
 
   async loadOrganizations() {
     try {
@@ -33,7 +33,7 @@ export default Controller.extend({
     } finally {
       this.set("loading", false);
     }
-  },
+  }
 
   async loadOrganizationRepos(organization) {
     try {
@@ -65,7 +65,7 @@ export default Controller.extend({
     } finally {
       this.set("loading", false);
     }
-  },
+  }
 
   async hasConfiguredWebhook(orgName, repo) {
     if (repo.receivedWebhookState) {
@@ -78,7 +78,7 @@ export default Controller.extend({
 
     repo.set("receivedWebhookState", true);
     repo.set("hasConfiguredWebhook", response["has_configured_webhook"]);
-  },
+  }
 
   @discourseComputed("loadError")
   configureWebhooksTitle(loadError) {
@@ -87,40 +87,37 @@ export default Controller.extend({
     }
 
     return "code_review.webhooks_load_error";
-  },
+  }
 
-  actions: {
-    async configureWebhook(organization, repo) {
-      if (repo.hasConfiguredWebhook === false) {
-        let response = await ajax(
-          `${prefix}/organizations/${organization.name}/repos/${repo.name}/configure-webhook.json`,
-          {
-            type: "POST",
-          }
-        );
+  @action
+  async configureWebhook(organization, repo) {
+    if (repo.hasConfiguredWebhook === false) {
+      let response = await ajax(
+        `${prefix}/organizations/${organization.name}/repos/${repo.name}/configure-webhook.json`,
+        {
+          type: "POST",
+        }
+      );
 
-        repo.set("hasConfiguredWebhook", response["has_configured_webhook"]);
-      }
-    },
+      repo.set("hasConfiguredWebhook", response["has_configured_webhook"]);
+    }
+  }
 
-    async configureWebhooks() {
-      for (const organization of this.organizations) {
-        for (const repo of organization.repos) {
-          if (repo.hasConfiguredWebhook === false) {
-            let response = await ajax(
-              `${prefix}/organizations/${organization.name}/repos/${repo.name}/configure-webhook.json`,
-              {
-                type: "POST",
-              }
-            );
+  @action
+  async configureWebhooks() {
+    for (const organization of this.organizations) {
+      for (const repo of organization.repos) {
+        if (repo.hasConfiguredWebhook === false) {
+          let response = await ajax(
+            `${prefix}/organizations/${organization.name}/repos/${repo.name}/configure-webhook.json`,
+            {
+              type: "POST",
+            }
+          );
 
-            repo.set(
-              "hasConfiguredWebhook",
-              response["has_configured_webhook"]
-            );
-          }
+          repo.set("hasConfiguredWebhook", response["has_configured_webhook"]);
         }
       }
-    },
-  },
-});
+    }
+  }
+}

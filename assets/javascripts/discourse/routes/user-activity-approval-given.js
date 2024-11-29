@@ -1,7 +1,7 @@
 import UserTopicListRoute from "discourse/routes/user-topic-list";
 import I18n from "I18n";
 
-export default UserTopicListRoute.extend({
+export default class UserActivityApprovalGiven extends UserTopicListRoute {
   model() {
     const username = this.modelFor("user").username_lower;
     return this.store
@@ -16,7 +16,7 @@ export default UserTopicListRoute.extend({
         model.set("emptyState", this.emptyState());
         return model;
       });
-  },
+  }
 
   emptyState() {
     const user = this.modelFor("user");
@@ -31,5 +31,5 @@ export default UserTopicListRoute.extend({
     }
     const body = "";
     return { title, body };
-  },
-});
+  }
+}
