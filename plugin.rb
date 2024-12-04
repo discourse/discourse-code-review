@@ -17,7 +17,7 @@ gem "graphql", "2.0.1" if Rails.env.test?
 enabled_site_setting :code_review_enabled
 
 register_asset "stylesheets/code_review.scss"
-register_svg_icon "history"
+register_svg_icon "clock-rotate-left"
 
 require File.expand_path("../lib/discourse_code_review/rake_tasks.rb", __FILE__)
 require File.expand_path("../lib/octokit_rate_limit_retry_mixin.rb", __FILE__)

@@ -33,7 +33,7 @@
                 </div>
               {{else}}
                 <div class="code-review-webhook-not-configured">
-                  {{d-icon "times"}}
+                  {{d-icon "xmark"}}
                   {{d-button
                     action=(action "configureWebhook" organization repo)
                     label="code_review.configure_webhook"
