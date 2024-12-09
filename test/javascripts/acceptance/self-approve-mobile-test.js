@@ -1,17 +1,14 @@
-import { visit } from "@ember/test-helpers";
+import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import topicFixtures from "discourse/tests/fixtures/topic";
 import {
   acceptance,
   updateCurrentUser,
 } from "discourse/tests/helpers/qunit-helpers";
-import selectKit from "discourse/tests/helpers/select-kit-helper";
 import { cloneJSON } from "discourse-common/lib/object";
 
 acceptance("review mobile", function (needs) {
-  needs.user({
-    can_review_code: true,
-  });
+  needs.user({ can_review_code: true });
   needs.mobileView();
   needs.settings({
     code_review_approved_tag: "approved",
@@ -29,21 +26,17 @@ acceptance("review mobile", function (needs) {
 
   test("shows approve button by default", async (assert) => {
     await visit("/t/internationalization-localization/281");
+    await click(".topic-footer-mobile-dropdown-trigger");
 
-    const menu = selectKit(".topic-footer-mobile-dropdown");
-    await menu.expand();
-
-    assert.ok(menu.rowByValue("approve").exists());
+    assert.dom(".approve").exists();
   });
 
   test("hides approve button if user is self", async (assert) => {
     updateCurrentUser({ id: 1 });
 
     await visit("/t/this-is-a-test-topic/9/1");
+    await click(".topic-footer-mobile-dropdown-trigger");
 
-    const menu = selectKit(".topic-footer-mobile-dropdown");
-    await menu.expand();
-
-    assert.notOk(menu.rowByValue("approve").exists());
+    assert.dom(".approve").doesNotExist(); 
   });
 });
