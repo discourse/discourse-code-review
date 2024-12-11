@@ -37,6 +37,6 @@ acceptance("review mobile", function (needs) {
     await visit("/t/this-is-a-test-topic/9/1");
     await click(".topic-footer-mobile-dropdown-trigger");
 
-    assert.dom(".approve").doesNotExist(); 
+    assert.dom(".approve").doesNotExist();
   });
 });
