@@ -35,7 +35,6 @@ acceptance("review mobile", function (needs) {
     updateCurrentUser({ id: 1 });
 
     await visit("/t/this-is-a-test-topic/9/1");
-    await click(".topic-footer-mobile-dropdown-trigger");
 
     assert.dom(".approve").doesNotExist();
   });
