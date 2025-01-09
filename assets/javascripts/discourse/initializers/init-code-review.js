@@ -128,7 +128,7 @@ function initialize(api) {
 
   api.registerTopicFooterButton({
     id: "skip",
-    icon: "angle-double-right",
+    icon: "angles-right",
     priority: 250,
     label: "code_review.skip.label",
     title: "code_review.skip.title",
