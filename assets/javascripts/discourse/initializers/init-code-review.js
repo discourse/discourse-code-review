@@ -28,7 +28,7 @@ function initialize(api) {
   api.addPostSmallActionIcon("followup", "far-clock");
   api.addPostSmallActionIcon("approved", "thumbs-up");
   api.addPostSmallActionIcon("followed_up", "backward");
-  api.addPostSmallActionIcon("pr_merge_info", "info-circle");
+  api.addPostSmallActionIcon("pr_merge_info", "circle-info");
 
   // we need to allow unconditional association even with 2fa
   // core hides this section if 2fa is on for a user
