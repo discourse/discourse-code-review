@@ -1,5 +1,5 @@
 import UserTopicListRoute from "discourse/routes/user-topic-list";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 
 export default class UserActivityApprovalGiven extends UserTopicListRoute {
   model() {
@@ -23,9 +23,9 @@ export default class UserActivityApprovalGiven extends UserTopicListRoute {
     let title;
 
     if (this.isCurrentUser(user)) {
-      title = I18n.t("code_review.approval_given_empty_state_title");
+      title = i18n("code_review.approval_given_empty_state_title");
     } else {
-      title = I18n.t("code_review.approval_given_empty_state_title_others", {
+      title = i18n("code_review.approval_given_empty_state_title_others", {
         username: user.username,
       });
     }

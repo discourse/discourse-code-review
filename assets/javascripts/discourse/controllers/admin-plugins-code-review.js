@@ -4,7 +4,7 @@ import EmberObject, { action } from "@ember/object";
 import { Promise } from "rsvp";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
-import discourseComputed from "discourse-common/utils/decorators";
+import discourseComputed from "discourse/lib/decorators";
 
 const prefix = "/admin/plugins/code-review";
 

@@ -5,7 +5,7 @@ import { popupAjaxError } from "discourse/lib/ajax-error";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import DiscourseURL, { userPath } from "discourse/lib/url";
 import { findAll } from "discourse/models/login-method";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 
 async function actOnCommit(topic, action) {
   try {
@@ -210,7 +210,7 @@ function initialize(api) {
       (NotificationTypeBase) => {
         return class extends NotificationTypeBase {
           get linkTitle() {
-            return I18n.t("notifications.code_review.commit_approved.title");
+            return i18n("notifications.code_review.commit_approved.title");
           }
 
           get icon() {
@@ -228,7 +228,7 @@ function initialize(api) {
             const numApprovedCommits =
               this.notification.data.num_approved_commits;
             if (numApprovedCommits > 1) {
-              return I18n.t(
+              return i18n(
                 "notifications.code_review.commit_approved.multiple",
                 {
                   count: numApprovedCommits,
@@ -236,7 +236,7 @@ function initialize(api) {
               );
             } else {
               return htmlSafe(
-                I18n.t("notifications.code_review.commit_approved.single", {
+                i18n("notifications.code_review.commit_approved.single", {
                   topicTitle: this.notification.fancy_title,
                 })
               );
