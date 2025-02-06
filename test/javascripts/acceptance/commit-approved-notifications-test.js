@@ -1,7 +1,7 @@
 import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import { acceptance, queryAll } from "discourse/tests/helpers/qunit-helpers";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 
 acceptance("Discourse Code Review - Notifications", function (needs) {
   needs.user({ redesigned_user_menu_enabled: true });
@@ -56,7 +56,7 @@ acceptance("Discourse Code Review - Notifications", function (needs) {
 
     assert.strictEqual(
       notifications[0].textContent.replaceAll(/\s+/g, " ").trim(),
-      I18n.t("notifications.code_review.commit_approved.single", {
+      i18n("notifications.code_review.commit_approved.single", {
         topicTitle: "Osama's commit #1",
       }),
       "notification for a single commit approval has the right content"
@@ -72,7 +72,7 @@ acceptance("Discourse Code Review - Notifications", function (needs) {
 
     assert.strictEqual(
       notifications[1].textContent.replaceAll(/\s+/g, " ").trim(),
-      I18n.t("notifications.code_review.commit_approved.multiple", {
+      i18n("notifications.code_review.commit_approved.multiple", {
         count: 10,
       }),
       "notification for multiple commits approval has the right content"
