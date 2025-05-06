@@ -259,12 +259,6 @@ after_initialize do
     end
   end
 
-  on(:before_post_process_cooked) do |doc, post|
-    unless post.post_number == 1 && post.topic.code_review_commit_topic
-      doc = DiscourseCodeReview::State::CommitTopics.auto_link_commits(post.raw, doc)[2]
-    end
-  end
-
   on(:post_destroyed) do |post, opts, user|
     if (github_id = post.custom_fields[DiscourseCodeReview::GITHUB_ID]).present?
       client = DiscourseCodeReview.octokit_bot_client

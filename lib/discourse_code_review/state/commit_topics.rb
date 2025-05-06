@@ -3,23 +3,6 @@
 module DiscourseCodeReview
   module State::CommitTopics
     class << self
-      def auto_link_commits(text, doc = nil)
-        linked_commits = find_linked_commits(text)
-        if (linked_commits.length > 0)
-          doc ||= Nokogiri::HTML5.fragment(PrettyText.cook(text, disable_emojis: true))
-          skip_tags = %w[a code]
-          linked_commits.each do |hash, topic|
-            doc.traverse do |node|
-              if node.text? && !skip_tags.include?(node.parent&.name)
-                node.replace node.content.gsub(hash, "<a href='#{topic.url}'>#{hash}</a>")
-              end
-            end
-            text = HtmlToMarkdown.new(doc.to_html).to_markdown
-          end
-        end
-        [text, linked_commits, doc]
-      end
-
       def detect_shas(text)
         text.scan(/(?:[^a-zA-Z0-9]|^)([a-f0-9]{8,})(?:[^a-zA-Z0-9]|$)/).flatten
       end
@@ -71,8 +54,6 @@ module DiscourseCodeReview
               ("\n[... diff too long, it was truncated ...]\n" if commit[:diff_truncated])
 
             body = escape_trailers(commit[:body])
-            body, linked_topics = auto_link_commits(body)
-            linked_topics.merge! find_linked_commits(title)
             hash_html = "<small>sha: #{commit[:hash]}</small>"
 
             raw =
