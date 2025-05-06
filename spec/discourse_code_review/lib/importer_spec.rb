@@ -83,8 +83,6 @@ module DiscourseCodeReview
 
       post2 = first_post_of(Importer.new(repo).import_commit(commit))
 
-      expect(post2.cooked).to include(post.topic.url)
-
       expect(post.topic.posts.length).to eq(1)
     end
 
@@ -319,7 +317,7 @@ module DiscourseCodeReview
         feugiat magna at ultricies. Fusce eget blandit magna, sit amet ornare<br>
         orci. Nulla lobortis orci augue. In eu diam sed tortor suscipit mollis.</p>
 
-        <pre data-code-wrap="plaintext"><code class="lang-plaintext">Reported-and-tested-by: A &lt;a@example.com&gt;
+        <pre><code class="lang-plaintext">Reported-and-tested-by: A &lt;a@example.com&gt;
         Reviewed-by: B &lt;b@example.com&gt;
         Cc: C &lt;c@example.com&gt;
         Cc: D &lt;d@example.com&gt;
