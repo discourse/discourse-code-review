@@ -3,7 +3,7 @@ import { LinkTo } from "@ember/routing";
 import { classNames, tagName } from "@ember-decorators/component";
 import { i18n } from "discourse-i18n";
 
-@tagName("")
+@tagName("li")
 @classNames("user-activity-bottom-outlet", "approval-pending-button")
 export default class ApprovalPendingButton extends Component {
   <template>
