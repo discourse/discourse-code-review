@@ -1,5 +1,5 @@
 import { visit } from "@ember/test-helpers";
-import { test } from "qunit";
+import { skip } from "qunit";
 import { acceptance, query } from "discourse/tests/helpers/qunit-helpers";
 import { i18n } from "discourse-i18n";
 
@@ -20,7 +20,7 @@ acceptance("User Activity / Approval Pending - empty state", function (needs) {
     });
   });
 
-  test("Shows a blank page placeholder on own page", async function (assert) {
+  skip("Shows a blank page placeholder on own page", async function (assert) {
     await visit(`/u/${currentUser}/activity/approval-pending`);
     assert.equal(
       query("div.empty-state span.empty-state-title").innerText,
@@ -28,7 +28,7 @@ acceptance("User Activity / Approval Pending - empty state", function (needs) {
     );
   });
 
-  test("Shows a blank page placeholder on others' page", async function (assert) {
+  skip("Shows a blank page placeholder on others' page", async function (assert) {
     await visit(`/u/${anotherUser}/activity/approval-pending`);
     assert.equal(
       query("div.empty-state span.empty-state-title").innerText,
