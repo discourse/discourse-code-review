@@ -23,7 +23,7 @@ acceptance("User Activity / Approval Pending - empty state", function (needs) {
   test("Shows a blank page placeholder on own page", async function (assert) {
     await visit(`/u/${currentUser}/activity/approval-pending`);
     assert.equal(
-      query(".empty-state .empty-state-title").innerText,
+      query(".empty-state .empty-state__title").innerText,
       i18n("code_review.approval_pending_empty_state_title")
     );
   });
@@ -31,7 +31,7 @@ acceptance("User Activity / Approval Pending - empty state", function (needs) {
   test("Shows a blank page placeholder on others' page", async function (assert) {
     await visit(`/u/${anotherUser}/activity/approval-pending`);
     assert.equal(
-      query(".empty-state .empty-state-title").innerText,
+      query(".empty-state .empty-state__title").innerText,
       i18n("code_review.approval_pending_empty_state_title_others", {
         username: anotherUser,
       })
