@@ -1,5 +1,5 @@
 import { visit } from "@ember/test-helpers";
-import { test } from "qunit";
+import { skip } from "qunit";
 import { acceptance, query } from "discourse/tests/helpers/qunit-helpers";
 import { i18n } from "discourse-i18n";
 
@@ -20,9 +20,9 @@ acceptance("User Activity / Approval Given - empty state", function (needs) {
     });
   });
 
-  /* disabled temporarily for core updates https://github.com/discourse/discourse/pull/33455 
+  /* disabled temporarily for core updates https://github.com/discourse/discourse/pull/33455 */
 
-  test("Shows a blank page placeholder on own page", async function (assert) {
+  skip("Shows a blank page placeholder on own page", async function (assert) {
     await visit(`/u/${currentUser}/activity/approval-given`);
     assert.equal(
       query("div.empty-state span.empty-state-title").innerText,
@@ -30,7 +30,7 @@ acceptance("User Activity / Approval Given - empty state", function (needs) {
     );
   });
 
-  test("Shows a blank page placeholder on others' page", async function (assert) {
+  skip("Shows a blank page placeholder on others' page", async function (assert) {
     await visit(`/u/${anotherUser}/activity/approval-given`);
     assert.equal(
       query("div.empty-state span.empty-state-title").innerText,
@@ -39,5 +39,4 @@ acceptance("User Activity / Approval Given - empty state", function (needs) {
       })
     );
   });
-  */
 });
