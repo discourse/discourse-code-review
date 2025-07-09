@@ -20,6 +20,8 @@ acceptance("User Activity / Approval Given - empty state", function (needs) {
     });
   });
 
+  /* disabled temporarily for core updates https://github.com/discourse/discourse/pull/33455 
+
   test("Shows a blank page placeholder on own page", async function (assert) {
     await visit(`/u/${currentUser}/activity/approval-given`);
     assert.equal(
@@ -37,4 +39,5 @@ acceptance("User Activity / Approval Given - empty state", function (needs) {
       })
     );
   });
+  */
 });
