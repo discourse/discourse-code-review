@@ -35,35 +35,40 @@ module DiscourseCodeReview
           User.find_by_email(email)
         end
 
-      user ||=
-        begin
+      if SiteSetting.enable_staged_users
+        user ||=
           User.create!(
             email: email,
             username: resolve_username(github_login, name, email),
             name: name.presence || User.suggest_name(email),
             staged: true,
           )
+      else
+        user ||= Discourse.system_user
+      end
+
+      if user != Discourse.system_user
+        if github_login
+          rel = UserCustomField.where(name: GITHUB_LOGIN, value: github_login)
+          existing = rel.pluck(:user_id)
+
+          if existing != [user.id]
+            rel.destroy_all
+            UserCustomField.create!(name: GITHUB_LOGIN, value: github_login, user_id: user.id)
+          end
         end
 
-      if github_login
-        rel = UserCustomField.where(name: GITHUB_LOGIN, value: github_login)
-        existing = rel.pluck(:user_id)
+        if github_id
+          rel = UserCustomField.where(name: GITHUB_ID, value: github_id)
+          existing = rel.pluck(:user_id)
 
-        if existing != [user.id]
-          rel.destroy_all
-          UserCustomField.create!(name: GITHUB_LOGIN, value: github_login, user_id: user.id)
+          if existing != [user.id]
+            rel.destroy_all
+            UserCustomField.create!(name: GITHUB_ID, value: github_id, user_id: user.id)
+          end
         end
       end
 
-      if github_id
-        rel = UserCustomField.where(name: GITHUB_ID, value: github_id)
-        existing = rel.pluck(:user_id)
-
-        if existing != [user.id]
-          rel.destroy_all
-          UserCustomField.create!(name: GITHUB_ID, value: github_id, user_id: user.id)
-        end
-      end
       user
     end
 
