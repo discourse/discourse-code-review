@@ -164,7 +164,7 @@ describe DiscourseCodeReview::GithubPRSyncer do
     end
 
     context "when the events contain an commit comment" do
-      fab!(:commit_topic) { Fabricate(:topic) }
+      fab!(:commit_topic, :topic)
 
       let!(:commit_thread_started_event) do
         DiscourseCodeReview::PullRequestEvent.create(:commit_thread_started, commit_sha: "deadbeef")
