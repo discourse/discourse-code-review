@@ -30,7 +30,7 @@ module DiscourseCodeReview
           email: "re@gis.com",
           github_login: "regis",
           github_id: "123",
-          date: 10.day.ago,
+          date: 10.days.ago,
           diff: "```\nwith a diff",
           hash: "1cd4e0bec9ebd50f353a52b9c197f713c0e1f422",
         }

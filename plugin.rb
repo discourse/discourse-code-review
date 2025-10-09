@@ -287,7 +287,7 @@ after_initialize do
       render json: {
                errors: [I18n.t("approval_list.user_not_found", username: params[:username])],
              },
-             status: 404
+             status: :not_found
     else
       respond_with_list(
         TopicQuery.new(current_user, tags: [SiteSetting.code_review_approved_tag]).list_topics_by(
@@ -303,7 +303,7 @@ after_initialize do
       render json: {
                errors: [I18n.t("approval_list.user_not_found", username: params[:username])],
              },
-             status: 404
+             status: :not_found
     else
       respond_with_list(
         TopicQuery.new(current_user, tags: [SiteSetting.code_review_pending_tag]).list_topics_by(

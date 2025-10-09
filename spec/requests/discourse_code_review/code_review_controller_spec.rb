@@ -446,14 +446,14 @@ describe DiscourseCodeReview::CodeReviewController do
             raw: "this is a read commit",
             user: other_user,
             tags: ["hi", SiteSetting.code_review_pending_tag],
-            created_at: Time.zone.now + 1.hour,
+            created_at: 1.hour.from_now,
           )
         unread_commit =
           create_post(
             raw: "this is an unread commit",
             user: other_user,
             tags: ["hi", SiteSetting.code_review_pending_tag],
-            created_at: Time.zone.now + 2.hours,
+            created_at: 2.hours.from_now,
           )
         TopicUser.create!(
           topic: read_commit.topic,
@@ -480,7 +480,7 @@ describe DiscourseCodeReview::CodeReviewController do
             raw: "this is an unread commit",
             user: other_user,
             tags: ["hi", SiteSetting.code_review_pending_tag],
-            created_at: Time.zone.now + 2.hours,
+            created_at: 2.hours.from_now,
             category: category,
           )
 

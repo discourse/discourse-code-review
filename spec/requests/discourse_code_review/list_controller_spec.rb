@@ -9,7 +9,7 @@ describe ListController do
     DiscourseCodeReview::PullRequest.new(owner: "owner", name: "name", issue_number: 101)
   end
   fab!(:approver) { Fabricate(:user, username: "approver-user") }
-  fab!(:merged_by) { Fabricate(:user) }
+  fab!(:merged_by, :user)
   fab!(:pending_tag) { Fabricate(:tag, name: "pending") }
   fab!(:pending_topic) { Fabricate(:topic, user: user, tags: [pending_tag]) }
 

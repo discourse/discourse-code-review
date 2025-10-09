@@ -218,7 +218,7 @@ describe DiscourseCodeReview do
   end
 
   describe "validating code_review_default_parent_category site setting" do
-    fab!(:parent_category) { Fabricate(:category) }
+    fab!(:parent_category, :category)
     fab!(:child_category) { Fabricate(:category, parent_category: parent_category) }
 
     it "check if code_review_default_parent_category is valid" do

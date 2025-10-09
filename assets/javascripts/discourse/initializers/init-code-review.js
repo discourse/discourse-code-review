@@ -256,6 +256,6 @@ export default {
   name: "discourse-code-review",
 
   initialize() {
-    withPluginApi("0.8.28", initialize);
+    withPluginApi(initialize);
   },
 };

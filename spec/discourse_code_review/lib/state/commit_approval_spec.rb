@@ -8,8 +8,8 @@ module DiscourseCodeReview
     fab!(:pr) do
       DiscourseCodeReview::PullRequest.new(owner: "owner", name: "name", issue_number: 101)
     end
-    fab!(:approver) { Fabricate(:user) }
-    fab!(:merged_by) { Fabricate(:user) }
+    fab!(:approver, :user)
+    fab!(:merged_by, :user)
 
     describe "#ensure_pr_merge_info_post" do
       it "does not consider duplicate approvers" do

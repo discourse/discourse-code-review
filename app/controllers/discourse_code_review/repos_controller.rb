@@ -15,7 +15,7 @@ module DiscourseCodeReview
                failed_json.merge(
                  error: I18n.t("discourse_code_review.bad_github_credentials_error"),
                ),
-             status: 401
+             status: :unauthorized
     end
 
     def has_configured_webhook
@@ -31,7 +31,7 @@ module DiscourseCodeReview
                failed_json.merge(
                  error: I18n.t("discourse_code_review.bad_github_permissions_error"),
                ),
-             status: 400
+             status: :bad_request
     end
 
     def configure_webhook

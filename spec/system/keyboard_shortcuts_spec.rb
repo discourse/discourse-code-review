@@ -3,7 +3,7 @@
 RSpec.describe "Keyboard shortcuts", type: :system do
   describe "<y>" do
     fab!(:post)
-    fab!(:current_user) { Fabricate(:admin) }
+    fab!(:current_user, :admin)
 
     let(:topic) { post.topic }
     let(:topic_page) { PageObjects::Pages::Topic.new }
