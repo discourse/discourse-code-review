@@ -7,8 +7,9 @@
 # authors: Sam Saffron
 # url: https://github.com/discourse/discourse-code-review
 
-gem "sawyer", "0.9.2"
-gem "octokit", "5.6.1"
+require "sawyer"
+require "octokit"
+
 gem "pqueue", "2.1.0"
 gem "rugged", "1.7.1"
 
