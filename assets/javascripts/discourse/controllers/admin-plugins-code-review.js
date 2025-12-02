@@ -1,37 +1,39 @@
-import { A } from "@ember/array";
+import { tracked } from "@glimmer/tracking";
 import Controller from "@ember/controller";
 import EmberObject, { action } from "@ember/object";
+import { TrackedArray } from "@ember-compat/tracked-built-ins";
 import { Promise } from "rsvp";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
-import discourseComputed from "discourse/lib/decorators";
+import { trackedArray } from "discourse/lib/tracked-tools";
 
 const prefix = "/admin/plugins/code-review";
 
 export default class AdminPluginsCodeReviewController extends Controller {
-  organizations = null;
-  loading = true;
+  @tracked loadError = false;
+  @tracked loading = true;
+  @trackedArray organizations = null;
 
   async loadOrganizations() {
     try {
       let orgNames = await ajax(`${prefix}/organizations.json`);
-      this.set("organizations", A([]));
+      this.organizations = [];
 
       for (const orgName of orgNames) {
         let organization = EmberObject.create({
           name: orgName,
-          repos: A([]),
+          repos: new TrackedArray(),
         });
-        this.organizations.pushObject(organization);
+        this.organizations.push(organization);
       }
 
       await Promise.all(
         this.organizations.map(this.loadOrganizationRepos.bind(this))
       );
     } catch {
-      this.set("organizationReposLoadFailed", true);
+      this.loadError = true;
     } finally {
-      this.set("loading", false);
+      this.loading = false;
     }
   }
 
@@ -47,7 +49,7 @@ export default class AdminPluginsCodeReviewController extends Controller {
           hasConfiguredWebhook: null,
           receivedWebhookState: false,
         });
-        organization.repos.pushObject(repo);
+        organization.repos.push(repo);
       }
 
       // No point continuing doing requests for the webhooks if there
@@ -60,10 +62,10 @@ export default class AdminPluginsCodeReviewController extends Controller {
         )
       );
     } catch (response) {
-      this.set("loadError", true);
+      this.loadError = true;
       popupAjaxError(response);
     } finally {
-      this.set("loading", false);
+      this.loading = false;
     }
   }
 
@@ -80,9 +82,8 @@ export default class AdminPluginsCodeReviewController extends Controller {
     repo.set("hasConfiguredWebhook", response["has_configured_webhook"]);
   }
 
-  @discourseComputed("loadError")
-  configureWebhooksTitle(loadError) {
-    if (!loadError) {
+  get configureWebhooksTitle() {
+    if (!this.loadError) {
       return "";
     }
 
