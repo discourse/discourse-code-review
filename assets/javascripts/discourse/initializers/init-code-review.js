@@ -46,7 +46,7 @@ function initialize(api) {
       }
   );
 
-  api.addSaveableCustomFields({ page: "notifications" });
+  api.addSaveableCustomFields("notifications");
 
   function allowSkip(currentUser, topic, siteSettings) {
     return allowApprove(currentUser, topic, siteSettings);
