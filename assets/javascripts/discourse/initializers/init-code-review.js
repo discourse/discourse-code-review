@@ -46,16 +46,7 @@ function initialize(api) {
       }
   );
 
-  api.modifyClass(
-    "controller:preferences/notifications",
-    (Superclass) =>
-      class extends Superclass {
-        init() {
-          super.init(...arguments);
-          this.saveAttrNames.push("custom_fields");
-        }
-      }
-  );
+  api.addSaveableCustomFields("notifications");
 
   function allowSkip(currentUser, topic, siteSettings) {
     return allowApprove(currentUser, topic, siteSettings);
