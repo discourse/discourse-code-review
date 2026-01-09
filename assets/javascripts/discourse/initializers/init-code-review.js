@@ -52,6 +52,10 @@ function initialize(api) {
     return allowApprove(currentUser, topic, siteSettings);
   }
 
+  function getTagNames(topic) {
+    return (topic.tags || []).map((t) => (typeof t === "string" ? t : t.name));
+  }
+
   function allowApprove(currentUser, topic, siteSettings) {
     if (!currentUser) {
       return false;
@@ -61,12 +65,12 @@ function initialize(api) {
     const approvedTag = siteSettings.code_review_approved_tag;
     const pendingTag = siteSettings.code_review_pending_tag;
     const followupTag = siteSettings.code_review_followup_tag;
-    const tags = topic.tags || [];
+    const tagNames = getTagNames(topic);
 
     return (
       (allowSelfApprove || currentUser.id !== topic.user_id) &&
-      !tags.includes(approvedTag) &&
-      (tags.includes(pendingTag) || tags.includes(followupTag))
+      !tagNames.includes(approvedTag) &&
+      (tagNames.includes(pendingTag) || tagNames.includes(followupTag))
     );
   }
 
@@ -79,20 +83,20 @@ function initialize(api) {
     const pendingTag = siteSettings.code_review_pending_tag;
     const followupTag = siteSettings.code_review_followup_tag;
 
-    const tags = topic.tags || [];
+    const tagNames = getTagNames(topic);
 
     return (
-      !tags.includes(followupTag) &&
-      (tags.includes(pendingTag) || tags.includes(approvedTag))
+      !tagNames.includes(followupTag) &&
+      (tagNames.includes(pendingTag) || tagNames.includes(approvedTag))
     );
   }
 
   function allowFollowedUpButton(currentUser, topic, siteSettings) {
     const followupTag = siteSettings.code_review_followup_tag;
 
-    const tags = topic.tags || [];
+    const tagNames = getTagNames(topic);
 
-    return currentUser.id === topic.user_id && tags.includes(followupTag);
+    return currentUser.id === topic.user_id && tagNames.includes(followupTag);
   }
 
   api.registerTopicFooterButton({
