@@ -7,7 +7,12 @@
 vi:
   js:
     action_codes:
-      approved: "Đã phê duyệt"
+      approved: "Đã duyệt"
+      followup: "Theo dõi tiếp"
+      followed_up: "Đã theo dõi"
+      merged: "Đã ghép"
+      renamed: "Đã đổi tên"
+      pr_merge_info: "Thông tin ghép PR"
     code_review:
       approve:
         label: "Duyệt"
