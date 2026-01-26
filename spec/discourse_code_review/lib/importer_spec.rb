@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 module DiscourseCodeReview
   describe Importer do
     def first_post_of(topic_id)

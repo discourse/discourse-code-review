@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 module DiscourseCodeReview
   describe GithubRepo do
     def with_tmpdir(&blk)

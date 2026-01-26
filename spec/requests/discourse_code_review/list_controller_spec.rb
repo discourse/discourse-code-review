@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 describe ListController do
   fab!(:user) { Fabricate(:user, username: "t.testeur") }
   fab!(:topic) { Fabricate(:topic, user: user) }

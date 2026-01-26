@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 describe DiscourseCodeReview::GithubPRSyncer do
   it "does nothing if the topic is a PM" do
     pm_post = Fabricate(:post, post_number: 2, topic: Fabricate(:private_message_topic))

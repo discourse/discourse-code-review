@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 class MockGithubPRService
   def initialize(**opts)
     @opts = opts

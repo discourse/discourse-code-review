@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
 require_relative "../helpers/integration"
 
 describe Jobs::CodeReviewSyncCommits, type: :code_review_integration do

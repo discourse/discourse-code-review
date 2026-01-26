@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 module DiscourseCodeReview
   describe State::CommitTopics do
     it "has robust sha detection" do

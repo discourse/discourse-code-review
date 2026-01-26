@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe "Keyboard shortcuts", type: :system do
+RSpec.describe "Keyboard shortcuts" do
   describe "<y>" do
     fab!(:post)
     fab!(:current_user, :admin)

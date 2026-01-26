@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 describe OctokitRateLimitRetryMixin do
   describe "sidekiq_retry_in" do
     class TestJob < ::Jobs::Base

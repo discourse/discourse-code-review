@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 describe Enumerators::FlattenMerge do
   it "should merge a set of enumerators" do
     result = Enumerators::FlattenMerge.new([[0], [1]]) { |a, b| a < b }.to_a
