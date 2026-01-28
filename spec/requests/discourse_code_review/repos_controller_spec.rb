@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 describe DiscourseCodeReview::ReposController do
   before do
     SiteSetting.code_review_enabled = true

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 describe DiscourseCodeReview::GithubUserSyncer do
   describe "#ensure_user" do
     context "when enable_staged_users is enabled" do

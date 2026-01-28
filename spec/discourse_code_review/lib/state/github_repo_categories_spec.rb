@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 describe DiscourseCodeReview::State::GithubRepoCategories do
   it "can create a new category" do
     expect {

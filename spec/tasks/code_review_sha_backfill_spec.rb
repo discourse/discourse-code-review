@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 describe "tasks/code_review_sha_backfill" do
   before do
     Rake::Task.clear
