@@ -5,3 +5,12 @@
 # https://translate.discourse.org/
 
 el:
+  site_settings:
+    code_review_pending_tag: "Ετικέτα για εφαρμογή σε εκκρεμείς υποβολές"
+    code_review_commit_tag: "Ετικέτα για εφαρμογή σε θέματα υποβολής"
+    code_review_allow_self_approval: "Να επιτρέπεται η αυτοέγκριση των υποβολών"
+    code_review_skip_duration_minutes: "Το κουμπί παράλειψης θα παραλείψει την υποβολή για τόσα λεπτά"
+  discourse_code_review:
+    bad_github_credentials_error: "Παρουσιάστηκε κάποιο πρόβλημα με τα διαπιστευτήριά σας στο GitHub. Ελέγξτε τη ρύθμιση ιστότοπου code_review_github_token και δοκιμάστε ξανά."
+  approval_list:
+    user_not_found: "Δεν ήταν δυνατή η εύρεση χρήστη με όνομα χρήστη %{username}"
