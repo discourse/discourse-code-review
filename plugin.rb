@@ -13,7 +13,10 @@ require "octokit"
 gem "pqueue", "2.1.0"
 gem "rugged", "1.7.1"
 
-gem "graphql", "2.0.1" if Rails.env.test?
+if Rails.env.test?
+  gem "fiber-storage", "1.0.1", require: false
+  gem "graphql", "2.5.19"
+end
 
 enabled_site_setting :code_review_enabled
 
