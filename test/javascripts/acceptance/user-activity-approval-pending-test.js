@@ -1,6 +1,6 @@
 import { visit } from "@ember/test-helpers";
 import { test } from "qunit";
-import { acceptance, query } from "discourse/tests/helpers/qunit-helpers";
+import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 import { i18n } from "discourse-i18n";
 
 acceptance("User Activity / Approval Pending - empty state", function (needs) {
@@ -22,16 +22,14 @@ acceptance("User Activity / Approval Pending - empty state", function (needs) {
 
   test("Shows a blank page placeholder on own page", async function (assert) {
     await visit(`/u/${currentUser}/activity/approval-pending`);
-    assert.equal(
-      query(".empty-state .empty-state__title").innerText,
-      i18n("code_review.approval_pending_empty_state_title")
-    );
+    assert
+      .dom(".empty-state .empty-state__title")
+      .hasText(i18n("code_review.approval_pending_empty_state_title"));
   });
 
   test("Shows a blank page placeholder on others' page", async function (assert) {
     await visit(`/u/${anotherUser}/activity/approval-pending`);
-    assert.equal(
-      query(".empty-state .empty-state__title").innerText,
+    assert.dom(".empty-state .empty-state__title").hasText(
       i18n("code_review.approval_pending_empty_state_title_others", {
         username: anotherUser,
       })

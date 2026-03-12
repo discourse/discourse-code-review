@@ -61,14 +61,16 @@ acceptance("Discourse Code Review - Notifications", function (needs) {
       }),
       "notification for a single commit approval has the right content"
     );
-    assert.ok(
-      notifications[0].href.endsWith("/t/osama-s-commit-1/883"),
-      "notification for a single commit approval links to the topic"
-    );
-    assert.ok(
-      notifications[0].querySelector(".d-icon-check"),
-      "notification for a single commit approval has the right icon"
-    );
+    assert
+      .dom(notifications[0])
+      .hasAttribute(
+        "href",
+        /\/t\/osama-s-commit-1\/883$/,
+        "notification for a single commit approval links to the topic"
+      );
+    assert
+      .dom(".d-icon-check", notifications[0])
+      .exists("notification for a single commit approval has the right icon");
 
     assert.strictEqual(
       notifications[1].textContent.replaceAll(/\s+/g, " ").trim(),
@@ -77,13 +79,15 @@ acceptance("Discourse Code Review - Notifications", function (needs) {
       }),
       "notification for multiple commits approval has the right content"
     );
-    assert.ok(
-      notifications[1].href.endsWith("/u/eviltrout/activity/approval-given"),
-      "notification for multiple commits approval links to the user approval-given page"
-    );
-    assert.ok(
-      notifications[1].querySelector(".d-icon-check"),
-      "notification for multiple commits approval has the right icon"
-    );
+    assert
+      .dom(notifications[1])
+      .hasAttribute(
+        "href",
+        /\/u\/eviltrout\/activity\/approval-given$/,
+        "notification for multiple commits approval links to the user approval-given page"
+      );
+    assert
+      .dom(".d-icon-check", notifications[1])
+      .exists("notification for multiple commits approval has the right icon");
   });
 });
