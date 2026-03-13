@@ -4,7 +4,6 @@ import { cloneJSON } from "discourse/lib/object";
 import topicFixtures from "discourse/tests/fixtures/topic";
 import {
   acceptance,
-  exists,
   updateCurrentUser,
 } from "discourse/tests/helpers/qunit-helpers";
 
@@ -29,7 +28,7 @@ acceptance("review desktop", function (needs) {
   test("shows approve button by default", async (assert) => {
     await visit("/t/internationalization-localization/281");
 
-    assert.ok(exists("#topic-footer-button-approve"));
+    assert.dom("#topic-footer-button-approve").exists();
   });
 
   test("hides approve button if user is self", async (assert) => {
@@ -37,6 +36,6 @@ acceptance("review desktop", function (needs) {
 
     await visit("/t/this-is-a-test-topic/9/1");
 
-    assert.notOk(exists("#topic-footer-button-approve"));
+    assert.dom("#topic-footer-button-approve").doesNotExist();
   });
 });

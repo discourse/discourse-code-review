@@ -1,11 +1,6 @@
 import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
-import {
-  acceptance,
-  count,
-  exists,
-  query,
-} from "discourse/tests/helpers/qunit-helpers";
+import { acceptance, query } from "discourse/tests/helpers/qunit-helpers";
 
 const restPrefix = "/admin/plugins/code-review";
 
@@ -77,44 +72,39 @@ acceptance("Github Webhook Configuration", function (needs) {
     const tree = query(".code-review-webhook-tree");
     const organizations = tree.querySelectorAll(".code-review-webhook-org");
 
-    assert.equal(organizations.length, 2);
+    assert.strictEqual(organizations.length, 2);
     const [org1, org2] = organizations;
 
-    assert.equal(org1.querySelector("h2").innerText, "org1");
-    assert.equal(org2.querySelector("h2").innerText, "org2");
+    assert.dom("h2", org1).hasText("org1");
+    assert.dom("h2", org2).hasText("org2");
 
     const org1Repos = org1.querySelectorAll(".code-review-webhook-repo");
     const org2Repos = org2.querySelectorAll(".code-review-webhook-repo");
 
-    assert.equal(org1Repos.length, 1);
-    assert.equal(org2Repos.length, 2);
+    assert.strictEqual(org1Repos.length, 1);
+    assert.strictEqual(org2Repos.length, 2);
 
     const repo1 = org1Repos[0];
     const [repo2, repo3] = org2Repos;
 
-    assert.equal(repo1.querySelector("h3").innerText, "repo1");
-    assert.equal(repo2.querySelector("h3").innerText, "repo2");
-    assert.equal(repo3.querySelector("h3").innerText, "repo3");
+    assert.dom("h3", repo1).hasText("repo1");
+    assert.dom("h3", repo2).hasText("repo2");
+    assert.dom("h3", repo3).hasText("repo3");
 
-    assert.equal(
-      repo1.querySelectorAll(".code-review-webhook-not-configured").length,
-      1
-    );
-    assert.equal(
-      repo2.querySelectorAll(".code-review-webhook-configured").length,
-      1
-    );
-    assert.equal(
-      repo3.querySelectorAll(".code-review-webhook-not-configured").length,
-      1
-    );
+    assert
+      .dom(".code-review-webhook-not-configured", repo1)
+      .exists({ count: 1 });
+    assert.dom(".code-review-webhook-configured", repo2).exists({ count: 1 });
+    assert
+      .dom(".code-review-webhook-not-configured", repo3)
+      .exists({ count: 1 });
   });
 
   test("Should send requests to change each unconfigured webhook", async (assert) => {
     await visit("/admin/plugins/code-review");
     await click(".code-review-configure-webhooks-button");
 
-    assert.equal(count(".code-review-webhook-configured"), 3);
+    assert.dom(".code-review-webhook-configured").exists({ count: 3 });
   });
 });
 
@@ -136,9 +126,10 @@ acceptance("GitHub Webhook Configuration - Repo List Error", function (needs) {
 
   test("Should show an error message", async (assert) => {
     await visit("/admin/plugins/code-review");
-    assert.equal(query(".dialog-body").innerText.trim(), "credential error");
+    assert.dom(".dialog-body").hasText("credential error");
+
     await click(".dialog-footer .btn-primary");
-    assert.ok(exists(".code-review-configure-webhooks-button:disabled"));
+    assert.dom(".code-review-configure-webhooks-button:disabled").exists();
   });
 });
 
@@ -169,9 +160,10 @@ acceptance(
 
     test("Should show an error message", async (assert) => {
       await visit("/admin/plugins/code-review");
-      assert.equal(query(".dialog-body").innerText.trim(), "permissions error");
+      assert.dom(".dialog-body").hasText("permissions error");
+
       await click(".dialog-footer .btn-primary");
-      assert.ok(exists(".code-review-configure-webhooks-button:disabled"));
+      assert.dom(".code-review-configure-webhooks-button:disabled").exists();
     });
   }
 );
