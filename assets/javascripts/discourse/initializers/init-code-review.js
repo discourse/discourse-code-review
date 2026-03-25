@@ -1,5 +1,5 @@
 import { computed } from "@ember/object";
-import { htmlSafe } from "@ember/template";
+import { trustHTML } from "@ember/template";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { withPluginApi } from "discourse/lib/plugin-api";
@@ -230,7 +230,7 @@ function initialize(api) {
                 }
               );
             } else {
-              return htmlSafe(
+              return trustHTML(
                 i18n("notifications.code_review.commit_approved.single", {
                   topicTitle: this.notification.fancy_title,
                 })

@@ -1,5 +1,5 @@
 import { fn } from "@ember/helper";
-import { htmlSafe } from "@ember/template";
+import { trustHTML } from "@ember/template";
 import ConditionalLoadingSpinner from "discourse/components/conditional-loading-spinner";
 import DButton from "discourse/components/d-button";
 import icon from "discourse/helpers/d-icon";
@@ -10,7 +10,7 @@ export default <template>
 
   {{#if @controller.organizations}}
     <div class="alert alert-warning">
-      {{htmlSafe (i18n "code_review.configure_webhooks_warning")}}
+      {{trustHTML (i18n "code_review.configure_webhooks_warning")}}
     </div>
 
     <DButton
@@ -21,7 +21,7 @@ export default <template>
       @title={{@controller.configureWebhooksTitle}}
     />
   {{else}}
-    {{htmlSafe (i18n "code_review.no_organizations_configured")}}
+    {{trustHTML (i18n "code_review.no_organizations_configured")}}
   {{/if}}
 
   <ConditionalLoadingSpinner @condition={{@controller.loading}}>
