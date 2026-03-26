@@ -1,18 +1,18 @@
 import { tracked } from "@glimmer/tracking";
 import Controller from "@ember/controller";
 import EmberObject, { action } from "@ember/object";
-import { TrackedArray } from "@ember-compat/tracked-built-ins";
+import { trackedArray } from "@ember/reactive/collections";
 import { Promise } from "rsvp";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
-import { trackedArray } from "discourse/lib/tracked-tools";
+import { autoTrackedArray } from "discourse/lib/tracked-tools";
 
 const prefix = "/admin/plugins/code-review";
 
 export default class AdminPluginsCodeReviewController extends Controller {
   @tracked loadError = false;
   @tracked loading = true;
-  @trackedArray organizations = null;
+  @autoTrackedArray organizations = null;
 
   async loadOrganizations() {
     try {
@@ -22,7 +22,7 @@ export default class AdminPluginsCodeReviewController extends Controller {
       for (const orgName of orgNames) {
         let organization = EmberObject.create({
           name: orgName,
-          repos: new TrackedArray(),
+          repos: trackedArray(),
         });
         this.organizations.push(organization);
       }
