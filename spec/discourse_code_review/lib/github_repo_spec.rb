@@ -17,7 +17,7 @@ module DiscourseCodeReview
     around(:each) do |example|
       with_tmpdir do |checkout_path|
         @checkout_path = checkout_path
-        @origin_path = setup_git_repo({})
+        @origin_path = setup_git_repo(".gitkeep" => "")
 
         DiscourseCodeReview::Source::GitRepo.new(origin_path, checkout_path)
 

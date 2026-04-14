@@ -9,7 +9,7 @@ module RemoteMocks
     end
 
     def make_repo
-      path = setup_git_repo({})
+      path = setup_git_repo(".gitkeep" => "")
       repos << path
       Rugged::Repository.new(path)
     end
