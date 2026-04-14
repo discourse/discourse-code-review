@@ -73,7 +73,7 @@ module DiscourseCodeReview
           )
 
         topic = Topic.find(topic_id)
-        PostDestroyer.new(Discourse.system_user, topic.first_post).destroy
+        PostDestroyer.new(Discourse.system_user, topic.first_post, context: "test setup").destroy
         expect(Topic.find_by(id: topic_id)).to eq(nil)
 
         topic_id =
