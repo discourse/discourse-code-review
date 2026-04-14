@@ -3,7 +3,7 @@
 describe "tasks/code_review_sha_backfill" do
   before do
     Rake::Task.clear
-    Discourse::Application.load_tasks
+    silence_warnings { Discourse::Application.load_tasks }
     DiscourseCodeReview::RakeTasks.define_tasks
   end
 
