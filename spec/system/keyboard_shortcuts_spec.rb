@@ -23,6 +23,8 @@ RSpec.describe "Keyboard shortcuts" do
 
         it "approves the commit" do
           topic_page.visit_topic(topic)
+          expect(page).to have_css("#site-logo")
+
           send_keys("y")
           expect(page).to have_current_path("/")
           expect(tags).to include("approved")
@@ -34,6 +36,8 @@ RSpec.describe "Keyboard shortcuts" do
 
         it "does nothing" do
           topic_page.visit_topic(topic)
+          expect(page).to have_css("#site-logo")
+
           expect { send_keys("y") }.not_to change { topic.reload.tags.pluck(:name) }
           expect(page).to have_current_path("/t/#{topic.slug}/#{topic.id}")
         end
@@ -44,6 +48,8 @@ RSpec.describe "Keyboard shortcuts" do
       it "does nothing" do
         topic_page.visit_topic(topic)
         send_keys("y")
+        expect(page).to have_css("#site-logo")
+
         expect(page).to have_current_path("/t/#{topic.slug}/#{topic.id}")
         expect(tags).not_to include("approved")
       end
