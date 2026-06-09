@@ -3,6 +3,19 @@
 describe DiscourseCodeReview::CodeReviewController do
   fab!(:topic)
 
+  def create_commit_post(**args)
+    tag_names = args[:tags]
+
+    create_post(**args).tap do |post|
+      if tag_names.present?
+        DiscourseTagging.tag_topic_by_names(post.topic, Discourse.system_user.guardian, tag_names)
+        post.topic.reload
+      end
+
+      DiscourseCodeReview::CommitTopic.create!(topic_id: post.topic_id, sha: SecureRandom.hex(20))
+    end
+  end
+
   before_all do
     topic.upsert_custom_fields(DiscourseCodeReview::COMMIT_HASH => "6a5aecee1234")
     DiscourseCodeReview::CommitTopic.create!(topic_id: topic.id, sha: "6a5aecee1234")
@@ -20,6 +33,63 @@ describe DiscourseCodeReview::CodeReviewController do
       sign_in(Fabricate(:user))
       get "/code-review/redirect/6a5aecee"
       expect(response.status).to eq(403)
+    end
+  end
+
+  context "when signed in as a code reviewer" do
+    fab!(:reviewer_group, :group)
+    fab!(:reviewer, :user)
+    fab!(:private_group, :group)
+
+    fab!(:private_category) { Fabricate(:private_category, group: private_group) }
+
+    before do
+      SiteSetting.tagging_enabled = true
+      SiteSetting.code_review_allowed_groups = reviewer_group.id.to_s
+      reviewer_group.add(reviewer)
+
+      sign_in(reviewer)
+    end
+
+    describe ".followed_up" do
+      it "blocks inaccessible commit topics" do
+        author = Fabricate(:admin)
+        commit =
+          create_commit_post(
+            category: private_category,
+            raw: "this is a fake commit",
+            tags: ["hi", SiteSetting.code_review_followup_tag],
+            user: author,
+          )
+        expect(reviewer.guardian.can_see?(commit.topic)).to eq(false)
+
+        post "/code-review/followed_up.json", params: { topic_id: commit.topic_id }
+
+        expect(response.status).to eq(403)
+        expect(response.parsed_body["errors"]).to include(I18n.t("invalid_access"))
+        expect(commit.topic.reload.tags.pluck(:name)).to contain_exactly(
+          "hi",
+          SiteSetting.code_review_followup_tag,
+        )
+      end
+
+      it "blocks other reviewers from completing follow-ups" do
+        commit =
+          create_commit_post(
+            raw: "this is a fake commit",
+            tags: ["hi", SiteSetting.code_review_followup_tag],
+            user: Fabricate(:admin),
+          )
+
+        post "/code-review/followed_up.json", params: { topic_id: commit.topic_id }
+
+        expect(response.status).to eq(403)
+        expect(response.parsed_body["errors"]).to include(I18n.t("invalid_access"))
+        expect(commit.topic.reload.tags.pluck(:name)).to contain_exactly(
+          "hi",
+          SiteSetting.code_review_followup_tag,
+        )
+      end
     end
   end
 
@@ -134,21 +204,21 @@ describe DiscourseCodeReview::CodeReviewController do
     describe ".skip" do
       it "allows users to skip commits" do
         commit1 =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             tags: ["hi", SiteSetting.code_review_pending_tag],
             user: another_admin,
           )
 
         commit2 =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             tags: ["hi", SiteSetting.code_review_pending_tag],
             user: another_admin,
           )
 
         commit3 =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             tags: ["hi", SiteSetting.code_review_pending_tag],
             user: another_admin,
@@ -170,7 +240,7 @@ describe DiscourseCodeReview::CodeReviewController do
         SiteSetting.code_review_allow_self_approval = false
 
         commit =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             user: signed_in_user,
             tags: ["hi", SiteSetting.code_review_pending_tag],
@@ -192,14 +262,14 @@ describe DiscourseCodeReview::CodeReviewController do
         )
 
         commit =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             tags: [SiteSetting.code_review_pending_tag],
             user: admin2,
           )
 
         _muted_commit =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit 2",
             tags: [SiteSetting.code_review_pending_tag],
             category: muted_category.id,
@@ -217,14 +287,14 @@ describe DiscourseCodeReview::CodeReviewController do
         SiteSetting.code_review_allow_self_approval = true
 
         another_commit =
-          create_post(
+          create_commit_post(
             raw: "this is an old commit",
             tags: [SiteSetting.code_review_pending_tag],
             user: Fabricate(:admin, refresh_auto_groups: true),
           )
 
         commit =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             user: signed_in_user,
             tags: ["hi", SiteSetting.code_review_pending_tag],
@@ -246,7 +316,7 @@ describe DiscourseCodeReview::CodeReviewController do
 
       it "does nothing when approving already approved posts" do
         commit =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             tags: ["hi", SiteSetting.code_review_pending_tag],
           )
@@ -261,7 +331,7 @@ describe DiscourseCodeReview::CodeReviewController do
 
       it "allows multiple reviewers to approve a commit" do
         commit =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             tags: ["hi", SiteSetting.code_review_pending_tag],
           )
@@ -280,7 +350,7 @@ describe DiscourseCodeReview::CodeReviewController do
       it "notifies the topic author" do
         author = Fabricate(:user, refresh_auto_groups: true)
         commit =
-          create_post(
+          create_commit_post(
             user: author,
             raw: "this is a fake commit",
             tags: ["hi", SiteSetting.code_review_pending_tag],
@@ -301,13 +371,13 @@ describe DiscourseCodeReview::CodeReviewController do
         author = Fabricate(:user, refresh_auto_groups: true)
 
         commit1 =
-          create_post(
+          create_commit_post(
             user: author,
             raw: "this is a fake commit",
             tags: ["hi", SiteSetting.code_review_pending_tag],
           )
         commit2 =
-          create_post(
+          create_commit_post(
             user: author,
             raw: "this is another fake commit",
             tags: ["hi", SiteSetting.code_review_pending_tag],
@@ -328,7 +398,7 @@ describe DiscourseCodeReview::CodeReviewController do
       it 'doesn\'t disturb tracking users' do
         author = Fabricate(:user, refresh_auto_groups: true)
         commit =
-          create_post(
+          create_commit_post(
             user: author,
             raw: "this is a fake commit",
             tags: ["hi", SiteSetting.code_review_pending_tag],
@@ -364,7 +434,7 @@ describe DiscourseCodeReview::CodeReviewController do
         SiteSetting.assign_enabled = true if defined?(TopicAssigner)
 
         commit =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             user: signed_in_user,
             tags: ["hi", SiteSetting.code_review_approved_tag],
@@ -384,7 +454,7 @@ describe DiscourseCodeReview::CodeReviewController do
       it "gives invalid access when manual follow up is disabled" do
         SiteSetting.code_review_allow_manual_followup = false
         commit =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             tags: ["hi", SiteSetting.code_review_pending_tag],
           )
@@ -394,7 +464,7 @@ describe DiscourseCodeReview::CodeReviewController do
 
       it "does nothing when following-up already followed-up posts" do
         commit =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             tags: ["hi", SiteSetting.code_review_pending_tag],
           )
@@ -414,7 +484,7 @@ describe DiscourseCodeReview::CodeReviewController do
         SiteSetting.assign_enabled = true if defined?(TopicAssigner)
 
         commit =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             user: signed_in_user,
             tags: ["hi", SiteSetting.code_review_followup_tag],
@@ -434,20 +504,20 @@ describe DiscourseCodeReview::CodeReviewController do
 
       it "prefers unread topics over read ones" do
         commit =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             user: other_user,
             tags: ["hi", SiteSetting.code_review_pending_tag],
           )
         read_commit =
-          create_post(
+          create_commit_post(
             raw: "this is a read commit",
             user: other_user,
             tags: ["hi", SiteSetting.code_review_pending_tag],
             created_at: 1.hour.from_now,
           )
         unread_commit =
-          create_post(
+          create_commit_post(
             raw: "this is an unread commit",
             user: other_user,
             tags: ["hi", SiteSetting.code_review_pending_tag],
@@ -467,14 +537,14 @@ describe DiscourseCodeReview::CodeReviewController do
       it "will continue in the same category, even if muted" do
         category = Fabricate(:category)
         commit =
-          create_post(
+          create_commit_post(
             raw: "this is a fake commit",
             user: other_user,
             tags: ["hi", SiteSetting.code_review_pending_tag],
             category: category,
           )
         unread_commit =
-          create_post(
+          create_commit_post(
             raw: "this is an unread commit",
             user: other_user,
             tags: ["hi", SiteSetting.code_review_pending_tag],
@@ -508,7 +578,7 @@ describe DiscourseCodeReview::CodeReviewController do
       author = Fabricate(:admin, refresh_auto_groups: true)
       default_allowed_group.add(author)
       commit =
-        create_post(
+        create_commit_post(
           raw: "this is a fake commit",
           user: author,
           tags: ["hi", SiteSetting.code_review_pending_tag],

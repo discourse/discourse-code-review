@@ -2,12 +2,17 @@
 
 module DiscourseCodeReview
   describe State::CommitApproval do
-    fab!(:topic)
+    fab!(:pending_tag) { Fabricate(:tag, name: SiteSetting.code_review_pending_tag) }
+    fab!(:topic) { Fabricate(:topic, tags: [pending_tag]) }
     fab!(:pr) do
       DiscourseCodeReview::PullRequest.new(owner: "owner", name: "name", issue_number: 101)
     end
-    fab!(:approver, :user)
-    fab!(:merged_by, :user)
+    fab!(:approver, :admin)
+    fab!(:merged_by, :admin)
+
+    before do
+      DiscourseCodeReview::CommitTopic.create!(topic_id: topic.id, sha: SecureRandom.hex(20))
+    end
 
     describe "#ensure_pr_merge_info_post" do
       it "does not consider duplicate approvers" do
@@ -24,11 +29,48 @@ module DiscourseCodeReview
       end
     end
 
+    describe ".followup" do
+      fab!(:reviewer_group, :group)
+      fab!(:actor, :user)
+      fab!(:private_group, :group)
+
+      fab!(:private_category) { Fabricate(:private_category, group: private_group) }
+
+      fab!(:private_topic) do
+        Fabricate(:topic, category: private_category, tags: [pending_tag], user: Fabricate(:admin))
+      end
+
+      before do
+        SiteSetting.code_review_allowed_groups = reviewer_group.id.to_s
+        SiteSetting.tagging_enabled = true
+        reviewer_group.add(actor)
+        DiscourseCodeReview::CommitTopic.create!(
+          topic_id: private_topic.id,
+          sha: SecureRandom.hex(20),
+        )
+      end
+
+      it "requires the actor to see the topic" do
+        expect(actor.guardian.can_see?(private_topic)).to eq(false)
+
+        expect { State::CommitApproval.followup(private_topic, actor) }.to raise_error(
+          Discourse::InvalidAccess,
+        )
+        expect(private_topic.reload.tags.pluck(:name)).to contain_exactly(
+          SiteSetting.code_review_pending_tag,
+        )
+      end
+    end
+
     describe "creates notifications upon approval" do
       before { SiteSetting.code_review_enabled = true }
 
       it "doesn't consolidate notifications if they were created more than 6 hours ago" do
-        second_topic = Fabricate(:topic, user: topic.user)
+        second_topic = Fabricate(:topic, tags: [pending_tag], user: topic.user)
+        DiscourseCodeReview::CommitTopic.create!(
+          topic_id: second_topic.id,
+          sha: SecureRandom.hex(20),
+        )
         second_pr =
           DiscourseCodeReview::PullRequest.new(owner: "owner", name: "name", issue_number: 102)
 
