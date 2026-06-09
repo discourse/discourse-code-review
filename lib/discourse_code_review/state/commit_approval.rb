@@ -85,8 +85,6 @@ module DiscourseCodeReview::State::CommitApproval
     end
 
     def followed_up(followee_topic, follower_topic)
-      ensure_can_auto_followed_up!(followee_topic, follower_topic)
-
       last_post =
         followee_topic.add_moderator_post(
           follower_topic.user,
@@ -146,20 +144,6 @@ module DiscourseCodeReview::State::CommitApproval
       raise Discourse::InvalidAccess if !tags.include?(SiteSetting.code_review_followup_tag)
 
       tags
-    end
-
-    def ensure_can_auto_followed_up!(followee_topic, follower_topic)
-      raise Discourse::InvalidAccess if !follower_topic&.code_review_commit_topic
-
-      tags =
-        ensure_can_review_commit_topic!(
-          followee_topic,
-          follower_topic.user,
-          require_code_reviewer: false,
-        )
-      if !tags.include?(SiteSetting.code_review_approved_tag) && (tags & approvable_tags).empty?
-        raise Discourse::InvalidAccess
-      end
     end
 
     def ensure_can_review_commit_topic!(topic, actor, require_code_reviewer: true)

@@ -18,6 +18,10 @@ RSpec.describe "Keyboard shortcuts" do
       fab!(:approved_tag) { Fabricate(:tag, name: "approved") }
       fab!(:pending_tag) { Fabricate(:tag, name: "pending") }
 
+      before do
+        DiscourseCodeReview::CommitTopic.create!(topic_id: topic.id, sha: SecureRandom.hex(20))
+      end
+
       context "when the commit is not approved" do
         before { topic.tags << pending_tag }
 
