@@ -2,18 +2,20 @@
 
 describe ListController do
   fab!(:user) { Fabricate(:user, username: "t.testeur") }
-  fab!(:topic) { Fabricate(:topic, user: user) }
+  fab!(:pending_tag) { Fabricate(:tag, name: "pending") }
+  fab!(:topic) { Fabricate(:topic, user: user, tags: [pending_tag]) }
   fab!(:pr) do
     DiscourseCodeReview::PullRequest.new(owner: "owner", name: "name", issue_number: 101)
   end
-  fab!(:approver) { Fabricate(:user, username: "approver-user") }
-  fab!(:merged_by, :user)
-  fab!(:pending_tag) { Fabricate(:tag, name: "pending") }
+  fab!(:approver) { Fabricate(:admin, username: "approver-user") }
+  fab!(:merged_by, :admin)
   fab!(:pending_topic) { Fabricate(:topic, user: user, tags: [pending_tag]) }
 
   before do
     SiteSetting.code_review_enabled = true
     sign_in(approver)
+
+    DiscourseCodeReview::CommitTopic.create!(topic_id: topic.id, sha: SecureRandom.hex(20))
 
     DiscourseCodeReview::State::CommitApproval.approve(
       topic,

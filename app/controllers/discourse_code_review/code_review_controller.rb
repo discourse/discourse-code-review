@@ -93,7 +93,7 @@ module DiscourseCodeReview
     end
 
     def skip
-      topic = Topic.find_by(id: params[:topic_id])
+      topic = find_reviewable_commit_topic
 
       State::CommitApproval.skip(topic, current_user)
 
@@ -103,7 +103,7 @@ module DiscourseCodeReview
     def followup
       raise Discourse::InvalidAccess if !SiteSetting.code_review_allow_manual_followup
 
-      topic = Topic.find_by(id: params[:topic_id])
+      topic = find_reviewable_commit_topic
 
       State::CommitApproval.followup(topic, current_user)
 
@@ -113,33 +113,15 @@ module DiscourseCodeReview
     def followed_up
       raise Discourse::InvalidAccess if !SiteSetting.code_review_allow_manual_followup
 
-      topic = Topic.find_by(id: params[:topic_id])
+      topic = find_reviewable_commit_topic
 
-      tags = topic.tags.pluck(:name)
-
-      if tags.include?(SiteSetting.code_review_followup_tag)
-        tags -= [SiteSetting.code_review_approved_tag, SiteSetting.code_review_followup_tag]
-
-        tags << SiteSetting.code_review_pending_tag
-
-        DiscourseTagging.tag_topic_by_names(topic, Guardian.new(current_user), tags)
-
-        topic.add_moderator_post(
-          current_user,
-          nil,
-          bump: false,
-          post_type: Post.types[:small_action],
-          action_code: "followed_up",
-        )
-
-        DiscourseEvent.trigger(:unassign_topic, topic, current_user)
-      end
+      State::CommitApproval.complete_followup(topic, current_user)
 
       render json: success_json
     end
 
     def approve
-      topic = Topic.find_by(id: params[:topic_id])
+      topic = find_reviewable_commit_topic
 
       if !SiteSetting.code_review_allow_self_approval && topic.user_id == current_user.id
         raise Discourse::InvalidAccess
@@ -173,6 +155,14 @@ module DiscourseCodeReview
     end
 
     protected
+
+    def find_reviewable_commit_topic
+      topic = Topic.find_by(id: params[:topic_id])
+      guardian.ensure_can_see!(topic)
+      raise Discourse::InvalidAccess if !topic.code_review_commit_topic
+
+      topic
+    end
 
     def render_next_topic(category_id)
       category_filter_sql = <<~SQL

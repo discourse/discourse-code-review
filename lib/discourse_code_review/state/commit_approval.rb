@@ -6,6 +6,8 @@ module DiscourseCodeReview::State::CommitApproval
 
   class << self
     def skip(topic, user)
+      ensure_can_skip!(topic, user)
+
       if SiteSetting.code_review_skip_duration_minutes > 0
         DiscourseCodeReview::SkippedCodeReview.upsert(
           {
@@ -21,6 +23,8 @@ module DiscourseCodeReview::State::CommitApproval
     end
 
     def approve(topic, approvers, pr: nil, merged_by: nil)
+      approvers.each { |approver| ensure_can_approve!(topic, approver) }
+
       last_post = nil
       approvers.each { |approver| last_post = ensure_approved_post(topic, approver) }
 
@@ -38,14 +42,14 @@ module DiscourseCodeReview::State::CommitApproval
     end
 
     def followup(topic, actor)
-      tags = topic.tags.pluck(:name)
+      tags = ensure_can_followup!(topic, actor)
 
       if !tags.include?(SiteSetting.code_review_followup_tag)
         tags -= [SiteSetting.code_review_approved_tag, SiteSetting.code_review_pending_tag]
 
         tags << SiteSetting.code_review_followup_tag
 
-        DiscourseTagging.tag_topic_by_names(topic, Guardian.new(actor), tags)
+        DiscourseTagging.tag_topic_by_names(topic, actor.guardian, tags)
 
         topic.add_moderator_post(
           actor,
@@ -61,7 +65,28 @@ module DiscourseCodeReview::State::CommitApproval
       end
     end
 
+    def complete_followup(topic, actor)
+      tags = ensure_can_complete_followup!(topic, actor)
+
+      tags -= [SiteSetting.code_review_approved_tag, SiteSetting.code_review_followup_tag]
+      tags << SiteSetting.code_review_pending_tag
+
+      DiscourseTagging.tag_topic_by_names(topic, actor.guardian, tags)
+
+      topic.add_moderator_post(
+        actor,
+        nil,
+        bump: false,
+        post_type: Post.types[:small_action],
+        action_code: "followed_up",
+      )
+
+      DiscourseEvent.trigger(:unassign_topic, topic, actor)
+    end
+
     def followed_up(followee_topic, follower_topic)
+      ensure_can_auto_followed_up!(followee_topic, follower_topic)
+
       last_post =
         followee_topic.add_moderator_post(
           follower_topic.user,
@@ -86,6 +111,72 @@ module DiscourseCodeReview::State::CommitApproval
     end
 
     private
+
+    def ensure_can_skip!(topic, actor)
+      tags = ensure_can_review_commit_topic!(topic, actor)
+      raise Discourse::InvalidAccess if (tags & approvable_tags).empty?
+    end
+
+    def ensure_can_approve!(topic, actor)
+      tags = ensure_can_review_commit_topic!(topic, actor)
+      if !tags.include?(SiteSetting.code_review_approved_tag) && (tags & approvable_tags).empty?
+        raise Discourse::InvalidAccess
+      end
+
+      if !SiteSetting.code_review_allow_self_approval && topic.user_id == actor.id
+        raise Discourse::InvalidAccess
+      end
+    end
+
+    def ensure_can_followup!(topic, actor)
+      tags = ensure_can_review_commit_topic!(topic, actor)
+      if !tags.include?(SiteSetting.code_review_followup_tag) &&
+           (
+             tags & [SiteSetting.code_review_pending_tag, SiteSetting.code_review_approved_tag]
+           ).empty?
+        raise Discourse::InvalidAccess
+      end
+
+      tags
+    end
+
+    def ensure_can_complete_followup!(topic, actor)
+      tags = ensure_can_review_commit_topic!(topic, actor)
+      raise Discourse::InvalidAccess if actor.id != topic.user_id && !actor.staff?
+      raise Discourse::InvalidAccess if !tags.include?(SiteSetting.code_review_followup_tag)
+
+      tags
+    end
+
+    def ensure_can_auto_followed_up!(followee_topic, follower_topic)
+      raise Discourse::InvalidAccess if !follower_topic&.code_review_commit_topic
+
+      tags =
+        ensure_can_review_commit_topic!(
+          followee_topic,
+          follower_topic.user,
+          require_code_reviewer: false,
+        )
+      if !tags.include?(SiteSetting.code_review_approved_tag) && (tags & approvable_tags).empty?
+        raise Discourse::InvalidAccess
+      end
+    end
+
+    def ensure_can_review_commit_topic!(topic, actor, require_code_reviewer: true)
+      raise Discourse::InvalidAccess if !topic || !actor
+      if require_code_reviewer && !actor.admin? && !actor.can_review_code?
+        raise Discourse::InvalidAccess
+      end
+
+      actor.guardian.ensure_can_see!(topic)
+      raise Discourse::InvalidAccess if !topic.code_review_commit_topic
+
+      topic.tags.pluck(:name)
+    end
+
+    def approvable_tags
+      [SiteSetting.code_review_pending_tag, SiteSetting.code_review_followup_tag]
+    end
 
     def ensure_approved_post(topic, approver)
       DistributedMutex.synchronize("code-review:ensure-approved-post:#{topic.id}") do
@@ -121,7 +212,7 @@ module DiscourseCodeReview::State::CommitApproval
 
           tags << SiteSetting.code_review_approved_tag
 
-          DiscourseTagging.tag_topic_by_names(topic, Guardian.new(Discourse.system_user), tags)
+          DiscourseTagging.tag_topic_by_names(topic, Discourse.system_user.guardian, tags)
           already_approved = false
         end
       end
