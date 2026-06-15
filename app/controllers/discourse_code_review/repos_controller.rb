@@ -4,6 +4,7 @@ module DiscourseCodeReview
   class ReposController < ::ApplicationController
     requires_plugin DiscourseCodeReview::PLUGIN_NAME
 
+    before_action :ensure_admin
     before_action :set_organization
     before_action :set_repo, only: %i[has_configured_webhook configure_webhook]
 
