@@ -4,6 +4,15 @@ describe DiscourseCodeReview::ReposController do
   before do
     SiteSetting.code_review_enabled = true
     SiteSetting.code_review_github_webhook_secret = "github webhook secret"
+    SiteSetting.code_review_github_organizations = "org"
+  end
+
+  def github_repositories(*repository_names)
+    repository_names.map do |repository_name|
+      repository = mock
+      repository.stubs(:name).returns(repository_name)
+      repository
+    end
   end
 
   def set_client(client)
@@ -44,6 +53,19 @@ describe DiscourseCodeReview::ReposController do
       get "/admin/plugins/code-review"
 
       expect(response.status).to eq(404)
+    end
+  end
+
+  context "when user is a moderator" do
+    fab!(:moderator)
+
+    before { sign_in(moderator) }
+
+    it "cannot configure webhooks" do
+      post "/admin/plugins/code-review/organizations/org/repos/repo/configure-webhook.json"
+
+      expect(response.status).to eq(403)
+      expect(response.parsed_body["error_type"]).to eq("invalid_access")
     end
   end
 
@@ -89,6 +111,26 @@ describe DiscourseCodeReview::ReposController do
             "error" => I18n.t("discourse_code_review.bad_github_credentials_error"),
             "failed" => "FAILED",
           )
+        end
+      end
+
+      context "when the organization is not configured" do
+        let!(:client) do
+          client = mock
+          client
+            .stubs(:organization_repositories)
+            .with("evil-org")
+            .returns(github_repositories("repo"))
+          client
+        end
+
+        before { set_client(client) }
+
+        it "lists repositories for admins" do
+          get "/admin/plugins/code-review/organizations/evil-org/repos.json"
+
+          expect(response.status).to eq(200)
+          expect(response.parsed_body).to eq(["repo"])
         end
       end
     end
@@ -256,6 +298,30 @@ describe DiscourseCodeReview::ReposController do
     end
 
     describe "#configure_webhook" do
+      context "when the organization is not configured" do
+        let!(:client) do
+          client = mock
+          client.stubs(:hooks).with("evil-org/repo").returns([])
+          client.expects(:create_hook).with(
+            "evil-org/repo",
+            "web",
+            webhook_config,
+            events: webhook_events,
+            active: true,
+          )
+          client
+        end
+
+        before { set_client(client) }
+
+        it "configures webhooks for admins" do
+          post "/admin/plugins/code-review/organizations/evil-org/repos/repo/configure-webhook.json"
+
+          expect(response.status).to eq(200)
+          expect(response.parsed_body).to eq("has_configured_webhook" => true)
+        end
+      end
+
       context "when no existing webhook hits the right url" do
         let!(:client) do
           client = mock
