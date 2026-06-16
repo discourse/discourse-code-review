@@ -91,6 +91,133 @@ describe DiscourseCodeReview::CodeReviewController do
         )
       end
     end
+
+    describe ".approve" do
+      it "does not return an inaccessible private topic as the next topic" do
+        public_commit =
+          create_commit_post(
+            raw: "this is a public commit",
+            tags: [SiteSetting.code_review_pending_tag],
+            user: Fabricate(:admin),
+          )
+        private_commit =
+          create_commit_post(
+            category: private_category,
+            raw: "this is a private commit",
+            tags: [SiteSetting.code_review_pending_tag],
+            user: Fabricate(:admin),
+          )
+        expect(reviewer.guardian.can_see?(private_commit.topic)).to eq(false)
+
+        post "/code-review/approve.json", params: { topic_id: public_commit.topic_id }
+
+        expect(response.status).to eq(200)
+        expect(response.parsed_body["next_topic_url"]).to be_nil
+        expect(response.body).not_to include(private_commit.topic.relative_url)
+      end
+
+      it "still returns the next accessible commit as the next topic" do
+        public_commit =
+          create_commit_post(
+            raw: "this is a public commit",
+            tags: [SiteSetting.code_review_pending_tag],
+            user: Fabricate(:admin),
+          )
+        other_public_commit =
+          create_commit_post(
+            raw: "this is another public commit",
+            tags: [SiteSetting.code_review_pending_tag],
+            user: Fabricate(:admin),
+          )
+
+        post "/code-review/approve.json", params: { topic_id: public_commit.topic_id }
+
+        expect(response.status).to eq(200)
+        expect(response.parsed_body["next_topic_url"]).to eq(other_public_commit.topic.relative_url)
+      end
+
+      it "returns a restricted-category commit the reviewer can access" do
+        private_group.add(reviewer)
+
+        public_commit =
+          create_commit_post(
+            raw: "this is a public commit",
+            tags: [SiteSetting.code_review_pending_tag],
+            user: Fabricate(:admin),
+          )
+        accessible_private_commit =
+          create_commit_post(
+            category: private_category,
+            raw: "this is an accessible private commit",
+            tags: [SiteSetting.code_review_pending_tag],
+            user: Fabricate(:admin),
+          )
+        expect(reviewer.guardian.can_see?(accessible_private_commit.topic)).to eq(true)
+
+        post "/code-review/approve.json", params: { topic_id: public_commit.topic_id }
+
+        expect(response.status).to eq(200)
+        expect(response.parsed_body["next_topic_url"]).to eq(
+          accessible_private_commit.topic.relative_url,
+        )
+      end
+
+      it "skips an inaccessible candidate and returns the next accessible one" do
+        target_category = Fabricate(:category)
+        approve_target =
+          create_commit_post(
+            category: target_category,
+            raw: "this is the approved commit",
+            tags: [SiteSetting.code_review_pending_tag],
+            user: Fabricate(:admin),
+          )
+        accessible_commit =
+          create_commit_post(
+            raw: "this is a public commit",
+            tags: [SiteSetting.code_review_pending_tag],
+            user: Fabricate(:admin),
+          )
+        inaccessible_commit =
+          create_commit_post(
+            category: private_category,
+            raw: "this is an inaccessible commit",
+            tags: [SiteSetting.code_review_pending_tag],
+            user: Fabricate(:admin),
+          )
+        expect(reviewer.guardian.can_see?(inaccessible_commit.topic)).to eq(false)
+
+        post "/code-review/approve.json", params: { topic_id: approve_target.topic_id }
+
+        expect(response.status).to eq(200)
+        expect(response.parsed_body["next_topic_url"]).to eq(accessible_commit.topic.relative_url)
+        expect(response.body).not_to include(inaccessible_commit.topic.relative_url)
+      end
+    end
+
+    describe ".skip" do
+      it "does not leak an inaccessible topic as the next topic" do
+        public_commit =
+          create_commit_post(
+            raw: "this is a public commit",
+            tags: [SiteSetting.code_review_pending_tag],
+            user: Fabricate(:admin),
+          )
+        private_commit =
+          create_commit_post(
+            category: private_category,
+            raw: "this is a private commit",
+            tags: [SiteSetting.code_review_pending_tag],
+            user: Fabricate(:admin),
+          )
+        expect(reviewer.guardian.can_see?(private_commit.topic)).to eq(false)
+
+        post "/code-review/skip.json", params: { topic_id: public_commit.topic_id }
+
+        expect(response.status).to eq(200)
+        expect(response.parsed_body["next_topic_url"]).not_to eq(private_commit.topic.relative_url)
+        expect(response.body).not_to include(private_commit.topic.relative_url)
+      end
+    end
   end
 
   describe "#webhook" do
