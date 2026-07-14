@@ -187,6 +187,9 @@ module DiscourseCodeReview
 
       next_topic =
         Topic
+          .visible
+          .listable_topics
+          .secured(guardian)
           .joins(:tags)
           .joins(
             "LEFT OUTER JOIN topic_users ON (topics.id = topic_users.topic_id AND topic_users.user_id = #{current_user.id})",
